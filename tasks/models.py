@@ -505,7 +505,20 @@ class LogroPeriodo(models.Model):
     materia = models.ForeignKey(Materia, on_delete=models.SET_NULL, null=True, blank=True, related_name='logros_materia', verbose_name='Materia')
     periodo = models.ForeignKey(Periodo, on_delete=models.CASCADE, related_name='logros', verbose_name='Periodo')
     descripcion = models.TextField(verbose_name='Descripción del Logro')
+    
+    # 🔥 INYECCIÓN DE LA NUEVA COLUMNA PARA SUBIDA DE ARCHIVOS DE LOGROS 🔥
+    archivo_adjunto = models.FileField(upload_to='logros_adjuntos/%Y/%m/', null=True, blank=True, verbose_name="Archivo de Planeación")
+    
     fecha_creacion = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de Creación')
+
+    class Meta:
+        verbose_name = "Logro del Periodo"
+        verbose_name_plural = "Logros de los Periodos"
+        unique_together = ('curso', 'periodo', 'docente', 'materia')
+        ordering = ['periodo', '-fecha_creacion']
+
+    def __str__(self):
+        return f"Logro de {self.docente.username} para {self.curso.nombre} en {self.periodo.nombre}"
 
     class Meta:
         verbose_name = "Logro del Periodo"

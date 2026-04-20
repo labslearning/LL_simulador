@@ -870,7 +870,6 @@ def get_description_nota(numero_nota):
         4: 'Sustentación (20%)',
         5: 'Promedio ponderado'
     }.get(numero_nota, f'Nota {numero_nota}')
-##Desde aqui
 @role_required('DOCENTE')
 def subir_notas(request, materia_id):
     # 1. VALIDACIÓN DE ACCESO Y CONTEXTO ACADÉMICO
@@ -1010,6 +1009,31 @@ def subir_notas(request, materia_id):
                         logger.error(f"Error procesando JSON de logros: {e_json}")
 
                 # --------------------------------------------------------------
+                # B.2. RECEPCIÓN DE ARCHIVOS DE LOGROS ADJUNTOS (NUEVO)
+                # --------------------------------------------------------------
+                for periodo in periodos:
+                    archivo_key = f'archivo_logros_{periodo.id}'
+                    
+                    if archivo_key in request.FILES:
+                        archivo_subido = request.FILES[archivo_key]
+                        
+                        # 1. Buscamos el primer logro de este periodo para adjuntarle el documento
+                        # o creamos un registro base si el profesor solo subió el archivo sin escribir nada.
+                        logro_base = LogroPeriodo.objects.filter(
+                            curso=curso, materia=materia, periodo=periodo, docente=request.user
+                        ).first()
+                        
+                        if not logro_base:
+                            logro_base = LogroPeriodo.objects.create(
+                                curso=curso, periodo=periodo, materia=materia,
+                                docente=request.user, descripcion="Ver documento de planeación adjunto."
+                            )
+                        
+                        # 2. Guardamos el archivo
+                        logro_base.archivo_adjunto = archivo_subido
+                        logro_base.save()
+
+                # --------------------------------------------------------------
                 # C. NOTAS DINÁMICAS Y SINCRONIZACIÓN LEGACY (CORE)
                 # --------------------------------------------------------------
                 usuario_sistema, _ = User.objects.get_or_create(username='sistema', defaults={'is_active': False})
@@ -1128,10 +1152,7 @@ def subir_notas(request, materia_id):
             notas_map[n.estudiante_id] = {}
         notas_map[n.estudiante_id][n.definicion.id] = n.valor
 
-    # 2. Recuperar Comentarios (CORREGIDO: SE CAMBIÓ LA COMPRESIÓN POR UN BUCLE)
-    # ---------------------------------------------------------------------------------------
-    # Esto soluciona que solo se viera el último comentario y borrara los anteriores visualmente
-    # ---------------------------------------------------------------------------------------
+    # 2. Recuperar Comentarios
     comentarios = ComentarioDocente.objects.filter(materia=materia, docente=request.user)
     comentarios_map = {}
     for c in comentarios:
@@ -1154,7 +1175,11 @@ def subir_notas(request, materia_id):
     logros_por_periodo = {}
     for l in logros:
         logros_por_periodo.setdefault(l.periodo.id, []).append({
-            'id': l.id, 'descripcion': l.descripcion, 'periodo_id': l.periodo.id
+            'id': l.id, 
+            'descripcion': l.descripcion, 
+            'periodo_id': l.periodo.id,
+            # También pasamos la URL del archivo al frontend si existe
+            'archivo_url': l.archivo_adjunto.url if l.archivo_adjunto else None 
         })
 
     # CONTEXTO FINAL

@@ -29,7 +29,7 @@
         </div>
         
         <div class="card-body p-4">
-            <form method="POST" id="notasForm">
+            <form method="POST" id="notasForm" enctype="multipart/form-data">
                 {% csrf_token %}
                 <input type="hidden" name="logros_json_data" id="logros-json-data">
 
@@ -176,7 +176,21 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+
+                        <div class="mt-4 pt-3 border-top border-warning">
+                            <h6 class="fw-bold text-dark mb-1"><i class="fas fa-file-upload me-2"></i>Opción 2: Adjuntar Archivo de Planeación</h6>
+                            <p class="small text-muted mb-3">Si tienes tus logros en un documento (PDF, Word, Excel), súbelo aquí en lugar de digitarlos uno por uno.</p>
+                            
+                            {% for periodo in periodos %}
+                            <div class="archivo-periodo-container" data-periodo-id="{{ periodo.id }}" style="display:none;">
+                                <div class="input-group shadow-sm">
+                                    <span class="input-group-text bg-warning text-dark border-warning"><i class="fas fa-paperclip"></i></span>
+                                    <input class="form-control border-warning input-archivo-logro" type="file" name="archivo_logros_{{ periodo.id }}" accept=".pdf,.doc,.docx,.xls,.xlsx">
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        </div>
                 </div>
 
                 <div class="table-responsive">
@@ -583,11 +597,22 @@
         function mostrarPeriodoNotas() {
             const periodoId = periodoSelector.value;
             if(!periodoId) return;
-            document.querySelectorAll('.periodo-header, .periodo-cell').forEach(el => el.style.display = 'none');
+            
+            // Ocultar elementos generales
+            document.querySelectorAll('.periodo-header, .periodo-cell, .archivo-periodo-container').forEach(el => el.style.display = 'none');
+            
+            // Mostrar encabezado del periodo
             const header = document.querySelector(`.periodo-header[data-periodo-id="${periodoId}"]`);
             if (header) header.style.display = 'table-header-group';
+            
+            // Mostrar celdas del periodo
             document.querySelectorAll(`.periodo-cell[data-periodo-id="${periodoId}"]`).forEach(cell => {
                 cell.style.display = 'table-cell';
+            });
+
+            // Mostrar el input file específico de este periodo
+            document.querySelectorAll(`.archivo-periodo-container[data-periodo-id="${periodoId}"]`).forEach(container => {
+                container.style.display = 'block';
             });
         }
 
@@ -632,7 +657,6 @@
         const btnAgregarLogro = document.getElementById('btn-agregar-logro');
         const listaLogros = document.getElementById('lista-logros');
         
-        // PARCHEO QUIRÚRGICO ABSOLUTO: Parseo de datos híbrido a prueba de colisiones
         let logrosPorPeriodoData = {};
         try {
             let rawData = "{{ logros_por_periodo|escapejs }}";
@@ -640,14 +664,11 @@
                 rawData = "{}";
             }
             
-            // Transformar valores nativos de Python a JS (Aplica a diccionarios evaluados)
             rawData = rawData.replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null');
 
             try {
-                // Intento 1: Paseo estricto JSON
                 logrosPorPeriodoData = JSON.parse(rawData);
             } catch (e1) {
-                // Intento 2: Evaluación compilada (Sobrevive a estructuras de Python con comillas en conflicto)
                 try {
                     logrosPorPeriodoData = Function('"use strict"; return (' + rawData + ');')();
                 } catch (e2) {
@@ -666,10 +687,8 @@
             logrosPorPeriodoData = {};
         }
         
-        // Inicialización "Lazy" del modal para proteger el hilo de ejecución principal
         let modalLogroBS = null;
 
-        // INYECCIÓN DE SISTEMA DE EDICIÓN EN CALIENTE PARA LOGROS
         window.renderizarLogros = function() {
             const periodoId = periodoSelector.value;
             if(!periodoId) return;
@@ -770,7 +789,6 @@
                 calcularPromedio();
                 renderizarLogros();
             });
-            // Lanzamos el evento inicial para que renderice la pantalla apenas cargue la página
             periodoSelector.dispatchEvent(new Event('change'));
         }
 
@@ -903,8 +921,17 @@
             }
         });
 
-        document.querySelectorAll('#notasForm input, #notasForm textarea').forEach(el => {
-            el.addEventListener('input', () => floatingSaveButton.classList.remove('d-none'));
+        // Activar el botón de guardar ante cualquier cambio en el form (ahora incluyendo select e input file)
+        document.querySelectorAll('#notasForm input, #notasForm textarea, #notasForm select').forEach(el => {
+            if(el.id !== 'periodoSelector') {
+                el.addEventListener('input', () => floatingSaveButton.classList.remove('d-none'));
+                el.addEventListener('change', () => floatingSaveButton.classList.remove('d-none'));
+            }
+        });
+        
+        // Listener extra por seguridad para el input file de logros
+        document.querySelectorAll('.input-archivo-logro').forEach(el => {
+            el.addEventListener('change', () => floatingSaveButton.classList.remove('d-none'));
         });
     });
 </script>
