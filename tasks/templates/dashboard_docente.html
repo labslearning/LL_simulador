@@ -7,504 +7,494 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<div class="container-fluid py-4 dashboard-cyber">
-    <div class="row mb-5">
-        <div class="col-12">
-            <div class="card hero-panel border-0 animate__animated animate__fadeInDown">
-                <div class="card-body p-4 p-md-5 position-relative overflow-hidden">
-                    <div class="cyber-grid"></div>
-                    <div class="glow-orb top-right"></div>
-                    <div class="glow-orb bottom-left accent-purple"></div>
-                    
-                    <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4 position-relative z-index-1">
-                        <div class="text-center text-lg-start mb-2 mb-lg-0">
-                            <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-2">
-                                <div class="status-indicator online me-3"></div>
-                                <span class="text-neon-cyan font-monospace small letter-spacing-2">SISTEMA EN LÍNEA</span>
-                            </div>
-                            <h1 class="text-white fw-bold mb-1 display-5" style="letter-spacing: -1.5px;">
-                                Centro de Mando
-                            </h1>
-                            <p class="text-white-50 lead mb-0 fs-6">
-                                Operador: <span class="text-white fw-bold">{{ docente.get_full_name|default:docente.username }}</span>
-                            </p>
-                        </div>
+<div class="dashboard-nexus py-4">
+    <div class="container-fluid">
+        <div class="row mb-5">
+            <div class="col-12">
+                <div class="nexus-hero-card border-0 animate__animated animate__fadeInDown">
+                    <div class="card-body p-4 p-md-5 position-relative overflow-hidden">
+                        <div class="nexus-grid"></div>
+                        <div class="nexus-flare top-right"></div>
+                        <div class="nexus-flare bottom-left flare-purple"></div>
                         
-                        <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-lg-end gap-4 w-100 w-lg-auto">
-                            <div class="order-2 order-md-1 w-100 w-md-auto text-center border-end-md pe-md-4 border-light-subtle" style="border-color: rgba(255,255,255,0.1) !important;">
-                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-cyber-action w-100 w-md-auto group-hover">
-                                    <div class="d-flex align-items-center justify-content-center">
-                                        <i class="fas fa-brain fs-5 me-2 icon-pulse"></i>
-                                        <span class="fw-bold letter-spacing-1 text-uppercase small">Estrategia Global IA</span>
-                                    </div>
-                                    <div class="btn-glow"></div>
-                                </button>
+                        <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4 position-relative z-index-1">
+                            
+                            <div class="text-center text-lg-start mb-2 mb-lg-0">
+                                <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-3">
+                                    <div class="nexus-status-dot me-2"></div>
+                                    <span class="nexus-text-cyan font-monospace small fw-bold tracking-wider">SISTEMA NEURONAL ACTIVO</span>
+                                </div>
+                                <h1 class="text-white fw-bold mb-1 display-5 tracking-tight">
+                                    Centro de Mando
+                                </h1>
+                                <p class="text-secondary lead mb-0 fs-6">
+                                    Operador Autorizado: <span class="text-white fw-bold">{{ docente.get_full_name|default:docente.username }}</span>
+                                </p>
                             </div>
                             
-                            <div class="d-flex justify-content-center gap-4 order-1 order-md-2 kpi-group">
-                                <div class="kpi-item text-center">
-                                    <div class="kpi-value">{{ total_cursos }}</div>
-                                    <div class="kpi-label">Cursos</div>
-                                </div>
-                                <div class="kpi-divider"></div>
-                                <div class="kpi-item text-center">
-                                    <div class="kpi-value">{{ total_materias }}</div>
-                                    <div class="kpi-label">Materias</div>
-                                </div>
-                                <div class="kpi-divider"></div>
-                                <div class="kpi-item text-center">
-                                    <div class="kpi-value text-neon-purple">{{ total_estudiantes }}</div>
-                                    <div class="kpi-label">Alumnos</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="nav-wrapper mb-5 animate__animated animate__fadeInUp">
-        <ul class="nav nav-pills nav-fill gap-2 p-2 rounded-4 cyber-nav" id="docenteTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active rounded-pill fw-bold" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="true">
-                    <i class="fas fa-layer-group me-2"></i>Escuadrón
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill fw-bold" id="resumen-tab" data-bs-toggle="pill" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="false">
-                    <i class="fas fa-chart-network me-2"></i>Telemetría e IA
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button onclick="activarIADocente('mejoras_docente')" class="nav-link rounded-pill fw-bold ai-trigger">
-                    <i class="fas fa-bolt me-2 text-warning"></i>Mejora Continua
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link rounded-pill fw-bold disabled-nav" id="calendario-tab" data-bs-toggle="pill" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
-                    <i class="fas fa-calendar-alt me-2"></i>Cronograma <span class="badge bg-dark ms-1 small">WIP</span>
-                </button>
-            </li>
-        </ul>
-    </div>
-
-    <div class="tab-content" id="docenteTabContent">
-        
-        <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="cursos-tab">
-            
-            <div class="row mb-5">
-                <div class="col-12">
-                    <div class="card border-0 info-panel shadow-sm animate__animated animate__fadeIn">
-                        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-center text-center text-md-start">
-                            <div class="icon-box-glow me-md-4 mb-3 mb-md-0">
-                                <i class="fas fa-satellite-dish"></i>
-                            </div>
-                            <div class="flex-grow-1 mb-3 mb-md-0">
-                                <h5 class="mb-1 fw-bold text-dark letter-spacing-1">Radar Predictivo Operativo</h5>
-                                <p class="text-secondary mb-0 small">Escaneo neuronal de patrones de rendimiento activo. Detecta anomalías y proyecta intervenciones preventivas.</p>
-                            </div>
-                            <div class="ms-md-auto w-100 w-md-auto">
-                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow btn-hover-lift w-100">
-                                    Ejecutar Diagnóstico
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {% if materias_por_curso %}
-            <div class="row g-4">
-                {% for curso_nombre, data in materias_por_curso.items %}
-                <div class="col-xxl-4 col-lg-6 animate__animated animate__fadeInUp" style="animation-delay: 0.{{ forloop.counter }}s;">
-                    <div class="card h-100 border-0 shadow-hover rounded-4 overflow-hidden course-card neu-card">
-                        
-                        <div class="card-header border-0 py-3 bg-transparent px-4 mt-2">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <span class="badge badge-course rounded-pill fw-bold px-3 py-1">{{ data.materias|length }} Asignaturas</span>
-                                {% if data.curso_obj.director.id == request.user.id %}
-                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill" title="Eres Director de este curso"><i class="fas fa-star"></i> Dir</span>
-                                {% endif %}
-                            </div>
-                            <h4 class="fw-bold text-dark mb-0 letter-spacing-1">
-                                {{ curso_nombre }}
-                            </h4>
-                        </div>
-
-                        <div class="card-body px-4 pb-4 pt-2 d-flex flex-column">
-                            
-                            <button onclick="activarIADocente('analisis_rendimiento_curso', 'Realiza un análisis exhaustivo del rendimiento académico de este curso basado en las notas actuales. Identifica estudiantes en riesgo, patrones de calificaciones y sugiere estrategias pedagógicas concretas.', {curso_id: '{{ data.curso_obj.id }}'})" class="btn btn-outline-primary-cyber rounded-pill fw-bold w-100 mb-4 py-2">
-                                <i class="fas fa-microchip me-2"></i> Analizar Rendimiento
-                            </button>
-
-                            <h6 class="text-muted text-uppercase font-monospace small fw-bold mb-3 d-flex align-items-center">
-                                <i class="fas fa-books me-2 text-primary"></i> Asignaciones
-                            </h6>
-                            <div class="list-group list-group-flush mb-4 flex-grow-1">
-                                {% for materia in data.materias %}
-                                {% if materia and materia.id %}
-                                <div class="list-group-item border-0 px-3 py-3 mb-2 rounded-3 subject-item d-flex justify-content-between align-items-center gap-3">
-                                    <div class="d-flex align-items-center overflow-hidden">
-                                        <div class="subject-icon me-3"><i class="fas fa-book-open"></i></div>
-                                        <div class="text-truncate">
-                                            <h6 class="mb-0 fw-bold text-dark text-truncate">{{ materia.nombre }}</h6>
-                                            <small class="text-muted font-monospace" style="font-size: 0.65rem;">ID: {{ materia.id }}</small>
-                                        </div>
-                                    </div>
-                                    <a href="{% url 'subir_notas' materia.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm btn-action-round" title="Gestionar Notas">
-                                        <i class="fas fa-pen"></i>
-                                    </a>
-                                </div>
-                                {% endif %}
-                                {% endfor %}
-                            </div>
-                            
-                            <div class="student-accordion-wrapper mt-auto">
-                                <a href="#estudiantes-{{ data.curso_obj.id }}" data-bs-toggle="collapse" class="d-flex justify-content-between align-items-center text-dark text-decoration-none p-3 rounded-3 accordion-trigger">
-                                    <span class="fw-bold"><i class="fas fa-users text-success me-2"></i> Ver Escuadrón</span>
-                                    <i class="fas fa-chevron-down text-muted transition-icon"></i>
-                                </a>
+                            <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-lg-end gap-4 w-100 w-lg-auto">
                                 
-                                <div class="collapse" id="estudiantes-{{ data.curso_obj.id }}">
-                                    <div class="p-2 pt-0">
-                                        <div class="list-group list-group-flush custom-scrollbar pe-1 mt-2" style="max-height: 200px; overflow-y: auto;">
-                                            {% for matricula in data.estudiantes %}
-                                            <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-2 py-2 mb-1 rounded bg-transparent hover-bg-light">
-                                                <span class="text-secondary fw-semibold small text-truncate pe-2">
-                                                    {{ matricula.estudiante.get_full_name|default:matricula.estudiante.username }}
-                                                </span>
-                                                <button onclick="activarIADocente('doc_individual', 'Dame un consejo breve para mejorar el rendimiento de este estudiante específico.', {target_user_id: '{{ matricula.estudiante.id }}'})" 
-                                                        class="btn btn-sm btn-light text-primary rounded-circle shadow-sm border ai-mini-btn" 
-                                                        title="Analizar alumno con IA">
-                                                    <i class="fas fa-robot"></i>
-                                                </button>
-                                            </div>
-                                            {% empty %}
-                                            <div class="text-center py-3 text-muted small font-monospace">Sin datos.</div>
-                                            {% endfor %}
-                                        </div>
+                                <div class="order-2 order-md-1 w-100 w-md-auto text-center border-end-md pe-md-4 border-light-subtle">
+                                    <button onclick="activarIADocente('mejoras_docente')" class="btn nexus-btn-primary w-100 w-md-auto">
+                                        <i class="fas fa-brain fs-5 me-2 pulse-icon"></i>
+                                        <span>Estrategia Global IA</span>
+                                    </button>
+                                </div>
+                                
+                                <div class="d-flex justify-content-center gap-4 order-1 order-md-2 nexus-telemetry-box">
+                                    <div class="text-center px-2">
+                                        <div class="telemetry-value">{{ total_cursos }}</div>
+                                        <div class="telemetry-label">Cursos</div>
+                                    </div>
+                                    <div class="telemetry-divider"></div>
+                                    <div class="text-center px-2">
+                                        <div class="telemetry-value">{{ total_materias }}</div>
+                                        <div class="telemetry-label">Materias</div>
+                                    </div>
+                                    <div class="telemetry-divider"></div>
+                                    <div class="text-center px-2">
+                                        <div class="telemetry-value text-nexus-purple">{{ total_estudiantes }}</div>
+                                        <div class="telemetry-label">Alumnos</div>
                                     </div>
                                 </div>
                             </div>
-
-                            {% if data.curso_obj.director.id == request.user.id %}
-                            <a href="{% url 'panel_director_curso' data.curso_obj.id %}" class="btn btn-warning text-dark rounded-pill fw-bold shadow-sm w-100 mt-3 py-2 btn-hover-lift">
-                                <i class="fas fa-shield-alt me-2"></i> Gobierno del Curso
-                            </a>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
-                {% endfor %}
             </div>
-            {% else %}
-            <div class="text-center py-5 glass-panel rounded-4">
-                <div class="empty-state-icon mb-4"><i class="fas fa-folder-open"></i></div>
-                <h3 class="text-dark fw-bold letter-spacing-1">Sin asignaciones operativas</h3>
-                <p class="text-secondary mb-0">El sistema no detecta materias vinculadas a tu perfil en la malla actual.</p>
-            </div>
-            {% endif %}
         </div>
 
-        <div class="tab-pane fade" id="resumen" role="tabpanel">
+        <div class="nexus-nav-wrapper mb-5 animate__animated animate__fadeInUp">
+            <ul class="nav nav-pills nav-fill gap-2 p-2" id="docenteTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="true">
+                        <i class="fas fa-layer-group me-2"></i>Escuadrón Base
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="resumen-tab" data-bs-toggle="pill" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="false">
+                        <i class="fas fa-chart-network me-2"></i>Telemetría e IA
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button onclick="activarIADocente('mejoras_docente')" class="nav-link tab-ai-trigger">
+                        <i class="fas fa-bolt me-2 text-warning"></i>Mejora Continua
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link disabled-tab" id="calendario-tab" data-bs-toggle="pill" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
+                        <i class="fas fa-calendar-alt me-2"></i>Cronograma <span class="badge bg-dark ms-1 small text-secondary">WIP</span>
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="tab-content" id="docenteTabContent">
             
-            <div class="row mb-5 g-4">
-                <div class="col-md-6 animate__animated animate__fadeInLeft">
-                    <div class="card border-0 rounded-4 h-100 overflow-hidden kpi-stat-card danger-theme">
-                        <div class="card-body p-4 d-flex align-items-center">
-                            <div class="stat-icon-wrapper me-4">
-                                <i class="fas fa-exclamation-triangle pulse-animation"></i>
+            <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="cursos-tab">
+                
+                <div class="row mb-5">
+                    <div class="col-12">
+                        <div class="nexus-surface-card border-0 shadow-sm animate__animated animate__fadeIn">
+                            <div class="card-body p-4 d-flex flex-column flex-md-row align-items-center text-center text-md-start">
+                                <div class="nexus-icon-box me-md-4 mb-3 mb-md-0">
+                                    <i class="fas fa-satellite-dish"></i>
+                                </div>
+                                <div class="flex-grow-1 mb-3 mb-md-0">
+                                    <h5 class="mb-1 fw-bold text-white tracking-wide">Radar Predictivo Operativo</h5>
+                                    <p class="text-secondary mb-0 small">Escaneo neuronal de patrones de rendimiento. Detecta anomalías y proyecta intervenciones preventivas al instante.</p>
+                                </div>
+                                <div class="ms-md-auto w-100 w-md-auto">
+                                    <button onclick="activarIADocente('mejoras_docente')" class="btn nexus-btn-outline w-100">
+                                        Ejecutar Escáner
+                                    </button>
+                                </div>
                             </div>
-                            <div>
-                                <h6 class="text-white-50 text-uppercase fw-bold mb-1 letter-spacing-2 font-monospace" style="font-size: 0.75rem;">Riesgo Crítico</h6>
+                        </div>
+                    </div>
+                </div>
+
+                {% if materias_por_curso %}
+                <div class="row g-4">
+                    {% for curso_nombre, data in materias_por_curso.items %}
+                    <div class="col-xxl-4 col-lg-6 animate__animated animate__fadeInUp" style="animation-delay: 0.{{ forloop.counter }}s;">
+                        <div class="nexus-course-card h-100 d-flex flex-column">
+                            
+                            <div class="course-header">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <span class="nexus-badge-glass">{{ data.materias|length }} Asignaturas</span>
+                                    {% if data.curso_obj.director.id == request.user.id %}
+                                        <span class="nexus-badge-warning" title="Eres Director de este curso"><i class="fas fa-star me-1"></i> Dir</span>
+                                    {% endif %}
+                                </div>
+                                <h4 class="fw-bold text-white mb-0 tracking-tight">
+                                    {{ curso_nombre }}
+                                </h4>
+                            </div>
+
+                            <div class="course-body flex-grow-1 d-flex flex-column">
+                                
+                                <button onclick="activarIADocente('analisis_rendimiento_curso', 'Realiza un análisis exhaustivo del rendimiento académico de este curso basado en las notas actuales. Identifica estudiantes en riesgo, patrones de calificaciones y sugiere estrategias pedagógicas concretas.', {curso_id: '{{ data.curso_obj.id }}'})" class="btn nexus-btn-cyan w-100 mb-4">
+                                    <i class="fas fa-microchip me-2"></i> Diagnóstico de Curso
+                                </button>
+
+                                <h6 class="text-secondary font-monospace small fw-bold mb-3 d-flex align-items-center text-uppercase">
+                                    <i class="fas fa-books me-2 nexus-text-cyan"></i> Asignaciones
+                                </h6>
+                                <div class="nexus-list-group mb-4">
+                                    {% for materia in data.materias %}
+                                    {% if materia and materia.id %}
+                                    <div class="nexus-list-item d-flex justify-content-between align-items-center gap-3">
+                                        <div class="d-flex align-items-center overflow-hidden">
+                                            <div class="item-icon"><i class="fas fa-book-open"></i></div>
+                                            <div class="text-truncate">
+                                                <h6 class="mb-0 fw-bold text-white text-truncate">{{ materia.nombre }}</h6>
+                                                <small class="text-secondary font-monospace" style="font-size: 0.65rem;">REF: {{ materia.id }}</small>
+                                            </div>
+                                        </div>
+                                        <a href="{% url 'subir_notas' materia.id %}" class="btn nexus-btn-icon-primary" title="Gestionar Notas">
+                                            <i class="fas fa-pen"></i>
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                    {% endfor %}
+                                </div>
+                                
+                                <div class="nexus-accordion mt-auto">
+                                    <a href="#estudiantes-{{ data.curso_obj.id }}" data-bs-toggle="collapse" class="accordion-trigger d-flex justify-content-between align-items-center">
+                                        <span class="fw-bold text-white"><i class="fas fa-users text-success me-2"></i> Nómina del Escuadrón</span>
+                                        <i class="fas fa-chevron-down text-secondary transition-icon"></i>
+                                    </a>
+                                    
+                                    <div class="collapse" id="estudiantes-{{ data.curso_obj.id }}">
+                                        <div class="accordion-body">
+                                            <div class="nexus-scrollbar" style="max-height: 220px; overflow-y: auto; padding-right: 5px;">
+                                                {% for matricula in data.estudiantes %}
+                                                <div class="student-item d-flex justify-content-between align-items-center">
+                                                    <span class="text-secondary fw-semibold small text-truncate pe-2">
+                                                        {{ matricula.estudiante.get_full_name|default:matricula.estudiante.username }}
+                                                    </span>
+                                                    <button onclick="activarIADocente('doc_individual', 'Dame un consejo breve para mejorar el rendimiento de este estudiante específico.', {target_user_id: '{{ matricula.estudiante.id }}'})" 
+                                                            class="btn nexus-btn-icon-ghost" title="Analizar alumno con IA">
+                                                        <i class="fas fa-robot"></i>
+                                                    </button>
+                                                </div>
+                                                {% empty %}
+                                                <div class="text-center py-3 text-secondary small font-monospace">_VACÍO_</div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if data.curso_obj.director.id == request.user.id %}
+                                <a href="{% url 'panel_director_curso' data.curso_obj.id %}" class="btn nexus-btn-warning w-100 mt-4">
+                                    <i class="fas fa-shield-alt me-2"></i> Gobierno del Curso
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="nexus-empty-state py-5 text-center">
+                    <div class="icon-wrapper mb-4"><i class="fas fa-folder-open"></i></div>
+                    <h3 class="text-white fw-bold tracking-wide">Sin asignaciones operativas</h3>
+                    <p class="text-secondary mb-0">La matriz de datos no detecta asignaturas vinculadas a este operador.</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="tab-pane fade" id="resumen" role="tabpanel">
+                
+                <div class="row mb-5 g-4">
+                    <div class="col-md-6 animate__animated animate__fadeInLeft">
+                        <div class="nexus-kpi-card danger-kpi h-100 d-flex align-items-center">
+                            <div class="kpi-icon-glow">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="ms-4">
+                                <h6 class="text-danger font-monospace small fw-bold mb-1 tracking-wider">RIESGO CRÍTICO</h6>
                                 <h2 class="mb-0 fw-bold display-4 text-white">{{ kpi_reprobados }}</h2>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="col-md-6 animate__animated animate__fadeInRight">
-                    <div class="card border-0 rounded-4 h-100 overflow-hidden kpi-stat-card warning-theme">
-                        <div class="card-body p-4 d-flex align-items-center">
-                            <div class="stat-icon-wrapper me-4">
+                    <div class="col-md-6 animate__animated animate__fadeInRight">
+                        <div class="nexus-kpi-card warning-kpi h-100 d-flex align-items-center">
+                            <div class="kpi-icon-glow">
                                 <i class="fas fa-user-clock"></i>
                             </div>
-                            <div>
-                                <h6 class="text-dark text-opacity-50 text-uppercase fw-bold mb-1 letter-spacing-2 font-monospace" style="font-size: 0.75rem;">Fallas / Retardos</h6>
-                                <h2 class="mb-0 fw-bold display-4 text-dark">{{ kpi_fallas }}</h2>
+                            <div class="ms-4">
+                                <h6 class="text-warning font-monospace small fw-bold mb-1 tracking-wider">FALLAS / RETARDOS</h6>
+                                <h2 class="mb-0 fw-bold display-4 text-white">{{ kpi_fallas }}</h2>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="row g-4 mb-5">
-                
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
-                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
-                            <div class="d-flex align-items-center">
-                                <div class="panel-icon bg-danger-subtle text-danger"><i class="fas fa-radiation"></i></div>
-                                <h5 class="mb-0 fw-bold text-dark ms-3">Alerta Temprana</h5>
+                <div class="row g-4 mb-5">
+                    
+                    <div class="col-lg-4">
+                        <div class="nexus-data-panel h-100 d-flex flex-column">
+                            <div class="panel-header danger d-flex align-items-center">
+                                <div class="header-icon"><i class="fas fa-radiation"></i></div>
+                                <h5 class="mb-0 fw-bold text-white ms-3">Alerta Temprana</h5>
                             </div>
-                        </div>
-                        <div class="card-body p-4">
-                            {% if top_riesgo %}
-                            <div class="custom-list-group">
-                                {% for item in top_riesgo %}
-                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
-                                    <div class="flex-grow-1 overflow-hidden pe-3">
-                                        <h6 class="fw-bold text-dark mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
-                                        <small class="text-muted font-monospace">{{ item.curso }}</small>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="score-badge danger">{{ item.promedio }}</span>
-                                        <a href="{% url 'ai_engine' %}?action=plan_riesgo&target_id={{ item.estudiante.id }}" 
-                                           class="btn btn-action-sm danger" title="Generar contingencia">
-                                            <i class="fas fa-bolt"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="empty-state success text-center py-4">
-                                <i class="fas fa-shield-check fa-3x mb-3"></i>
-                                <h6 class="fw-bold">Malla Segura</h6>
-                                <p class="small text-muted mb-0">Cero amenazas críticas.</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
-                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
-                            <div class="d-flex align-items-center">
-                                <div class="panel-icon bg-success-subtle text-success"><i class="fas fa-crown"></i></div>
-                                <h5 class="mb-0 fw-bold text-dark ms-3">Cuadro de Honor</h5>
-                            </div>
-                        </div>
-                        <div class="card-body p-4">
-                            {% if top_mejores %}
-                            <div class="custom-list-group">
-                                {% for item in top_mejores %}
-                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
-                                    <div class="flex-grow-1 overflow-hidden pe-3">
-                                        <h6 class="fw-bold text-dark mb-0 text-truncate d-flex align-items-center gap-2">
-                                            {% if forloop.first %}<span class="medal gold"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 2 %}<span class="medal silver"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 3 %}<span class="medal bronze"><i class="fas fa-medal"></i></span>{% endif %} 
-                                            <span class="text-truncate">{{ item.estudiante.get_full_name }}</span>
-                                        </h6>
-                                        <small class="text-muted font-monospace ms-4 ps-1">{{ item.curso }}</small>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-3">
-                                        <span class="score-badge success">{{ item.promedio }}</span>
-                                        <a href="{% url 'ai_engine' %}?action=plan_honor&target_id={{ item.estudiante.id }}" 
-                                           class="btn btn-action-sm success" title="Plan de potenciación">
-                                            <i class="fas fa-rocket"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="empty-state neutral text-center py-4">
-                                <i class="fas fa-ghost fa-3x mb-3"></i>
-                                <h6 class="fw-bold">Datos Insuficientes</h6>
-                                <p class="small text-muted mb-0">Esperando consolidación.</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
-                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
-                            <div class="d-flex align-items-center">
-                                <div class="panel-icon bg-warning-subtle text-warning-emphasis"><i class="fas fa-door-open"></i></div>
-                                <h5 class="mb-0 fw-bold text-dark ms-3">Fugas Asistencia</h5>
-                            </div>
-                        </div>
-                        <div class="card-body p-4">
-                            {% if top_ausentismo %}
-                            <div class="custom-list-group">
-                                {% for item in top_ausentismo %}
-                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
-                                    <div class="flex-grow-1 overflow-hidden pe-2">
-                                        <h6 class="fw-bold text-dark mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
-                                        <small class="text-muted font-monospace">{{ item.curso }}</small>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="score-badge warning">{{ item.fallas }}</span>
-                                        <div class="d-flex gap-1">
-                                            <a href="{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ item.estudiante.id }}" class="btn btn-action-sm dark" title="IA Retención"><i class="fas fa-robot"></i></a>
-                                            <button type="button" class="btn btn-action-sm light border" data-bs-toggle="modal" data-bs-target="#modalFallas{{ item.estudiante.id }}" title="Logs"><i class="fas fa-list"></i></button>
+                            <div class="panel-body flex-grow-1">
+                                {% if top_riesgo %}
+                                <div class="nexus-table-wrapper">
+                                    {% for item in top_riesgo %}
+                                    <div class="nexus-data-row d-flex justify-content-between align-items-center">
+                                        <div class="flex-grow-1 overflow-hidden pe-3">
+                                            <h6 class="fw-bold text-white mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
+                                            <small class="text-secondary font-monospace">{{ item.curso }}</small>
                                         </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="nexus-score-badge danger">{{ item.promedio }}</span>
+                                            <a href="{% url 'ai_engine' %}?action=plan_riesgo&target_id={{ item.estudiante.id }}" 
+                                               class="btn nexus-btn-action danger" title="Generar contingencia">
+                                                <i class="fas fa-bolt"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="nexus-empty-mini success text-center py-5">
+                                    <i class="fas fa-shield-check fa-3x mb-3 text-success"></i>
+                                    <h6 class="fw-bold text-white">Malla Segura</h6>
+                                    <p class="small text-secondary mb-0">Cero amenazas críticas detectadas.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
 
-                                        <div class="modal fade" id="modalFallas{{ item.estudiante.id }}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                                <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
-                                                    <div class="modal-header bg-dark text-white border-0 py-3 px-4">
-                                                        <div class="d-flex align-items-center">
-                                                            <i class="fas fa-history text-warning fs-5 me-3"></i>
-                                                            <div>
-                                                                <h6 class="modal-title fw-bold mb-0">Traza de Asistencia</h6>
-                                                                <small class="text-white-50 font-monospace">{{ item.estudiante.get_full_name }}</small>
+                    <div class="col-lg-4">
+                        <div class="nexus-data-panel h-100 d-flex flex-column">
+                            <div class="panel-header success d-flex align-items-center">
+                                <div class="header-icon"><i class="fas fa-crown"></i></div>
+                                <h5 class="mb-0 fw-bold text-white ms-3">Cuadro de Honor</h5>
+                            </div>
+                            <div class="panel-body flex-grow-1">
+                                {% if top_mejores %}
+                                <div class="nexus-table-wrapper">
+                                    {% for item in top_mejores %}
+                                    <div class="nexus-data-row d-flex justify-content-between align-items-center">
+                                        <div class="flex-grow-1 overflow-hidden pe-3">
+                                            <h6 class="fw-bold text-white mb-0 text-truncate d-flex align-items-center gap-2">
+                                                {% if forloop.first %}<span class="nexus-medal gold"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 2 %}<span class="nexus-medal silver"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 3 %}<span class="nexus-medal bronze"><i class="fas fa-medal"></i></span>{% endif %} 
+                                                <span class="text-truncate">{{ item.estudiante.get_full_name }}</span>
+                                            </h6>
+                                            <small class="text-secondary font-monospace ms-4 ps-1">{{ item.curso }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            <span class="nexus-score-badge success">{{ item.promedio }}</span>
+                                            <a href="{% url 'ai_engine' %}?action=plan_honor&target_id={{ item.estudiante.id }}" 
+                                               class="btn nexus-btn-action success" title="Plan de potenciación">
+                                                <i class="fas fa-rocket"></i>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="nexus-empty-mini text-center py-5">
+                                    <i class="fas fa-ghost fa-3x mb-3 text-secondary opacity-50"></i>
+                                    <h6 class="fw-bold text-white">Datos Insuficientes</h6>
+                                    <p class="small text-secondary mb-0">Esperando consolidación de bloques.</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="nexus-data-panel h-100 d-flex flex-column">
+                            <div class="panel-header warning d-flex align-items-center">
+                                <div class="header-icon"><i class="fas fa-door-open"></i></div>
+                                <h5 class="mb-0 fw-bold text-white ms-3">Fugas Asistencia</h5>
+                            </div>
+                            <div class="panel-body flex-grow-1">
+                                {% if top_ausentismo %}
+                                <div class="nexus-table-wrapper">
+                                    {% for item in top_ausentismo %}
+                                    <div class="nexus-data-row d-flex justify-content-between align-items-center">
+                                        <div class="flex-grow-1 overflow-hidden pe-2">
+                                            <h6 class="fw-bold text-white mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
+                                            <small class="text-secondary font-monospace">{{ item.curso }}</small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <span class="nexus-score-badge warning">{{ item.fallas }}</span>
+                                            <div class="d-flex gap-1">
+                                                <a href="{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ item.estudiante.id }}" class="btn nexus-btn-action cyan" title="IA Retención"><i class="fas fa-robot"></i></a>
+                                                <button type="button" class="btn nexus-btn-action ghost" data-bs-toggle="modal" data-bs-target="#modalFallas{{ item.estudiante.id }}" title="Ver Logs"><i class="fas fa-list"></i></button>
+                                            </div>
+
+                                            <div class="modal fade" id="modalFallas{{ item.estudiante.id }}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                                    <div class="modal-content nexus-modal-content border-0 shadow-lg">
+                                                        <div class="modal-header border-bottom border-secondary bg-dark-deep py-3 px-4">
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="fas fa-history text-warning fs-5 me-3"></i>
+                                                                <div>
+                                                                    <h6 class="modal-title fw-bold text-white mb-0">Traza de Asistencia</h6>
+                                                                    <small class="text-neon-cyan font-monospace">{{ item.estudiante.get_full_name }}</small>
+                                                                </div>
                                                             </div>
+                                                            <button type="button" class="btn-close btn-close-white opacity-50" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
-                                                        <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body p-0 bg-light">
-                                                        <div class="table-responsive">
-                                                            <table class="table table-borderless table-hover mb-0 small text-start">
-                                                                <thead class="bg-white border-bottom text-uppercase text-muted font-monospace" style="font-size: 0.7rem;">
-                                                                    <tr>
-                                                                        <th class="ps-4 py-3">Timestamp</th>
-                                                                        <th class="py-3">Asignatura</th>
-                                                                        <th class="py-3">Clasificación</th>
-                                                                    </tr>
-                                                                </thead>
-                                                                <tbody>
-                                                                    {% for asis in item.estudiante.asistencia_set.all|dictsortreversed:"fecha" %}
-                                                                        {% if asis.estado == 'FALLA' or asis.estado == 'TARDE' %}
-                                                                        <tr class="border-bottom border-light-subtle">
-                                                                            <td class="ps-4 py-3 text-nowrap fw-bold text-dark">{{ asis.fecha|date:"d M Y" }}</td>
-                                                                            <td class="py-3 text-secondary">{{ asis.materia.nombre }}</td>
-                                                                            <td class="py-3">
-                                                                                {% if asis.estado == 'FALLA' %}
-                                                                                    <span class="badge bg-danger text-white rounded-pill px-3">Falla</span>
-                                                                                {% else %}
-                                                                                    <span class="badge bg-warning text-dark rounded-pill px-3">Tarde</span>
-                                                                                {% endif %}
-                                                                            </td>
+                                                        <div class="modal-body p-0 bg-dark-deep">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-borderless table-dark mb-0 small text-start">
+                                                                    <thead class="border-bottom border-secondary text-uppercase text-secondary font-monospace" style="font-size: 0.7rem;">
+                                                                        <tr>
+                                                                            <th class="ps-4 py-3">Timestamp</th>
+                                                                            <th class="py-3">Asignatura</th>
+                                                                            <th class="py-3">Clasificación</th>
                                                                         </tr>
-                                                                        {% endif %}
-                                                                    {% empty %}
-                                                                        <tr><td colspan="3" class="text-center py-5 text-muted font-monospace">_Logs_Limpios_</td></tr>
-                                                                    {% endfor %}
-                                                                </tbody>
-                                                            </table>
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer border-0 bg-white p-3">
-                                                        <button type="button" class="btn btn-dark rounded-pill px-5 w-100 fw-bold" data-bs-dismiss="modal">Entendido</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <div class="empty-state primary text-center py-4">
-                                <i class="fas fa-check-double fa-3x mb-3"></i>
-                                <h6 class="fw-bold">Asistencia Óptima</h6>
-                                <p class="small text-muted mb-0">Sin anomalías.</p>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex align-items-center mb-4 mt-5">
-                <div class="title-icon-box bg-dark text-white"><i class="fas fa-network-wired"></i></div>
-                <h3 class="fw-bold text-dark mb-0 ms-3 letter-spacing-1">Topología de Asignaturas</h3>
-            </div>
-            
-            <div class="row">
-                {% if estadisticas_por_materia %}
-                    {% for mat_id, mat_data in estadisticas_por_materia.items %}
-                    <div class="col-12 mb-5 animate__animated animate__fadeInUp">
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
-                            <div class="card-header bg-transparent border-bottom p-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
-                                <div>
-                                    <h4 class="mb-1 fw-bold text-dark letter-spacing-1">
-                                        {{ mat_data.materia_obj.nombre }}
-                                    </h4>
-                                    <small class="text-muted font-monospace">MAT_REF: {{ mat_data.materia_obj.id }}</small>
-                                </div>
-                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm btn-hover-lift w-100 w-sm-auto">
-                                    <i class="fas fa-brain me-2"></i> Ejecutar IA General
-                                </button>
-                            </div>
-                            
-                            <div class="card-body p-4 bg-light">
-                                <div class="row g-4">
-                                    {% for curso_id, curso_data in mat_data.cursos.items %}
-                                    <div class="col-xl-6">
-                                        <div class="card h-100 border-0 shadow-sm rounded-4 inner-course-card">
-                                            <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center">
-                                                <div class="course-avatar me-3">{{ curso_data.curso_obj.seccion }}</div>
-                                                <h5 class="mb-0 fw-bold text-dark">
-                                                    {{ curso_data.curso_obj.get_grado_display }}
-                                                </h5>
-                                            </div>
-                                            <div class="card-body p-4">
-                                                <div class="row g-3">
-                                                    {% for periodo_id, p_stats in curso_data.periodos.items %}
-                                                    <div class="col-12 col-sm-6">
-                                                        <div class="period-stat-box text-center p-3 rounded-3 h-100 d-flex flex-column justify-content-center border hover-lift">
-                                                            <h6 class="text-muted font-monospace small text-uppercase mb-3">{{ p_stats.periodo_obj.nombre }}</h6>
-                                                            
-                                                            {% if p_stats.promedio is not None %}
-                                                                <div class="display-5 fw-bold mb-2 {% if p_stats.promedio < 3.0 %}text-danger{% else %}text-success{% endif %}" style="letter-spacing: -1px;">
-                                                                    {{ p_stats.promedio|floatformat:1 }}
-                                                                </div>
-                                                                <span class="badge bg-light text-dark border rounded-pill px-3">Promedio</span>
-                                                            {% else %}
-                                                                <div class="py-2 opacity-50">
-                                                                    <i class="fas fa-horizontal-rule fa-2x mb-2 text-muted"></i>
-                                                                    <span class="d-block small text-uppercase fw-bold text-muted">En Blanco</span>
-                                                                </div>
-                                                            {% endif %}
-                                                            
-                                                            {% if p_stats.logros %}
-                                                            <div class="mt-auto pt-3 mt-3 border-top text-start">
-                                                                <div class="d-flex align-items-start text-muted">
-                                                                    <i class="fas fa-check-circle text-primary mt-1 me-2 small"></i>
-                                                                    <small class="lh-sm text-truncate-2" title="{{ p_stats.logros.0.descripcion }}">
-                                                                        {{ p_stats.logros.0.descripcion }}
-                                                                    </small>
-                                                                </div>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {% for asis in item.estudiante.asistencia_set.all|dictsortreversed:"fecha" %}
+                                                                            {% if asis.estado == 'FALLA' or asis.estado == 'TARDE' %}
+                                                                            <tr class="border-bottom border-secondary">
+                                                                                <td class="ps-4 py-3 text-nowrap fw-bold text-white">{{ asis.fecha|date:"d M Y" }}</td>
+                                                                                <td class="py-3 text-secondary">{{ asis.materia.nombre }}</td>
+                                                                                <td class="py-3">
+                                                                                    {% if asis.estado == 'FALLA' %}
+                                                                                        <span class="badge bg-danger text-white rounded-pill px-3">Falla</span>
+                                                                                    {% else %}
+                                                                                        <span class="badge bg-warning text-dark rounded-pill px-3">Tarde</span>
+                                                                                    {% endif %}
+                                                                                </td>
+                                                                            </tr>
+                                                                            {% endif %}
+                                                                        {% empty %}
+                                                                            <tr><td colspan="3" class="text-center py-5 text-secondary font-monospace">_Logs_Limpios_</td></tr>
+                                                                        {% endfor %}
+                                                                    </tbody>
+                                                                </table>
                                                             </div>
-                                                            {% endif %}
+                                                        </div>
+                                                        <div class="modal-footer border-0 bg-dark-deep p-3">
+                                                            <button type="button" class="btn nexus-btn-outline w-100 fw-bold" data-bs-dismiss="modal">CERRAR TERMINAL</button>
                                                         </div>
                                                     </div>
-                                                    {% empty %}
-                                                    <div class="col-12"><div class="empty-state border rounded-3 p-4 text-center"><p class="text-muted font-monospace small mb-0">_SIN_PERIODOS_CONFIGURADOS_</p></div></div>
-                                                    {% endfor %} 
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    {% endfor %} 
+                                    {% endfor %}
                                 </div>
+                                {% else %}
+                                <div class="nexus-empty-mini text-center py-5">
+                                    <i class="fas fa-check-double fa-3x mb-3 text-primary opacity-75"></i>
+                                    <h6 class="fw-bold text-white">Asistencia Óptima</h6>
+                                    <p class="small text-secondary mb-0">Sincronización perfecta.</p>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
-                    {% endfor %} 
-                {% else %}
-                    <div class="col-12">
-                        <div class="empty-state-large glass-panel p-5 text-center rounded-4">
-                            <i class="fas fa-database fa-4x text-muted opacity-25 mb-4"></i>
-                            <h3 class="fw-bold text-dark letter-spacing-1">Repositorio Vacío</h3>
-                            <p class="text-secondary lead mb-0">El sistema espera la inyección de calificaciones para compilar la topología.</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+                </div>
 
-        <div class="tab-pane fade" id="calendario" role="tabpanel">
-            <div class="card border-0 shadow-sm p-5 text-center rounded-4 bg-white">
-                <div class="py-5">
-                    <i class="fas fa-satellite text-primary fa-4x mb-4 pulse-animation"></i>
-                    <h3 class="fw-bold text-dark letter-spacing-1">Módulo en Desarrollo</h3>
-                    <p class="text-muted lead">Sincronización temporal en fase de despliegue orbital.</p>
+                <div class="d-flex align-items-center mb-4 mt-5">
+                    <div class="nexus-title-icon"><i class="fas fa-network-wired"></i></div>
+                    <h3 class="fw-bold text-white mb-0 ms-3 tracking-wide">Topología de Asignaturas</h3>
+                </div>
+                
+                <div class="row">
+                    {% if estadisticas_por_materia %}
+                        {% for mat_id, mat_data in estadisticas_por_materia.items %}
+                        <div class="col-12 mb-5 animate__animated animate__fadeInUp">
+                            <div class="nexus-surface-card border-0 rounded-4 overflow-hidden">
+                                <div class="card-header bg-transparent border-bottom border-light-subtle p-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                                    <div>
+                                        <h4 class="mb-1 fw-bold text-white tracking-wide">
+                                            {{ mat_data.materia_obj.nombre }}
+                                        </h4>
+                                        <small class="text-neon-cyan font-monospace">REF_BLOCK: {{ mat_data.materia_obj.id }}</small>
+                                    </div>
+                                    <button onclick="activarIADocente('mejoras_docente')" class="btn nexus-btn-cyan rounded-pill px-4 fw-bold shadow-sm w-100 w-sm-auto">
+                                        <i class="fas fa-brain me-2"></i> Procesar Topología
+                                    </button>
+                                </div>
+                                
+                                <div class="card-body p-4">
+                                    <div class="row g-4">
+                                        {% for curso_id, curso_data in mat_data.cursos.items %}
+                                        <div class="col-xl-6">
+                                            <div class="nexus-inner-card h-100 border-0 rounded-4 d-flex flex-column">
+                                                <div class="card-header bg-transparent border-bottom border-light-subtle py-3 px-4 d-flex align-items-center">
+                                                    <div class="nexus-avatar-course me-3">{{ curso_data.curso_obj.seccion }}</div>
+                                                    <h5 class="mb-0 fw-bold text-white">
+                                                        {{ curso_data.curso_obj.get_grado_display }}
+                                                    </h5>
+                                                </div>
+                                                <div class="card-body p-4 flex-grow-1">
+                                                    <div class="row g-3 h-100">
+                                                        {% for periodo_id, p_stats in curso_data.periodos.items %}
+                                                        <div class="col-12 col-sm-6">
+                                                            <div class="nexus-stat-box text-center p-3 rounded-3 h-100 d-flex flex-column justify-content-center">
+                                                                <h6 class="text-secondary font-monospace small text-uppercase mb-3">{{ p_stats.periodo_obj.nombre }}</h6>
+                                                                
+                                                                {% if p_stats.promedio is not None %}
+                                                                    <div class="display-5 fw-bold mb-2 {% if p_stats.promedio < 3.0 %}text-danger{% else %}text-success{% endif %}" style="letter-spacing: -1px; text-shadow: 0 0 10px rgba(255,255,255,0.1);">
+                                                                        {{ p_stats.promedio|floatformat:1 }}
+                                                                    </div>
+                                                                    <span class="nexus-badge-outline mx-auto">Promedio Global</span>
+                                                                {% else %}
+                                                                    <div class="py-2 opacity-50">
+                                                                        <i class="fas fa-horizontal-rule fa-2x mb-2 text-secondary"></i>
+                                                                        <span class="d-block small text-uppercase fw-bold text-secondary font-monospace">_NULL_</span>
+                                                                    </div>
+                                                                {% endif %}
+                                                                
+                                                                {% if p_stats.logros %}
+                                                                <div class="mt-auto pt-3 mt-3 border-top border-light-subtle text-start">
+                                                                    <div class="d-flex align-items-start text-secondary">
+                                                                        <i class="fas fa-check-circle text-nexus-cyan mt-1 me-2 small"></i>
+                                                                        <small class="lh-sm text-truncate-2" title="{{ p_stats.logros.0.descripcion }}">
+                                                                            {{ p_stats.logros.0.descripcion }}
+                                                                        </small>
+                                                                    </div>
+                                                                </div>
+                                                                {% endif %}
+                                                            </div>
+                                                        </div>
+                                                        {% empty %}
+                                                        <div class="col-12"><div class="nexus-empty-mini border rounded-3 p-4 text-center"><p class="text-secondary font-monospace small mb-0">_SIN_DATA_ACTIVA_</p></div></div>
+                                                        {% endfor %} 
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endfor %} 
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %} 
+                    {% else %}
+                        <div class="col-12">
+                            <div class="nexus-empty-state p-5 text-center rounded-4">
+                                <i class="fas fa-database fa-4x text-secondary opacity-25 mb-4"></i>
+                                <h3 class="fw-bold text-white tracking-wide">Bloque de Memoria Vacío</h3>
+                                <p class="text-secondary lead mb-0">El sistema espera la inyección de flujos de datos para compilar la topología.</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="calendario" role="tabpanel">
+                <div class="nexus-empty-state py-5 text-center rounded-4">
+                    <div class="py-5">
+                        <i class="fas fa-satellite text-nexus-cyan fa-4x mb-4 pulse-icon"></i>
+                        <h3 class="fw-bold text-white tracking-wide">Módulo Temporal Apagado</h3>
+                        <p class="text-secondary lead">Sincronización de eventos en fase de despliegue orbital.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -513,30 +503,30 @@
 
 <div class="modal fade" id="modalIADocente" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content cyber-modal border-0 shadow-lg">
+        <div class="modal-content nexus-terminal-modal border-0 shadow-lg">
             
-            <div class="modal-header border-bottom border-light-subtle bg-dark-deep text-white py-3 px-4">
+            <div class="modal-header border-bottom border-light-subtle py-3 px-4">
                 <div class="d-flex align-items-center w-100">
-                    <div class="status-dot pulsing me-3"></div>
+                    <div class="nexus-status-dot pulsing me-3"></div>
                     <div class="flex-grow-1">
-                        <h5 class="modal-title fw-bold text-white letter-spacing-2 font-monospace fs-6 mb-0">SYS_COPILOT // OVERRIDE</h5>
-                        <small class="text-neon-cyan font-monospace opacity-75" style="font-size: 0.65rem;">Conexión segura establecida</small>
+                        <h5 class="modal-title fw-bold text-white tracking-wider font-monospace fs-6 mb-0">FENIX_AI // TERMINAL DE COMANDOS</h5>
+                        <small class="text-neon-cyan font-monospace opacity-75" style="font-size: 0.65rem;">Conexión encriptada vía socket TCP</small>
                     </div>
-                    <button type="button" class="btn-close-cyber" data-bs-dismiss="modal" aria-label="Close">
+                    <button type="button" class="nexus-btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <i class="fas fa-times"></i>
                     </button>
                 </div>
             </div>
             
-            <div class="modal-body p-4 custom-scrollbar bg-dark-deep" id="modalBodyIADocente" style="min-height: 400px; max-height: 65vh;">
+            <div class="modal-body p-4 nexus-scrollbar" id="modalBodyIADocente" style="min-height: 400px; max-height: 65vh; background-color: #020617;">
                 </div>
 
-            <div class="modal-footer border-top border-light-subtle bg-dark-deep p-3">
-                <div class="input-group cyber-input-group">
+            <div class="modal-footer border-top border-light-subtle p-3">
+                <div class="input-group nexus-input-group">
                     <span class="input-group-text bg-transparent border-0 text-neon-cyan font-monospace fw-bold ps-3">>_</span>
-                    <input type="text" id="chatInputDocente" class="form-control bg-transparent border-0 text-white font-monospace shadow-none cyber-input" placeholder="Ingresar comando o consulta neuronal...">
-                    <button class="btn btn-cyber-send" onclick="enviarRespuestaChatDocente()">
-                        EJECUTAR <i class="fas fa-level-down-alt fa-rotate-90 ms-1"></i>
+                    <input type="text" id="chatInputDocente" class="form-control bg-transparent border-0 text-white font-monospace shadow-none nexus-input" placeholder="Ingresar directiva neuronal o prompt...">
+                    <button class="btn nexus-btn-send" onclick="enviarRespuestaChatDocente()">
+                        EJECUTAR <i class="fas fa-level-down-alt fa-rotate-90 ms-2"></i>
                     </button>
                 </div>
             </div>
@@ -545,190 +535,314 @@
 </div>
 
 <style>
-    /* --- VARIABLES & PALETA --- */
+    /* --- VARIABLES GLOBALES --- */
     :root {
-        --neon-cyan: #00f3ff;
-        --neon-purple: #b026ff;
-        --dark-deep: #060913;
-        --dark-panel: #0f172a;
-        --card-bg: #ffffff;
-        --glass-bg: rgba(255, 255, 255, 0.85);
+        --nx-bg-core: #09090b;       /* Zinc 950 - Absolute Dark */
+        --nx-surface: #18181b;       /* Zinc 900 - Cards */
+        --nx-surface-light: #27272a; /* Zinc 800 - Inner Cards */
+        --nx-border: rgba(255, 255, 255, 0.08);
+        
+        --nx-cyan: #06b6d4;          /* Cyan 500 */
+        --nx-cyan-glow: rgba(6, 182, 212, 0.5);
+        --nx-purple: #8b5cf6;        /* Violet 500 */
+        --nx-purple-glow: rgba(139, 92, 246, 0.4);
+        
+        --nx-danger: #f43f5e;        /* Rose 500 */
+        --nx-warning: #f59e0b;       /* Amber 500 */
+        --nx-success: #10b981;       /* Emerald 500 */
+        
+        --nx-text-main: #f8fafc;     /* Slate 50 */
+        --nx-text-muted: #94a3b8;    /* Slate 400 */
     }
 
-    /* --- UTILIDADES TEXTO --- */
-    .letter-spacing-1 { letter-spacing: 1px; }
-    .letter-spacing-2 { letter-spacing: 2px; }
-    .text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
-    .text-neon-purple { color: var(--neon-purple); text-shadow: 0 0 10px rgba(176, 38, 255, 0.5); }
-    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    /* Confinar todos los estilos globales para no romper el resto de la app */
+    .dashboard-nexus {
+        background-color: var(--nx-bg-core);
+        color: var(--nx-text-main);
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        min-height: 100vh;
+    }
+    .dashboard-nexus * {
+        border-color: var(--nx-border) !important;
+    }
+
+    /* --- UTILIDADES --- */
+    .tracking-tight { letter-spacing: -0.5px; }
+    .tracking-wide { letter-spacing: 0.5px; }
+    .tracking-wider { letter-spacing: 1.5px; }
+    .text-neon-cyan { color: var(--nx-cyan) !important; text-shadow: 0 0 10px var(--nx-cyan-glow); }
+    .text-nexus-purple { color: var(--nx-purple) !important; text-shadow: 0 0 10px var(--nx-purple-glow); }
+    .text-secondary { color: var(--nx-text-muted) !important; }
+    .border-light-subtle { border-color: var(--nx-border) !important; }
 
     /* --- HERO & BACKGROUNDS --- */
-    .dashboard-cyber { background-color: #f4f7fb; min-height: 100vh; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
-    
-    .hero-panel {
-        background: linear-gradient(135deg, #060913 0%, #1e1b4b 50%, #0f172a 100%);
+    .nexus-hero-card {
+        background: linear-gradient(145deg, #0f172a 0%, #020617 100%);
         border-radius: 24px;
-        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
+        box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 20px 40px rgba(0,0,0,0.5);
+        border: 1px solid var(--nx-border) !important;
     }
     
-    .cyber-grid {
-        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-        background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
-        background-size: 30px 30px; z-index: 0; opacity: 0.5;
+    .nexus-grid {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background-image: linear-gradient(var(--nx-border) 1px, transparent 1px), linear-gradient(90deg, var(--nx-border) 1px, transparent 1px);
+        background-size: 40px 40px; z-index: 0; opacity: 0.3;
     }
     
-    .glow-orb {
-        position: absolute; width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, transparent 70%);
-        border-radius: 50%; z-index: 0; filter: blur(20px);
+    .nexus-flare {
+        position: absolute; width: 500px; height: 500px;
+        background: radial-gradient(circle, var(--nx-cyan-glow) 0%, transparent 60%);
+        border-radius: 50%; z-index: 0; filter: blur(40px); opacity: 0.5;
     }
-    .glow-orb.top-right { top: -100px; right: -100px; }
-    .glow-orb.bottom-left { bottom: -150px; left: -100px; }
-    .glow-orb.accent-purple { background: radial-gradient(circle, rgba(176, 38, 255, 0.15) 0%, transparent 70%); }
+    .nexus-flare.top-right { top: -200px; right: -100px; }
+    .nexus-flare.bottom-left { bottom: -250px; left: -100px; }
+    .nexus-flare.flare-purple { background: radial-gradient(circle, var(--nx-purple-glow) 0%, transparent 60%); }
 
-    /* --- INDICADORES (KPIs Top) --- */
-    .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
-    .status-indicator.online { background-color: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); animation: pulse 2s infinite; }
-    
-    .kpi-group { background: rgba(255,255,255,0.05); padding: 1rem 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
-    .kpi-divider { width: 1px; background: rgba(255,255,255,0.1); margin: 0 0.5rem; }
-    .kpi-value { font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0,243,255,0.3); }
-    .kpi-label { color: rgba(255,255,255,0.6); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.2rem; }
-
-    /* --- BOTONES AI CYBER --- */
-    .btn-cyber-action {
-        position: relative; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-        color: white; border-radius: 50px; padding: 1rem 2rem; overflow: hidden; transition: all 0.3s ease;
+    .nexus-status-dot {
+        width: 8px; height: 8px; border-radius: 50%;
+        background-color: var(--nx-cyan);
+        box-shadow: 0 0 8px var(--nx-cyan);
+        animation: pulse-dot 2s infinite;
     }
-    .btn-cyber-action:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); border-color: var(--neon-cyan); color: var(--neon-cyan); }
-    .btn-glow { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,243,255,0.4) 0%, transparent 50%); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
-    .btn-cyber-action:hover .btn-glow { opacity: 1; }
-    .icon-pulse { animation: pulse 2s infinite; }
 
-    /* --- NAVEGACIÓN (TABS) --- */
-    .nav-wrapper { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
-    .cyber-nav .nav-link { color: #64748b; padding: 1rem 1.5rem; transition: all 0.3s ease; border: 1px solid transparent; }
-    .cyber-nav .nav-link:hover:not(.active):not(.disabled-nav) { background: #f1f5f9; color: #0f172a; }
-    .cyber-nav .nav-link.active { background: #0f172a; color: white !important; box-shadow: 0 10px 20px rgba(15,23,42,0.2); }
-    .ai-trigger { color: #8b5cf6 !important; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2) !important; }
-    .ai-trigger:hover { background: rgba(139, 92, 246, 0.1) !important; box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
-    .disabled-nav { opacity: 0.5; cursor: not-allowed; }
+    /* --- TELEMETRÍA (KPIs Hero) --- */
+    .nexus-telemetry-box {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid var(--nx-border);
+        border-radius: 16px;
+        padding: 1rem 1.5rem;
+        backdrop-filter: blur(10px);
+    }
+    .telemetry-value { font-size: 2rem; font-weight: 800; color: white; line-height: 1; }
+    .telemetry-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; color: var(--nx-text-muted); margin-top: 0.3rem; font-weight: 600; }
+    .telemetry-divider { width: 1px; background-color: var(--nx-border); margin: 0 0.5rem; }
 
-    /* --- TARJETAS & PANELES --- */
-    .neu-card { background: white; border: 1px solid rgba(0,0,0,0.03); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-    .shadow-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; }
-    .badge-course { background: #f1f5f9; color: #475569; font-size: 0.75rem; letter-spacing: 0.5px; }
-    .glass-panel { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+    /* --- BOTONES PRINCIPALES --- */
+    .nexus-btn-primary {
+        background: linear-gradient(135deg, #0ea5e9, #4f46e5);
+        color: white !important;
+        border: none;
+        border-radius: 50px;
+        padding: 0.8rem 1.8rem;
+        font-weight: 700;
+        box-shadow: 0 4px 20px rgba(14, 165, 233, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nexus-btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(14, 165, 233, 0.6), inset 0 1px 0 rgba(255,255,255,0.2);
+    }
+
+    .nexus-btn-cyan {
+        background: rgba(6, 182, 212, 0.1);
+        color: var(--nx-cyan) !important;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+        border-radius: 50px;
+        transition: all 0.3s;
+    }
+    .nexus-btn-cyan:hover {
+        background: var(--nx-cyan);
+        color: var(--nx-bg-core) !important;
+        box-shadow: 0 0 15px var(--nx-cyan-glow);
+    }
+
+    .nexus-btn-outline {
+        background: transparent;
+        color: white !important;
+        border: 1px solid var(--nx-text-muted);
+        border-radius: 50px;
+        padding: 0.6rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .nexus-btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; }
+
+    .nexus-btn-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--nx-warning) !important;
+        border: 1px solid rgba(245, 158, 11, 0.3);
+        border-radius: 50px;
+        transition: all 0.3s;
+    }
+    .nexus-btn-warning:hover { background: var(--nx-warning); color: var(--nx-bg-core) !important; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); }
+
+    /* --- NAVEGACIÓN TABS --- */
+    .nexus-nav-wrapper {
+        background: var(--nx-surface);
+        border: 1px solid var(--nx-border);
+        border-radius: 100px;
+        padding: 0.25rem;
+    }
+    .nav-pills .nav-link {
+        color: var(--nx-text-muted);
+        border-radius: 100px;
+        transition: all 0.3s ease;
+        padding: 0.8rem 1.5rem;
+    }
+    .nav-pills .nav-link:hover:not(.active):not(.disabled-tab) { color: white; background: rgba(255,255,255,0.05); }
+    .nav-pills .nav-link.active {
+        background: var(--nx-surface-light);
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .tab-ai-trigger { color: var(--nx-cyan) !important; }
+    .tab-ai-trigger:hover { background: rgba(6, 182, 212, 0.1) !important; }
+    .disabled-tab { opacity: 0.4; cursor: not-allowed; }
+
+    /* --- TARJETAS Y SUPERFICIES --- */
+    .nexus-surface-card { background: var(--nx-surface); border-radius: 20px; border: 1px solid var(--nx-border) !important; }
+    .nexus-course-card {
+        background: var(--nx-surface);
+        border-radius: 24px;
+        border: 1px solid var(--nx-border) !important;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .nexus-course-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.15) !important; }
+    .nexus-inner-card { background: var(--nx-surface-light); border: 1px solid var(--nx-border) !important; }
     
-    .info-panel { background: linear-gradient(120deg, #ffffff 0%, #f8fafc 100%); border-radius: 20px; }
-    .icon-box-glow { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(37,99,235,0.3); }
+    .nexus-icon-box {
+        width: 56px; height: 56px; border-radius: 16px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(139, 92, 246, 0.2));
+        border: 1px solid rgba(255,255,255,0.1);
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.5rem; color: var(--nx-cyan);
+    }
 
-    /* Listas y Botones interiores */
-    .subject-item { background: #f8fafc; border: 1px solid transparent; transition: 0.2s; }
-    .subject-item:hover { background: white; border-color: #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transform: translateX(5px); }
-    .subject-icon { width: 35px; height: 35px; border-radius: 10px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; }
-    .btn-action-round { width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
-    .btn-action-round:hover { transform: scale(1.1) rotate(5deg); }
+    .nexus-title-icon {
+        width: 40px; height: 40px; border-radius: 12px;
+        background: var(--nx-surface); border: 1px solid var(--nx-border);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--nx-cyan);
+    }
+
+    /* --- BADGES & TAGS --- */
+    .nexus-badge-glass {
+        background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1);
+        color: white; border-radius: 50px; padding: 0.3rem 0.8rem; font-size: 0.75rem; font-weight: 600;
+    }
+    .nexus-badge-warning {
+        background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2);
+        color: var(--nx-warning); border-radius: 50px; padding: 0.3rem 0.8rem; font-size: 0.75rem; font-weight: 700;
+    }
+    .nexus-badge-outline {
+        border: 1px solid var(--nx-border); color: var(--nx-text-muted);
+        border-radius: 50px; padding: 0.2rem 0.6rem; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px;
+    }
+
+    /* --- LISTAS & ACORDEONES --- */
+    .nexus-list-item {
+        background: var(--nx-surface-light);
+        border: 1px solid var(--nx-border);
+        border-radius: 12px; padding: 1rem;
+        transition: 0.2s;
+    }
+    .nexus-list-item:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); }
     
-    .btn-outline-primary-cyber { color: #2563eb; border: 2px solid #bfdbfe; background: transparent; transition: 0.3s; }
-    .btn-outline-primary-cyber:hover { background: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
-    .btn-hover-lift { transition: transform 0.2s; }
-    .btn-hover-lift:hover { transform: translateY(-2px); }
+    .item-icon { width: 32px; height: 32px; border-radius: 8px; background: rgba(0,0,0,0.3); color: var(--nx-text-muted); display: flex; align-items: center; justify-content: center; }
+    
+    .nexus-btn-icon-primary {
+        width: 36px; height: 36px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
+        background: var(--nx-cyan); color: var(--nx-bg-core) !important; border: none; transition: 0.3s;
+    }
+    .nexus-btn-icon-primary:hover { transform: scale(1.1) rotate(-10deg); box-shadow: 0 0 15px var(--nx-cyan-glow); }
+    
+    .nexus-btn-icon-ghost {
+        width: 32px; height: 32px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center;
+        background: transparent; color: var(--nx-text-muted) !important; border: 1px solid var(--nx-border); transition: 0.2s;
+    }
+    .nexus-btn-icon-ghost:hover { background: var(--nx-purple); color: white !important; border-color: var(--nx-purple); box-shadow: 0 0 10px var(--nx-purple-glow); }
 
-    /* Acordeón Estudiantes */
-    .student-accordion-wrapper { border: 1px solid #e2e8f0; border-radius: 16px; background: #f8fafc; overflow: hidden; }
+    .nexus-accordion {
+        background: var(--nx-surface-light);
+        border: 1px solid var(--nx-border);
+        border-radius: 16px; overflow: hidden;
+    }
     .accordion-trigger { transition: 0.2s; }
-    .accordion-trigger:hover { background: #f1f5f9; }
-    .transition-icon { transition: transform 0.3s ease; }
-    .ai-mini-btn { transition: 0.2s; }
-    .ai-mini-btn:hover { background: #8b5cf6 !important; color: white !important; border-color: #8b5cf6 !important; transform: scale(1.1); }
+    .accordion-trigger:hover { background: rgba(255,255,255,0.02); }
+    .student-item { border-bottom: 1px solid rgba(255,255,255,0.02); padding: 0.75rem 0.5rem; }
+    .student-item:last-child { border-bottom: none; }
 
-    /* --- PESTAÑA MÉTRICAS --- */
-    .kpi-stat-card { position: relative; z-index: 1; }
-    .kpi-stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.8; transition: 0.3s; }
-    .kpi-stat-card:hover::before { opacity: 1; }
-    .kpi-stat-card.danger-theme { background-color: #ef4444; }
-    .kpi-stat-card.danger-theme::before { background: linear-gradient(45deg, #ef4444, #b91c1c); }
-    .kpi-stat-card.warning-theme { background-color: #f59e0b; }
-    .kpi-stat-card.warning-theme::before { background: linear-gradient(45deg, #f59e0b, #d97706); }
-    
-    .stat-icon-wrapper { width: 70px; height: 70px; border-radius: 20px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; backdrop-filter: blur(5px); }
-    .warning-theme .stat-icon-wrapper { background: rgba(0,0,0,0.1); color: #451a03; }
+    /* --- ESTADÍSTICAS & DATA PANELS (Tab Resumen) --- */
+    .nexus-kpi-card {
+        background: var(--nx-surface);
+        border: 1px solid var(--nx-border);
+        border-radius: 24px; padding: 2rem; position: relative; overflow: hidden;
+    }
+    .kpi-icon-glow {
+        width: 64px; height: 64px; border-radius: 16px;
+        display: flex; align-items: center; justify-content: center; font-size: 2rem;
+    }
+    .danger-kpi .kpi-icon-glow { background: rgba(244, 63, 94, 0.1); color: var(--nx-danger); box-shadow: inset 0 0 20px rgba(244, 63, 94, 0.2); }
+    .warning-kpi .kpi-icon-glow { background: rgba(245, 158, 11, 0.1); color: var(--nx-warning); box-shadow: inset 0 0 20px rgba(245, 158, 11, 0.2); }
 
-    .title-icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+    .nexus-data-panel { background: var(--nx-surface); border: 1px solid var(--nx-border); border-radius: 24px; overflow: hidden; }
+    .panel-header { padding: 1.5rem; border-bottom: 1px solid var(--nx-border); }
+    .header-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .panel-header.danger .header-icon { background: rgba(244, 63, 94, 0.1); color: var(--nx-danger); }
+    .panel-header.success .header-icon { background: rgba(16, 185, 129, 0.1); color: var(--nx-success); }
+    .panel-header.warning .header-icon { background: rgba(245, 158, 11, 0.1); color: var(--nx-warning); }
 
-    .data-panel { border: 1px solid rgba(0,0,0,0.05); }
-    .panel-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
-    
-    .data-row { transition: 0.2s; border-radius: 8px; padding: 0.5rem; margin-left: -0.5rem; margin-right: -0.5rem; }
-    .data-row:hover { background-color: #f8fafc; padding-left: 1rem; }
-    
-    .score-badge { padding: 0.4rem 0.8rem; border-radius: 50px; font-weight: 800; font-size: 0.85rem; }
-    .score-badge.danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
-    .score-badge.success { background: #dcfce3; color: #15803d; border: 1px solid #86efac; }
-    .score-badge.warning { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
-    
-    .btn-action-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 0.8rem; transition: 0.2s; border: none; }
-    .btn-action-sm.danger { background: #ef4444; color: white; }
-    .btn-action-sm.danger:hover { background: #b91c1c; transform: scale(1.1); box-shadow: 0 5px 10px rgba(239, 68, 68, 0.3); }
-    .btn-action-sm.success { background: #22c55e; color: white; }
-    .btn-action-sm.success:hover { background: #15803d; transform: scale(1.1); box-shadow: 0 5px 10px rgba(34, 197, 94, 0.3); }
-    .btn-action-sm.dark { background: #1e293b; color: #f59e0b; }
-    .btn-action-sm.dark:hover { background: #0f172a; transform: scale(1.1); box-shadow: 0 5px 10px rgba(30, 41, 59, 0.3); }
-    .btn-action-sm.light { background: white; color: #475569; }
-    .btn-action-sm.light:hover { background: #f1f5f9; color: #0f172a; }
+    .nexus-data-row { padding: 1rem 0; border-bottom: 1px solid var(--nx-border); transition: 0.2s; }
+    .nexus-data-row:last-child { border-bottom: none; }
+    .nexus-data-row:hover { background: rgba(255,255,255,0.02); padding-left: 0.5rem; padding-right: 0.5rem; border-radius: 8px; }
 
-    .medal { font-size: 1.2rem; }
-    .medal.gold { color: #fbbf24; filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4)); }
-    .medal.silver { color: #94a3b8; filter: drop-shadow(0 2px 4px rgba(148, 163, 184, 0.4)); }
-    .medal.bronze { color: #b45309; filter: drop-shadow(0 2px 4px rgba(180, 83, 9, 0.4)); }
+    .nexus-score-badge { padding: 0.3rem 0.8rem; border-radius: 50px; font-weight: 800; font-size: 0.8rem; font-family: monospace; }
+    .nexus-score-badge.danger { background: rgba(244, 63, 94, 0.1); color: var(--nx-danger); border: 1px solid rgba(244, 63, 94, 0.3); }
+    .nexus-score-badge.success { background: rgba(16, 185, 129, 0.1); color: var(--nx-success); border: 1px solid rgba(16, 185, 129, 0.3); }
+    .nexus-score-badge.warning { background: rgba(245, 158, 11, 0.1); color: var(--nx-warning); border: 1px solid rgba(245, 158, 11, 0.3); }
 
-    /* Inner Course Cards */
-    .inner-course-card { border: 1px solid #e2e8f0 !important; }
-    .course-avatar { width: 45px; height: 45px; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; }
-    .period-stat-box { background: white; transition: 0.3s; border-color: #e2e8f0 !important; }
-    .period-stat-box:hover { border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transform: translateY(-3px); }
+    .nexus-btn-action { width: 32px; height: 32px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.2s; border: 1px solid transparent; }
+    .nexus-btn-action.danger { background: rgba(244, 63, 94, 0.1); color: var(--nx-danger); border-color: rgba(244, 63, 94, 0.3); }
+    .nexus-btn-action.danger:hover { background: var(--nx-danger); color: white; box-shadow: 0 0 15px rgba(244, 63, 94, 0.4); }
+    .nexus-btn-action.success { background: rgba(16, 185, 129, 0.1); color: var(--nx-success); border-color: rgba(16, 185, 129, 0.3); }
+    .nexus-btn-action.success:hover { background: var(--nx-success); color: white; box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
+    .nexus-btn-action.cyan { background: rgba(6, 182, 212, 0.1); color: var(--nx-cyan); border-color: rgba(6, 182, 212, 0.3); }
+    .nexus-btn-action.cyan:hover { background: var(--nx-cyan); color: var(--nx-bg-core); box-shadow: 0 0 15px var(--nx-cyan-glow); }
+    .nexus-btn-action.ghost { background: transparent; color: var(--nx-text-muted); border-color: var(--nx-border); }
+    .nexus-btn-action.ghost:hover { background: rgba(255,255,255,0.1); color: white; }
 
-    /* --- MODAL TERMINAL CYBER --- */
-    .bg-dark-deep { background-color: var(--dark-deep) !important; }
-    .cyber-modal { border: 1px solid rgba(0, 243, 255, 0.2) !important; box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 243, 255, 0.1) !important; }
-    .status-dot { width: 12px; height: 12px; background-color: var(--neon-cyan); border-radius: 50%; }
-    .status-dot.pulsing { animation: pulse-cyan 2s infinite; }
-    
-    .btn-close-cyber { background: transparent; border: none; color: white; font-size: 1.2rem; opacity: 0.5; transition: 0.2s; }
-    .btn-close-cyber:hover { opacity: 1; color: #ef4444; transform: rotate(90deg); }
-    
-    .cyber-input-group { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; padding: 5px; }
-    .cyber-input { color: white !important; }
-    .cyber-input::placeholder { color: rgba(255,255,255,0.3); }
-    .cyber-input:focus { background: transparent; box-shadow: none; }
-    
-    .btn-cyber-send { background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3); color: var(--neon-cyan); border-radius: 8px; padding: 0.5rem 1.5rem; font-weight: 700; font-family: monospace; transition: 0.2s; }
-    .btn-cyber-send:hover { background: var(--neon-cyan); color: var(--dark-deep); box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
+    .nexus-medal { font-size: 1.1rem; }
+    .nexus-medal.gold { color: #fbbf24; text-shadow: 0 0 8px rgba(251, 191, 36, 0.5); }
+    .nexus-medal.silver { color: #94a3b8; text-shadow: 0 0 8px rgba(148, 163, 184, 0.5); }
+    .nexus-medal.bronze { color: #b45309; text-shadow: 0 0 8px rgba(180, 83, 9, 0.5); }
 
-    /* Burbujas Chat */
-    .chat-bubble-sys { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid var(--neon-cyan); border-radius: 4px 16px 16px 16px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
-    .chat-bubble-user { background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.2); border-right: 3px solid var(--neon-cyan); border-radius: 16px 4px 16px 16px; padding: 1.2rem; }
+    .nexus-avatar-course { width: 40px; height: 40px; border-radius: 12px; background: rgba(6, 182, 212, 0.1); color: var(--nx-cyan); display: flex; align-items: center; justify-content: center; font-weight: 800; border: 1px solid rgba(6, 182, 212, 0.2); }
+    .nexus-stat-box { background: var(--nx-bg-core); border: 1px solid var(--nx-border) !important; transition: 0.3s; }
+    .nexus-stat-box:hover { border-color: rgba(255,255,255,0.2) !important; box-shadow: inset 0 0 20px rgba(255,255,255,0.02); transform: translateY(-2px); }
 
-    /* Animaciones */
-    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
-    @keyframes pulse-cyan { 0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); } }
-    
-    /* Custom Scrollbar Global */
-    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
-    
-    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
-    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 243, 255, 0.3); }
+    .nexus-empty-state { background: var(--nx-surface); border: 1px dashed var(--nx-border); }
+    .nexus-empty-mini { background: rgba(0,0,0,0.2); border: 1px dashed var(--nx-border); border-radius: 16px; }
 
-    /* Markdown AI Fixes */
+    /* --- MODAL TERMINAL AI --- */
+    .nexus-terminal-modal { background-color: #020617; border: 1px solid rgba(6, 182, 212, 0.3) !important; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 1), 0 0 30px rgba(6, 182, 212, 0.1) !important; border-radius: 16px; overflow: hidden; }
+    .bg-dark-deep { background-color: #020617 !important; }
+    
+    .nexus-input-group { background: rgba(255,255,255,0.03); border: 1px solid var(--nx-border); border-radius: 12px; padding: 0.3rem; }
+    .nexus-input { color: white !important; }
+    .nexus-input::placeholder { color: rgba(255,255,255,0.2); }
+    .nexus-input:focus { background: transparent; box-shadow: none; border: none; }
+    
+    .nexus-btn-send { background: rgba(6, 182, 212, 0.1); color: var(--nx-cyan) !important; border: 1px solid rgba(6, 182, 212, 0.3); border-radius: 8px; font-family: monospace; font-weight: bold; transition: 0.2s; }
+    .nexus-btn-send:hover { background: var(--nx-cyan); color: #020617 !important; box-shadow: 0 0 15px var(--nx-cyan-glow); }
+
+    .chat-bubble-sys { background: rgba(15, 23, 42, 0.6); border: 1px solid var(--nx-border); border-left: 2px solid var(--nx-cyan); border-radius: 4px 16px 16px 16px; padding: 1.5rem; backdrop-filter: blur(10px); }
+    .chat-bubble-user { background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-right: 2px solid var(--nx-cyan); border-radius: 16px 4px 16px 16px; padding: 1.2rem; }
+
+    /* --- ANIMACIONES & SCROLL --- */
+    @keyframes pulse-dot { 0% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(6, 182, 212, 0); } 100% { box-shadow: 0 0 0 0 rgba(6, 182, 212, 0); } }
+    .pulse-icon { animation: pulse-dot 2s infinite; border-radius: 50%; }
+    
+    .nexus-scrollbar::-webkit-scrollbar { width: 6px; }
+    .nexus-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); border-radius: 10px; }
+    .nexus-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
+    .nexus-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--nx-cyan); }
+
+    /* Markdown Styling en Terminal */
     .markdown-body { color: #e2e8f0; font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.6; }
-    .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: white; font-weight: 700; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
-    .markdown-body h1 { color: var(--neon-cyan); }
-    .markdown-body strong { color: var(--neon-cyan); font-weight: 600; }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: white; font-weight: 700; margin-bottom: 1rem; border-bottom: 1px solid var(--nx-border); padding-bottom: 0.5rem; }
+    .markdown-body h1 { color: var(--nx-cyan); }
+    .markdown-body strong { color: var(--nx-cyan); font-weight: 600; }
     .markdown-body ul { padding-left: 1.5rem; }
     .markdown-body li { margin-bottom: 0.5rem; }
 </style>
@@ -749,8 +863,8 @@
                         <div class="spinner-border text-neon-cyan" style="width: 4rem; height: 4rem; border-width: 0.25em;" role="status"></div>
                         <i class="fas fa-brain position-absolute top-50 start-50 translate-middle text-white fs-4"></i>
                     </div>
-                    <h5 class="fw-bold text-white font-monospace letter-spacing-2">_SINTETIZANDO_DATOS...</h5>
-                    <p class="text-white-50 small font-monospace mt-2">Estableciendo conexión con LLM Core</p>
+                    <h5 class="fw-bold text-white font-monospace tracking-wider">_SINTETIZANDO_DATOS...</h5>
+                    <p class="text-secondary small font-monospace mt-2">Estableciendo conexión con FENIX_CORE</p>
                 </div>
             `;
             historialChatDocente = [];
@@ -783,9 +897,9 @@
                 body.innerHTML += `
                     <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeInUp">
                         <div class="chat-bubble-sys w-100">
-                            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+                            <div class="d-flex align-items-center mb-3 border-bottom border-light-subtle pb-2">
                                 <i class="fas fa-terminal text-neon-cyan me-2"></i>
-                                <span class="text-white-50 font-monospace small letter-spacing-1">SYS_RESPONSE // FENIX_CORE</span>
+                                <span class="text-secondary font-monospace small tracking-wider">SYS_RESPONSE // FENIX_CORE</span>
                             </div>
                             <div class="markdown-body">
                                 ${marked.parse(data.content)}
@@ -796,7 +910,7 @@
                 body.scrollTop = body.scrollHeight;
             }
         } catch(e) {
-            body.innerHTML += `<div class="alert bg-danger text-white border-0 font-monospace shadow-lg p-4"><i class="fas fa-radiation me-2"></i>_ERROR_DE_CONEXION_0x882 <br><small class="opacity-75 mt-2 d-block">Conexión con el servidor denegada.</small></div>`;
+            body.innerHTML += `<div class="alert bg-danger text-white border-0 font-monospace shadow-lg p-4 rounded-3"><i class="fas fa-radiation me-2"></i>_ERROR_DE_CONEXION_0x882 <br><small class="opacity-75 mt-2 d-block">Conexión con el servidor denegada.</small></div>`;
         }
     }
 
@@ -809,7 +923,7 @@
         body.innerHTML += `
             <div class="d-flex justify-content-end mb-4 animate__animated animate__fadeInRight">
                 <div class="chat-bubble-user" style="max-width: 85%;">
-                    <div class="text-neon-cyan font-monospace small mb-2 opacity-75 letter-spacing-1">>_ DOCENTE_INPUT</div>
+                    <div class="text-neon-cyan font-monospace small mb-2 opacity-75 tracking-wider">>_ DOCENTE_INPUT</div>
                     <div class="text-white lh-base">${mensaje}</div>
                 </div>
             </div>`;
@@ -834,9 +948,9 @@
                 body.innerHTML += `
                     <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeInUp">
                         <div class="chat-bubble-sys w-100">
-                            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+                            <div class="d-flex align-items-center mb-3 border-bottom border-light-subtle pb-2">
                                 <i class="fas fa-terminal text-neon-cyan me-2"></i>
-                                <span class="text-white-50 font-monospace small letter-spacing-1">SYS_RESPONSE // FENIX_CORE</span>
+                                <span class="text-secondary font-monospace small tracking-wider">SYS_RESPONSE // FENIX_CORE</span>
                             </div>
                             <div class="markdown-body">
                                 ${marked.parse(data.content)}
@@ -854,10 +968,10 @@
         // Inicializar colapsables (chevron rotate)
         document.querySelectorAll('.collapse').forEach(el => {
             el.addEventListener('show.bs.collapse', () => {
-                el.previousElementSibling.querySelector('.rotate-icon').style.transform = 'rotate(180deg)';
+                el.previousElementSibling.querySelector('.transition-icon').style.transform = 'rotate(180deg)';
             });
             el.addEventListener('hide.bs.collapse', () => {
-                el.previousElementSibling.querySelector('.rotate-icon').style.transform = 'rotate(0deg)';
+                el.previousElementSibling.querySelector('.transition-icon').style.transform = 'rotate(0deg)';
             });
         });
         
@@ -869,4 +983,5 @@
         });
     });
 </script>
+</div>
 {% endblock %}
