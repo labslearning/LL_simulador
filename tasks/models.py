@@ -6,7 +6,8 @@ from django.db import models
 from django.conf import settings
 from django.core.validators import FileExtensionValidator
 from django.utils.translation import gettext_lazy as _
-
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db import models
 from django.db import transaction
 from django.utils import timezone
@@ -760,6 +761,39 @@ class Notificacion(models.Model):
     class Meta:
         ordering = ['-fecha_creacion']
 
+    # 🔥 INJERTO TIER-GOD: Disparador Asíncrono Blindado (Zero-Failure)
+    def save(self, *args, **kwargs):
+        # 1. Detectar si es la primera vez que se crea (antes de que tenga ID)
+        es_nuevo = self.pk is None
+        
+        # 2. Lógica Core inalterada: Guardamos en PostgreSQL
+        super().save(*args, **kwargs)
+
+        # 3. Transmisión Pub/Sub
+        if es_nuevo:
+            try:
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+                import logging
+                
+                channel_layer = get_channel_layer()
+                if channel_layer:
+                    # Enrutamos el JSON al canal exclusivo del usuario destino
+                    async_to_sync(channel_layer.group_send)(
+                        f"user_{self.usuario.id}",
+                        {
+                            "type": "send_notification", # Llama a la función de tu Consumer
+                            "titulo": self.titulo,
+                            "mensaje": self.mensaje,
+                            "tipo_alerta": self.tipo,
+                            "link": self.link_destino if self.link_destino else "#"
+                        }
+                    )
+            except Exception as e:
+                # Si Redis cae, capturamos el fallo en los logs pero el sistema HTTP sigue vivo
+                logger = logging.getLogger(__name__)
+                logger.error(f"FENIX_CORE (WebSocket Error): No se pudo emitir la alerta en tiempo real. Detalle: {e}")
+
 
 class MensajeInterno(models.Model):
     remitente = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='mensajes_enviados')
@@ -777,6 +811,49 @@ class MensajeInterno(models.Model):
 
     def __str__(self):
         return f"De {self.remitente} para {self.destinatario}: {self.asunto}"
+
+    # 🔥 INJERTO TIER-GOD: Disparador Asíncrono de Mensajes (Zero-Failure & Dynamic Routing)
+    def save(self, *args, **kwargs):
+        # 1. Intercepción: ¿Es un mensaje recién creado?
+        es_nuevo = self.pk is None
+        
+        # 2. Lógica Core inalterada: Persistencia segura en PostgreSQL
+        super().save(*args, **kwargs)
+
+        # 3. Transmisión Pub/Sub hacia el Motor FENIX_CORE
+        if es_nuevo:
+            try:
+                from channels.layers import get_channel_layer
+                from asgiref.sync import async_to_sync
+                from django.urls import reverse
+                import logging
+                
+                channel_layer = get_channel_layer()
+                if channel_layer:
+                    # Resolución dinámica de la ruta del buzón para evitar enlaces rotos
+                    try:
+                        link_buzon = reverse('buzon_mensajes')
+                    except Exception:
+                        link_buzon = "#"
+                        
+                    remitente_nombre = self.remitente.get_full_name() or self.remitente.username
+
+                    # Disparo del pulso láser directo al canal del destinatario
+                    async_to_sync(channel_layer.group_send)(
+                        f"user_{self.destinatario.id}",
+                        {
+                            "type": "send_notification", # Utiliza el mismo receptor del frontend
+                            "titulo": f"Nuevo mensaje de {remitente_nombre}",
+                            "mensaje": self.asunto,
+                            "tipo_alerta": "MENSAJE", # Etiqueta clave para el globo verde
+                            "link": link_buzon
+                        }
+                    )
+            except Exception as e:
+                # Firewall lógico: Si Redis falla, el mensaje se guarda en DB y nadie nota el error.
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"FENIX_CORE (WebSocket Mensajes Error): Caída en la transmisión al remitente. Detalle: {e}")
 
 
 # ===================================================================
