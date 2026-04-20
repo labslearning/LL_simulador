@@ -7,40 +7,54 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<div class="container-fluid py-4 dashboard-futurista">
-    <div class="row mb-4">
+<div class="container-fluid py-4 dashboard-cyber">
+    <div class="row mb-5">
         <div class="col-12">
-            <div class="card header-futurista border-0 shadow-lg animate__animated animate__fadeInDown">
+            <div class="card hero-panel border-0 animate__animated animate__fadeInDown">
                 <div class="card-body p-4 p-md-5 position-relative overflow-hidden">
-                    <div class="bg-shape shadow-glow"></div>
+                    <div class="cyber-grid"></div>
+                    <div class="glow-orb top-right"></div>
+                    <div class="glow-orb bottom-left accent-purple"></div>
                     
                     <div class="d-flex flex-column flex-lg-row justify-content-between align-items-center gap-4 position-relative z-index-1">
                         <div class="text-center text-lg-start mb-2 mb-lg-0">
-                            <h1 class="text-white fw-bold mb-2 display-6 fs-md-2" style="letter-spacing: -1px;">
-                                <i class="fas fa-chalkboard-teacher me-3 text-neon-blue"></i>Centro de Mando
+                            <div class="d-flex align-items-center justify-content-center justify-content-lg-start mb-2">
+                                <div class="status-indicator online me-3"></div>
+                                <span class="text-neon-cyan font-monospace small letter-spacing-2">SISTEMA EN LÍNEA</span>
+                            </div>
+                            <h1 class="text-white fw-bold mb-1 display-5" style="letter-spacing: -1.5px;">
+                                Centro de Mando
                             </h1>
-                            <p class="text-white-75 lead mb-0 fs-6 fs-md-5">Acceso verificado, <span class="text-white fw-semibold">{{ docente.get_full_name|default:docente.username }}</span></p>
+                            <p class="text-white-50 lead mb-0 fs-6">
+                                Operador: <span class="text-white fw-bold">{{ docente.get_full_name|default:docente.username }}</span>
+                            </p>
                         </div>
                         
                         <div class="d-flex flex-column flex-md-row align-items-center justify-content-center justify-content-lg-end gap-4 w-100 w-lg-auto">
-                            <div class="order-2 order-md-1 w-100 w-md-auto text-center border-end-md pe-md-4 border-white-25">
-                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-ai-pulse w-100 w-md-auto">
-                                    <i class="fas fa-brain me-2"></i>Estrategia Global IA
+                            <div class="order-2 order-md-1 w-100 w-md-auto text-center border-end-md pe-md-4 border-light-subtle" style="border-color: rgba(255,255,255,0.1) !important;">
+                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-cyber-action w-100 w-md-auto group-hover">
+                                    <div class="d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-brain fs-5 me-2 icon-pulse"></i>
+                                        <span class="fw-bold letter-spacing-1 text-uppercase small">Estrategia Global IA</span>
+                                    </div>
+                                    <div class="btn-glow"></div>
                                 </button>
                             </div>
                             
-                            <div class="d-flex justify-content-center gap-4 gap-md-5 order-1 order-md-2 kpi-container">
-                                <div class="text-center">
-                                    <h3 class="text-neon-blue fw-bold mb-0 display-6">{{ total_cursos }}</h3>
-                                    <small class="text-white-50 text-uppercase letter-spacing-1 fw-bold" style="font-size: 0.7rem;">Cursos</small>
+                            <div class="d-flex justify-content-center gap-4 order-1 order-md-2 kpi-group">
+                                <div class="kpi-item text-center">
+                                    <div class="kpi-value">{{ total_cursos }}</div>
+                                    <div class="kpi-label">Cursos</div>
                                 </div>
-                                <div class="text-center">
-                                    <h3 class="text-neon-blue fw-bold mb-0 display-6">{{ total_materias }}</h3>
-                                    <small class="text-white-50 text-uppercase letter-spacing-1 fw-bold" style="font-size: 0.7rem;">Materias</small>
+                                <div class="kpi-divider"></div>
+                                <div class="kpi-item text-center">
+                                    <div class="kpi-value">{{ total_materias }}</div>
+                                    <div class="kpi-label">Materias</div>
                                 </div>
-                                <div class="text-center">
-                                    <h3 class="text-neon-blue fw-bold mb-0 display-6">{{ total_estudiantes }}</h3>
-                                    <small class="text-white-50 text-uppercase letter-spacing-1 fw-bold" style="font-size: 0.7rem;">Alumnos</small>
+                                <div class="kpi-divider"></div>
+                                <div class="kpi-item text-center">
+                                    <div class="kpi-value text-neon-purple">{{ total_estudiantes }}</div>
+                                    <div class="kpi-label">Alumnos</div>
                                 </div>
                             </div>
                         </div>
@@ -50,51 +64,49 @@
         </div>
     </div>
 
-    <div class="card border-0 shadow-sm mb-4 bg-white rounded-4 animate__animated animate__fadeInUp">
-        <div class="card-body p-2">
-            <ul class="nav nav-pills nav-justified custom-pills flex-column flex-md-row gap-2 gap-md-1" id="docenteTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active rounded-pill fw-semibold" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="true">
-                        <i class="fas fa-book me-2"></i>Mis Materias
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill fw-semibold" id="resumen-tab" data-bs-toggle="pill" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="false">
-                        <i class="fas fa-chart-pie me-2"></i>Métricas e IA
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button onclick="activarIADocente('mejoras_docente')" class="nav-link rounded-pill fw-bold btn-ai-outline">
-                        <i class="fas fa-bolt me-2 text-warning"></i>Plan de Mejora IA
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link rounded-pill fw-semibold" id="calendario-tab" data-bs-toggle="pill" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
-                        <i class="fas fa-calendar-alt me-2"></i>Calendario
-                    </button>
-                </li>
-            </ul>
-        </div>
+    <div class="nav-wrapper mb-5 animate__animated animate__fadeInUp">
+        <ul class="nav nav-pills nav-fill gap-2 p-2 rounded-4 cyber-nav" id="docenteTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active rounded-pill fw-bold" id="cursos-tab" data-bs-toggle="pill" data-bs-target="#cursos" type="button" role="tab" aria-controls="cursos" aria-selected="true">
+                    <i class="fas fa-layer-group me-2"></i>Escuadrón
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold" id="resumen-tab" data-bs-toggle="pill" data-bs-target="#resumen" type="button" role="tab" aria-controls="resumen" aria-selected="false">
+                    <i class="fas fa-chart-network me-2"></i>Telemetría e IA
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button onclick="activarIADocente('mejoras_docente')" class="nav-link rounded-pill fw-bold ai-trigger">
+                    <i class="fas fa-bolt me-2 text-warning"></i>Mejora Continua
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link rounded-pill fw-bold disabled-nav" id="calendario-tab" data-bs-toggle="pill" data-bs-target="#calendario" type="button" role="tab" aria-controls="calendario" aria-selected="false">
+                    <i class="fas fa-calendar-alt me-2"></i>Cronograma <span class="badge bg-dark ms-1 small">WIP</span>
+                </button>
+            </li>
+        </ul>
     </div>
 
     <div class="tab-content" id="docenteTabContent">
         
         <div class="tab-pane fade show active" id="cursos" role="tabpanel" aria-labelledby="cursos-tab">
             
-            <div class="row mb-4">
+            <div class="row mb-5">
                 <div class="col-12">
-                    <div class="card border-0 glass-card shadow-sm animate__animated animate__fadeIn">
-                        <div class="card-body d-flex flex-column flex-md-row align-items-center py-3 text-center text-md-start">
-                            <div class="flex-shrink-0 bg-info-subtle p-3 rounded-circle me-md-3 mb-3 mb-md-0 shadow-sm">
-                                <i class="fas fa-satellite-dish text-primary fs-4"></i>
+                    <div class="card border-0 info-panel shadow-sm animate__animated animate__fadeIn">
+                        <div class="card-body p-4 d-flex flex-column flex-md-row align-items-center text-center text-md-start">
+                            <div class="icon-box-glow me-md-4 mb-3 mb-md-0">
+                                <i class="fas fa-satellite-dish"></i>
                             </div>
                             <div class="flex-grow-1 mb-3 mb-md-0">
-                                <h6 class="mb-1 fw-bold text-dark">Radar Predictivo En Línea</h6>
-                                <small class="text-secondary d-block">Utiliza la IA para escanear patrones de notas y detectar riesgos académicos en tiempo real.</small>
+                                <h5 class="mb-1 fw-bold text-dark letter-spacing-1">Radar Predictivo Operativo</h5>
+                                <p class="text-secondary mb-0 small">Escaneo neuronal de patrones de rendimiento activo. Detecta anomalías y proyecta intervenciones preventivas.</p>
                             </div>
                             <div class="ms-md-auto w-100 w-md-auto">
-                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-dark rounded-pill px-4 fw-bold shadow">
-                                    Iniciar Escaneo
+                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-dark rounded-pill px-4 py-2 fw-bold shadow btn-hover-lift w-100">
+                                    Ejecutar Diagnóstico
                                 </button>
                             </div>
                         </div>
@@ -106,73 +118,80 @@
             <div class="row g-4">
                 {% for curso_nombre, data in materias_por_curso.items %}
                 <div class="col-xxl-4 col-lg-6 animate__animated animate__fadeInUp" style="animation-delay: 0.{{ forloop.counter }}s;">
-                    <div class="card h-100 border-0 shadow-hover rounded-4 overflow-hidden course-card">
-                        <div class="card-header border-0 py-3 bg-gradient-course">
-                            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
-                                <h5 class="card-title mb-0 fw-bold text-white text-break">
-                                    <i class="fas fa-users me-2 opacity-75"></i>{{ curso_nombre }}
-                                </h5>
-                                <span class="badge bg-white text-dark rounded-pill px-3 py-2 fw-bold shadow-sm">{{ data.materias|length }} asignaturas</span>
+                    <div class="card h-100 border-0 shadow-hover rounded-4 overflow-hidden course-card neu-card">
+                        
+                        <div class="card-header border-0 py-3 bg-transparent px-4 mt-2">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <span class="badge badge-course rounded-pill fw-bold px-3 py-1">{{ data.materias|length }} Asignaturas</span>
+                                {% if data.curso_obj.director.id == request.user.id %}
+                                    <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle rounded-pill" title="Eres Director de este curso"><i class="fas fa-star"></i> Dir</span>
+                                {% endif %}
                             </div>
+                            <h4 class="fw-bold text-dark mb-0 letter-spacing-1">
+                                {{ curso_nombre }}
+                            </h4>
                         </div>
-                        <div class="card-body bg-white p-4">
-                            
-                            <div class="d-grid gap-2 mb-4">
-                                <button onclick="activarIADocente('analisis_rendimiento_curso', 'Realiza un análisis exhaustivo del rendimiento académico de este curso basado en las notas actuales. Identifica estudiantes en riesgo, patrones de calificaciones y sugiere estrategias pedagógicas concretas.', {curso_id: '{{ data.curso_obj.id }}'})" class="btn btn-soft-primary rounded-pill fw-semibold">
-                                    <i class="fas fa-microchip me-2"></i> Diagnóstico IA del Curso
-                                </button>
-                            </div>
 
-                            <h6 class="text-muted text-uppercase letter-spacing-1 small fw-bold mb-3">Materias Asignadas</h6>
-                            <div class="list-group list-group-flush mb-4">
+                        <div class="card-body px-4 pb-4 pt-2 d-flex flex-column">
+                            
+                            <button onclick="activarIADocente('analisis_rendimiento_curso', 'Realiza un análisis exhaustivo del rendimiento académico de este curso basado en las notas actuales. Identifica estudiantes en riesgo, patrones de calificaciones y sugiere estrategias pedagógicas concretas.', {curso_id: '{{ data.curso_obj.id }}'})" class="btn btn-outline-primary-cyber rounded-pill fw-bold w-100 mb-4 py-2">
+                                <i class="fas fa-microchip me-2"></i> Analizar Rendimiento
+                            </button>
+
+                            <h6 class="text-muted text-uppercase font-monospace small fw-bold mb-3 d-flex align-items-center">
+                                <i class="fas fa-books me-2 text-primary"></i> Asignaciones
+                            </h6>
+                            <div class="list-group list-group-flush mb-4 flex-grow-1">
                                 {% for materia in data.materias %}
                                 {% if materia and materia.id %}
-                                <div class="list-group-item border-0 px-0 py-2 d-flex flex-wrap justify-content-between align-items-center gap-2 bg-transparent">
-                                    <div class="flex-grow-1">
-                                        <h6 class="mb-0 fw-bold text-dark">{{ materia.nombre }}</h6>
-                                        <small class="text-muted font-monospace">REF: {{ materia.id }}</small>
+                                <div class="list-group-item border-0 px-3 py-3 mb-2 rounded-3 subject-item d-flex justify-content-between align-items-center gap-3">
+                                    <div class="d-flex align-items-center overflow-hidden">
+                                        <div class="subject-icon me-3"><i class="fas fa-book-open"></i></div>
+                                        <div class="text-truncate">
+                                            <h6 class="mb-0 fw-bold text-dark text-truncate">{{ materia.nombre }}</h6>
+                                            <small class="text-muted font-monospace" style="font-size: 0.65rem;">ID: {{ materia.id }}</small>
+                                        </div>
                                     </div>
-                                    <a href="{% url 'subir_notas' materia.id %}" class="btn btn-sm btn-primary rounded-pill px-3 shadow-sm">
-                                        <i class="fas fa-edit me-1"></i> Notas
+                                    <a href="{% url 'subir_notas' materia.id %}" class="btn btn-sm btn-primary rounded-circle shadow-sm btn-action-round" title="Gestionar Notas">
+                                        <i class="fas fa-pen"></i>
                                     </a>
                                 </div>
                                 {% endif %}
                                 {% endfor %}
                             </div>
                             
-                            <div class="border-top pt-3">
-                                <a href="#estudiantes-{{ data.curso_obj.id }}" data-bs-toggle="collapse" role="button" aria-expanded="false" class="text-dark fw-bold text-decoration-none d-flex align-items-center w-100 p-2 rounded hover-bg-light transition-base">
-                                    <i class="fas fa-user-graduate text-success me-2"></i> Nómina de Estudiantes
-                                    <i class="fas fa-chevron-down ms-auto rotate-icon text-muted"></i>
+                            <div class="student-accordion-wrapper mt-auto">
+                                <a href="#estudiantes-{{ data.curso_obj.id }}" data-bs-toggle="collapse" class="d-flex justify-content-between align-items-center text-dark text-decoration-none p-3 rounded-3 accordion-trigger">
+                                    <span class="fw-bold"><i class="fas fa-users text-success me-2"></i> Ver Escuadrón</span>
+                                    <i class="fas fa-chevron-down text-muted transition-icon"></i>
                                 </a>
                                 
                                 <div class="collapse" id="estudiantes-{{ data.curso_obj.id }}">
-                                    <div class="list-group list-group-flush mt-2 pe-2 custom-scrollbar" style="max-height: 250px; overflow-y: auto;">
-                                        {% for matricula in data.estudiantes %}
-                                        <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-2 py-2 mb-1 rounded bg-light">
-                                            <span class="text-secondary fw-semibold small text-truncate pe-2">
-                                                {{ matricula.estudiante.get_full_name|default:matricula.estudiante.username }}
-                                            </span>
-                                            
-                                            <button onclick="activarIADocente('doc_individual', 'Dame un consejo breve para mejorar el rendimiento de este estudiante específico.', {target_user_id: '{{ matricula.estudiante.id }}'})" 
-                                                    class="btn btn-sm btn-white text-primary rounded-circle shadow-sm border" 
-                                                    title="Copiloto: Analizar alumno">
-                                                <i class="fas fa-robot"></i>
-                                            </button>
+                                    <div class="p-2 pt-0">
+                                        <div class="list-group list-group-flush custom-scrollbar pe-1 mt-2" style="max-height: 200px; overflow-y: auto;">
+                                            {% for matricula in data.estudiantes %}
+                                            <div class="list-group-item border-0 d-flex justify-content-between align-items-center px-2 py-2 mb-1 rounded bg-transparent hover-bg-light">
+                                                <span class="text-secondary fw-semibold small text-truncate pe-2">
+                                                    {{ matricula.estudiante.get_full_name|default:matricula.estudiante.username }}
+                                                </span>
+                                                <button onclick="activarIADocente('doc_individual', 'Dame un consejo breve para mejorar el rendimiento de este estudiante específico.', {target_user_id: '{{ matricula.estudiante.id }}'})" 
+                                                        class="btn btn-sm btn-light text-primary rounded-circle shadow-sm border ai-mini-btn" 
+                                                        title="Analizar alumno con IA">
+                                                    <i class="fas fa-robot"></i>
+                                                </button>
+                                            </div>
+                                            {% empty %}
+                                            <div class="text-center py-3 text-muted small font-monospace">Sin datos.</div>
+                                            {% endfor %}
                                         </div>
-                                        {% empty %}
-                                        <div class="alert alert-soft-warning p-2 small border-0 text-dark">Vaciado de datos.</div>
-                                        {% endfor %}
                                     </div>
                                 </div>
                             </div>
 
                             {% if data.curso_obj.director.id == request.user.id %}
-                            <div class="d-grid gap-2 mt-4">
-                                <a href="{% url 'panel_director_curso' data.curso_obj.id %}" class="btn btn-dark rounded-pill fw-bold shadow-sm">
-                                    <i class="fas fa-shield-alt me-2 text-warning"></i> Gobierno del Curso
-                                </a>
-                            </div>
+                            <a href="{% url 'panel_director_curso' data.curso_obj.id %}" class="btn btn-warning text-dark rounded-pill fw-bold shadow-sm w-100 mt-3 py-2 btn-hover-lift">
+                                <i class="fas fa-shield-alt me-2"></i> Gobierno del Curso
+                            </a>
                             {% endif %}
                         </div>
                     </div>
@@ -180,83 +199,79 @@
                 {% endfor %}
             </div>
             {% else %}
-            <div class="text-center py-5 glass-card rounded-4">
-                <i class="fas fa-folder-open fa-3x text-muted mb-3 opacity-50"></i>
-                <h4 class="text-dark fw-bold">Sin asignaciones operativas</h4>
-                <p class="text-secondary">El sistema no detecta materias vinculadas a tu perfil en este periodo.</p>
+            <div class="text-center py-5 glass-panel rounded-4">
+                <div class="empty-state-icon mb-4"><i class="fas fa-folder-open"></i></div>
+                <h3 class="text-dark fw-bold letter-spacing-1">Sin asignaciones operativas</h3>
+                <p class="text-secondary mb-0">El sistema no detecta materias vinculadas a tu perfil en la malla actual.</p>
             </div>
             {% endif %}
         </div>
 
         <div class="tab-pane fade" id="resumen" role="tabpanel">
             
-            <div class="row mb-4">
-                <div class="col-md-6 mb-3 animate__animated animate__fadeInLeft">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-danger text-white overflow-hidden position-relative kpi-card">
-                        <div class="kpi-bg-icon"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div class="card-body p-4 position-relative z-index-1">
-                            <h6 class="text-white-75 text-uppercase fw-bold mb-1 letter-spacing-1">En Riesgo Crítico</h6>
-                            <h2 class="mb-0 fw-bold display-4">{{ kpi_reprobados }}</h2>
+            <div class="row mb-5 g-4">
+                <div class="col-md-6 animate__animated animate__fadeInLeft">
+                    <div class="card border-0 rounded-4 h-100 overflow-hidden kpi-stat-card danger-theme">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-wrapper me-4">
+                                <i class="fas fa-exclamation-triangle pulse-animation"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-white-50 text-uppercase fw-bold mb-1 letter-spacing-2 font-monospace" style="font-size: 0.75rem;">Riesgo Crítico</h6>
+                                <h2 class="mb-0 fw-bold display-4 text-white">{{ kpi_reprobados }}</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 mb-3 animate__animated animate__fadeInRight">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 bg-warning overflow-hidden position-relative kpi-card">
-                        <div class="kpi-bg-icon text-dark opacity-10"><i class="fas fa-user-clock"></i></div>
-                        <div class="card-body p-4 position-relative z-index-1">
-                            <h6 class="text-dark text-opacity-75 text-uppercase fw-bold mb-1 letter-spacing-1">Fallas / Retardos</h6>
-                            <h2 class="mb-0 fw-bold display-4 text-dark">{{ kpi_fallas }}</h2>
+                <div class="col-md-6 animate__animated animate__fadeInRight">
+                    <div class="card border-0 rounded-4 h-100 overflow-hidden kpi-stat-card warning-theme">
+                        <div class="card-body p-4 d-flex align-items-center">
+                            <div class="stat-icon-wrapper me-4">
+                                <i class="fas fa-user-clock"></i>
+                            </div>
+                            <div>
+                                <h6 class="text-dark text-opacity-50 text-uppercase fw-bold mb-1 letter-spacing-2 font-monospace" style="font-size: 0.75rem;">Fallas / Retardos</h6>
+                                <h2 class="mb-0 fw-bold display-4 text-dark">{{ kpi_fallas }}</h2>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             <div class="row g-4 mb-5">
+                
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-                        <div class="card-header bg-white border-bottom border-danger border-3 py-3">
-                            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-radiation text-danger me-2"></i>Alerta Temprana</h5>
+                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <div class="d-flex align-items-center">
+                                <div class="panel-icon bg-danger-subtle text-danger"><i class="fas fa-radiation"></i></div>
+                                <h5 class="mb-0 fw-bold text-dark ms-3">Alerta Temprana</h5>
+                            </div>
                         </div>
-                        <div class="card-body p-0 bg-light">
+                        <div class="card-body p-4">
                             {% if top_riesgo %}
-                            <div class="table-responsive">
-                                <table class="table table-borderless table-hover align-middle mb-0 custom-table">
-                                    <thead class="text-muted small text-uppercase">
-                                        <tr>
-                                            <th class="ps-4 pb-2 pt-3">Identidad</th>
-                                            <th class="text-center pb-2 pt-3">Prom.</th>
-                                            <th class="text-end pe-4 pb-2 pt-3">Motor IA</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in top_riesgo %}
-                                        <tr class="bg-white border-bottom border-light">
-                                            <td class="ps-4 py-3">
-                                                <div class="fw-bold text-dark text-truncate" style="max-width: 140px;">{{ item.estudiante.get_full_name }}</div>
-                                                <small class="text-muted fw-semibold">{{ item.curso }}</small>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-danger-subtle text-danger border border-danger rounded-pill px-3 py-2 fw-bold">{{ item.promedio }}</span>
-                                            </td>
-                                            <td class="text-end pe-4">
-                                                <a href="{% url 'ai_engine' %}?action=plan_riesgo&target_id={{ item.estudiante.id }}" 
-                                                   class="btn btn-sm btn-danger rounded-circle shadow-sm"
-                                                   title="Generar contingencia">
-                                                    <i class="fas fa-bolt"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                            <div class="custom-list-group">
+                                {% for item in top_riesgo %}
+                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
+                                    <div class="flex-grow-1 overflow-hidden pe-3">
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
+                                        <small class="text-muted font-monospace">{{ item.curso }}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="score-badge danger">{{ item.promedio }}</span>
+                                        <a href="{% url 'ai_engine' %}?action=plan_riesgo&target_id={{ item.estudiante.id }}" 
+                                           class="btn btn-action-sm danger" title="Generar contingencia">
+                                            <i class="fas fa-bolt"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                             {% else %}
-                            <div class="p-5 text-center">
-                                <div class="bg-success-subtle text-success rounded-circle d-inline-flex p-3 mb-3">
-                                    <i class="fas fa-shield-check fa-2x"></i>
-                                </div>
-                                <h6 class="fw-bold text-dark">Malla segura</h6>
-                                <p class="text-muted small mb-0">Cero amenazas críticas detectadas.</p>
+                            <div class="empty-state success text-center py-4">
+                                <i class="fas fa-shield-check fa-3x mb-3"></i>
+                                <h6 class="fw-bold">Malla Segura</h6>
+                                <p class="small text-muted mb-0">Cero amenazas críticas.</p>
                             </div>
                             {% endif %}
                         </div>
@@ -264,53 +279,40 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-                        <div class="card-header bg-white border-bottom border-success border-3 py-3">
-                            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-crown text-success me-2"></i>Cuadro de Honor</h5>
+                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <div class="d-flex align-items-center">
+                                <div class="panel-icon bg-success-subtle text-success"><i class="fas fa-crown"></i></div>
+                                <h5 class="mb-0 fw-bold text-dark ms-3">Cuadro de Honor</h5>
+                            </div>
                         </div>
-                        <div class="card-body p-0 bg-light">
+                        <div class="card-body p-4">
                             {% if top_mejores %}
-                            <div class="table-responsive">
-                                <table class="table table-borderless table-hover align-middle mb-0 custom-table">
-                                    <thead class="text-muted small text-uppercase">
-                                        <tr>
-                                            <th class="ps-4 pb-2 pt-3">Identidad</th>
-                                            <th class="text-center pb-2 pt-3">Prom.</th>
-                                            <th class="text-end pe-4 pb-2 pt-3">Motor IA</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in top_mejores %}
-                                        <tr class="bg-white border-bottom border-light">
-                                            <td class="ps-4 py-3">
-                                                <div class="fw-bold text-dark text-truncate" style="max-width: 140px;">
-                                                    {% if forloop.first %}<i class="fas fa-trophy text-warning me-1"></i>{% elif forloop.counter == 2 %}<i class="fas fa-medal text-secondary me-1"></i>{% elif forloop.counter == 3 %}<i class="fas fa-medal" style="color: #cd7f32;"></i>{% endif %} 
-                                                    {{ item.estudiante.get_full_name }}
-                                                </div>
-                                                <small class="text-muted fw-semibold">{{ item.curso }}</small>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-2 fw-bold">{{ item.promedio }}</span>
-                                            </td>
-                                            <td class="text-end pe-4">
-                                                <a href="{% url 'ai_engine' %}?action=plan_honor&target_id={{ item.estudiante.id }}" 
-                                                   class="btn btn-sm btn-success rounded-circle shadow-sm"
-                                                   title="Plan de potenciación">
-                                                    <i class="fas fa-rocket"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                            <div class="custom-list-group">
+                                {% for item in top_mejores %}
+                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
+                                    <div class="flex-grow-1 overflow-hidden pe-3">
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate d-flex align-items-center gap-2">
+                                            {% if forloop.first %}<span class="medal gold"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 2 %}<span class="medal silver"><i class="fas fa-medal"></i></span>{% elif forloop.counter == 3 %}<span class="medal bronze"><i class="fas fa-medal"></i></span>{% endif %} 
+                                            <span class="text-truncate">{{ item.estudiante.get_full_name }}</span>
+                                        </h6>
+                                        <small class="text-muted font-monospace ms-4 ps-1">{{ item.curso }}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="score-badge success">{{ item.promedio }}</span>
+                                        <a href="{% url 'ai_engine' %}?action=plan_honor&target_id={{ item.estudiante.id }}" 
+                                           class="btn btn-action-sm success" title="Plan de potenciación">
+                                            <i class="fas fa-rocket"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
                             </div>
                             {% else %}
-                            <div class="p-5 text-center">
-                                <div class="bg-light rounded-circle d-inline-flex p-3 mb-3 border">
-                                    <i class="fas fa-ghost fa-2x text-muted"></i>
-                                </div>
-                                <h6 class="fw-bold text-dark">Data Insuficiente</h6>
-                                <p class="text-muted small mb-0">Esperando consolidación de notas.</p>
+                            <div class="empty-state neutral text-center py-4">
+                                <i class="fas fa-ghost fa-3x mb-3"></i>
+                                <h6 class="fw-bold">Datos Insuficientes</h6>
+                                <p class="small text-muted mb-0">Esperando consolidación.</p>
                             </div>
                             {% endif %}
                         </div>
@@ -318,104 +320,89 @@
                 </div>
 
                 <div class="col-lg-4">
-                    <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden">
-                        <div class="card-header bg-white border-bottom border-warning border-3 py-3">
-                            <h5 class="mb-0 fw-bold text-dark"><i class="fas fa-door-open text-warning me-2"></i>Fugas de Asistencia</h5>
+                    <div class="card border-0 shadow-sm rounded-4 h-100 data-panel">
+                        <div class="card-header bg-transparent border-0 pt-4 pb-0 px-4">
+                            <div class="d-flex align-items-center">
+                                <div class="panel-icon bg-warning-subtle text-warning-emphasis"><i class="fas fa-door-open"></i></div>
+                                <h5 class="mb-0 fw-bold text-dark ms-3">Fugas Asistencia</h5>
+                            </div>
                         </div>
-                        <div class="card-body p-0 bg-light">
+                        <div class="card-body p-4">
                             {% if top_ausentismo %}
-                            <div class="table-responsive">
-                                <table class="table table-borderless table-hover align-middle mb-0 custom-table">
-                                    <thead class="text-muted small text-uppercase">
-                                        <tr>
-                                            <th class="ps-4 pb-2 pt-3">Identidad</th>
-                                            <th class="text-center pb-2 pt-3">Impactos</th>
-                                            <th class="text-end pe-4 pb-2 pt-3">Trazabilidad</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {% for item in top_ausentismo %}
-                                        <tr class="bg-white border-bottom border-light">
-                                            <td class="ps-4 py-3">
-                                                <div class="fw-bold text-dark text-truncate" style="max-width: 120px;">{{ item.estudiante.get_full_name }}</div>
-                                                <small class="text-muted fw-semibold">{{ item.curso }}</small>
-                                            </td>
-                                            <td class="text-center">
-                                                <span class="badge bg-warning text-dark border border-warning rounded-pill px-3 py-2 fw-bold">{{ item.fallas }}</span>
-                                            </td>
-                                            <td class="text-end pe-4">
-                                                <div class="btn-group shadow-sm">
-                                                    <a href="{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ item.estudiante.id }}" 
-                                                       class="btn btn-sm btn-dark" title="IA Retención">
-                                                        <i class="fas fa-robot text-warning"></i>
-                                                    </a>
-                                                    <button type="button" class="btn btn-sm btn-light border" 
-                                                            data-bs-toggle="modal" data-bs-target="#modalFallas{{ item.estudiante.id }}"
-                                                            title="Ver logs de fechas">
-                                                        <i class="fas fa-list-ul text-dark"></i>
-                                                    </button>
-                                                </div>
+                            <div class="custom-list-group">
+                                {% for item in top_ausentismo %}
+                                <div class="data-row d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom border-light-subtle">
+                                    <div class="flex-grow-1 overflow-hidden pe-2">
+                                        <h6 class="fw-bold text-dark mb-0 text-truncate">{{ item.estudiante.get_full_name }}</h6>
+                                        <small class="text-muted font-monospace">{{ item.curso }}</small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="score-badge warning">{{ item.fallas }}</span>
+                                        <div class="d-flex gap-1">
+                                            <a href="{% url 'ai_engine' %}?action=plan_asistencia&target_id={{ item.estudiante.id }}" class="btn btn-action-sm dark" title="IA Retención"><i class="fas fa-robot"></i></a>
+                                            <button type="button" class="btn btn-action-sm light border" data-bs-toggle="modal" data-bs-target="#modalFallas{{ item.estudiante.id }}" title="Logs"><i class="fas fa-list"></i></button>
+                                        </div>
 
-                                                <div class="modal fade" id="modalFallas{{ item.estudiante.id }}" tabindex="-1" aria-hidden="true">
-                                                    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                                        <div class="modal-content rounded-4 border-0 shadow-lg">
-                                                            <div class="modal-header bg-dark text-white border-0">
-                                                                <h6 class="modal-title fw-bold">
-                                                                    <i class="fas fa-history text-warning me-2"></i>Traza: {{ item.estudiante.get_full_name }}
-                                                                </h6>
-                                                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                            </div>
-                                                            <div class="modal-body p-0">
-                                                                <div class="table-responsive">
-                                                                    <table class="table table-hover mb-0 small text-start">
-                                                                        <thead class="table-light text-uppercase text-muted">
-                                                                            <tr>
-                                                                                <th class="ps-4">Timestamp</th>
-                                                                                <th>Asignatura</th>
-                                                                                <th>Clasificación</th>
-                                                                            </tr>
-                                                                        </thead>
-                                                                        <tbody>
-                                                                            {% for asis in item.estudiante.asistencia_set.all|dictsortreversed:"fecha" %}
-                                                                                {% if asis.estado == 'FALLA' or asis.estado == 'TARDE' %}
-                                                                                <tr>
-                                                                                    <td class="ps-4 text-nowrap fw-semibold text-dark">{{ asis.fecha|date:"l d F" }}</td>
-                                                                                    <td class="text-secondary">{{ asis.materia.nombre }}</td>
-                                                                                    <td>
-                                                                                        {% if asis.estado == 'FALLA' %}
-                                                                                            <span class="badge bg-danger-subtle text-danger rounded-pill border border-danger">Falla</span>
-                                                                                        {% else %}
-                                                                                            <span class="badge bg-warning-subtle text-warning rounded-pill border border-warning">Tarde</span>
-                                                                                        {% endif %}
-                                                                                    </td>
-                                                                                </tr>
-                                                                                {% endif %}
-                                                                            {% empty %}
-                                                                                <tr><td colspan="3" class="text-center py-4 text-muted">Logs limpios.</td></tr>
-                                                                            {% endfor %}
-                                                                        </tbody>
-                                                                    </table>
-                                                                </div>
-                                                            </div>
-                                                            <div class="modal-footer border-0 bg-light py-2">
-                                                                <button type="button" class="btn btn-sm btn-dark rounded-pill px-4" data-bs-dismiss="modal">Entendido</button>
+                                        <div class="modal fade" id="modalFallas{{ item.estudiante.id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                                <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
+                                                    <div class="modal-header bg-dark text-white border-0 py-3 px-4">
+                                                        <div class="d-flex align-items-center">
+                                                            <i class="fas fa-history text-warning fs-5 me-3"></i>
+                                                            <div>
+                                                                <h6 class="modal-title fw-bold mb-0">Traza de Asistencia</h6>
+                                                                <small class="text-white-50 font-monospace">{{ item.estudiante.get_full_name }}</small>
                                                             </div>
                                                         </div>
+                                                        <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body p-0 bg-light">
+                                                        <div class="table-responsive">
+                                                            <table class="table table-borderless table-hover mb-0 small text-start">
+                                                                <thead class="bg-white border-bottom text-uppercase text-muted font-monospace" style="font-size: 0.7rem;">
+                                                                    <tr>
+                                                                        <th class="ps-4 py-3">Timestamp</th>
+                                                                        <th class="py-3">Asignatura</th>
+                                                                        <th class="py-3">Clasificación</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    {% for asis in item.estudiante.asistencia_set.all|dictsortreversed:"fecha" %}
+                                                                        {% if asis.estado == 'FALLA' or asis.estado == 'TARDE' %}
+                                                                        <tr class="border-bottom border-light-subtle">
+                                                                            <td class="ps-4 py-3 text-nowrap fw-bold text-dark">{{ asis.fecha|date:"d M Y" }}</td>
+                                                                            <td class="py-3 text-secondary">{{ asis.materia.nombre }}</td>
+                                                                            <td class="py-3">
+                                                                                {% if asis.estado == 'FALLA' %}
+                                                                                    <span class="badge bg-danger text-white rounded-pill px-3">Falla</span>
+                                                                                {% else %}
+                                                                                    <span class="badge bg-warning text-dark rounded-pill px-3">Tarde</span>
+                                                                                {% endif %}
+                                                                            </td>
+                                                                        </tr>
+                                                                        {% endif %}
+                                                                    {% empty %}
+                                                                        <tr><td colspan="3" class="text-center py-5 text-muted font-monospace">_Logs_Limpios_</td></tr>
+                                                                    {% endfor %}
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0 bg-white p-3">
+                                                        <button type="button" class="btn btn-dark rounded-pill px-5 w-100 fw-bold" data-bs-dismiss="modal">Entendido</button>
                                                     </div>
                                                 </div>
-                                                </td>
-                                        </tr>
-                                        {% endfor %}
-                                    </tbody>
-                                </table>
+                                            </div>
+                                        </div>
+                                        </div>
+                                </div>
+                                {% endfor %}
                             </div>
                             {% else %}
-                            <div class="p-5 text-center">
-                                <div class="bg-primary-subtle text-primary rounded-circle d-inline-flex p-3 mb-3">
-                                    <i class="fas fa-check-double fa-2x"></i>
-                                </div>
-                                <h6 class="fw-bold text-dark">Asistencia Optimizada</h6>
-                                <p class="text-muted small mb-0">Sin anomalías registradas.</p>
+                            <div class="empty-state primary text-center py-4">
+                                <i class="fas fa-check-double fa-3x mb-3"></i>
+                                <h6 class="fw-bold">Asistencia Óptima</h6>
+                                <p class="small text-muted mb-0">Sin anomalías.</p>
                             </div>
                             {% endif %}
                         </div>
@@ -423,72 +410,72 @@
                 </div>
             </div>
 
-            <div class="d-flex align-items-center mb-4">
-                <div class="bg-primary rounded px-2 py-1 me-2"><i class="fas fa-sitemap text-white"></i></div>
-                <h4 class="fw-bold text-dark mb-0">Topología de Asignaturas</h4>
+            <div class="d-flex align-items-center mb-4 mt-5">
+                <div class="title-icon-box bg-dark text-white"><i class="fas fa-network-wired"></i></div>
+                <h3 class="fw-bold text-dark mb-0 ms-3 letter-spacing-1">Topología de Asignaturas</h3>
             </div>
             
             <div class="row">
                 {% if estadisticas_por_materia %}
                     {% for mat_id, mat_data in estadisticas_por_materia.items %}
-                    <div class="col-12 mb-4 animate__animated animate__fadeInUp">
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
-                            <div class="card-header bg-dark text-white p-3 border-0">
-                                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-2">
-                                    <h5 class="mb-0 fw-bold text-break letter-spacing-1">
-                                        <i class="fas fa-folder-open text-primary me-2"></i>{{ mat_data.materia_obj.nombre }}
-                                    </h5>
-                                    <button onclick="activarIADocente('mejoras_docente')" class="btn btn-sm btn-outline-info rounded-pill w-100 w-sm-auto fw-bold">
-                                        <i class="fas fa-network-wired me-1"></i> Ejecutar IA
-                                    </button>
+                    <div class="col-12 mb-5 animate__animated animate__fadeInUp">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+                            <div class="card-header bg-transparent border-bottom p-4 d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+                                <div>
+                                    <h4 class="mb-1 fw-bold text-dark letter-spacing-1">
+                                        {{ mat_data.materia_obj.nombre }}
+                                    </h4>
+                                    <small class="text-muted font-monospace">MAT_REF: {{ mat_data.materia_obj.id }}</small>
                                 </div>
+                                <button onclick="activarIADocente('mejoras_docente')" class="btn btn-primary rounded-pill px-4 fw-bold shadow-sm btn-hover-lift w-100 w-sm-auto">
+                                    <i class="fas fa-brain me-2"></i> Ejecutar IA General
+                                </button>
                             </div>
-                            <div class="card-body px-3 py-4 bg-light">
-                                <div class="row g-3">
+                            
+                            <div class="card-body p-4 bg-light">
+                                <div class="row g-4">
                                     {% for curso_id, curso_data in mat_data.cursos.items %}
                                     <div class="col-xl-6">
-                                        <div class="card h-100 border-0 shadow-sm rounded-3">
+                                        <div class="card h-100 border-0 shadow-sm rounded-4 inner-course-card">
                                             <div class="card-header bg-white border-bottom py-3 px-4 d-flex align-items-center">
-                                                <div class="bg-primary-subtle text-primary rounded-circle p-2 me-3 d-flex align-items-center justify-content-center" style="width:40px; height:40px;">
-                                                    <i class="fas fa-users"></i>
-                                                </div>
-                                                <h6 class="mb-0 fw-bold text-dark">
-                                                    {{ curso_data.curso_obj.get_grado_display }} {{ curso_data.curso_obj.seccion }}
-                                                </h6>
+                                                <div class="course-avatar me-3">{{ curso_data.curso_obj.seccion }}</div>
+                                                <h5 class="mb-0 fw-bold text-dark">
+                                                    {{ curso_data.curso_obj.get_grado_display }}
+                                                </h5>
                                             </div>
-                                            <div class="card-body p-3">
+                                            <div class="card-body p-4">
                                                 <div class="row g-3">
                                                     {% for periodo_id, p_stats in curso_data.periodos.items %}
                                                     <div class="col-12 col-sm-6">
-                                                        <div class="card h-100 border border-light-subtle rounded-3 hover-lift transition-base">
-                                                            <div class="card-body p-3 text-center">
-                                                                <span class="badge bg-secondary text-white rounded-pill mb-3 px-3">{{ p_stats.periodo_obj.nombre }}</span>
-                                                                
-                                                                {% if p_stats.promedio is not None %}
-                                                                    <div class="display-5 fw-bold mb-1 {% if p_stats.promedio < 3.0 %}text-danger{% else %}text-success{% endif %}">
-                                                                        {{ p_stats.promedio|floatformat:1 }}
-                                                                    </div>
-                                                                    <small class="text-muted text-uppercase fw-semibold" style="font-size:0.7rem;">Promedio Global</small>
-                                                                {% else %}
-                                                                    <div class="py-3 text-muted">
-                                                                        <i class="fas fa-minus d-block fs-4 mb-2"></i>
-                                                                        <small class="text-uppercase fw-semibold" style="font-size:0.7rem;">En Blanco</small>
-                                                                    </div>
-                                                                {% endif %}
-                                                                
-                                                                {% if p_stats.logros %}
-                                                                <div class="mt-3 pt-3 border-top border-light-subtle text-start">
-                                                                    <p class="mb-0 small text-muted text-truncate" title="{{ p_stats.logros.0.descripcion }}">
-                                                                        <i class="fas fa-check-circle me-1 text-primary"></i>
-                                                                        {{ p_stats.logros.0.descripcion }}
-                                                                    </p>
+                                                        <div class="period-stat-box text-center p-3 rounded-3 h-100 d-flex flex-column justify-content-center border hover-lift">
+                                                            <h6 class="text-muted font-monospace small text-uppercase mb-3">{{ p_stats.periodo_obj.nombre }}</h6>
+                                                            
+                                                            {% if p_stats.promedio is not None %}
+                                                                <div class="display-5 fw-bold mb-2 {% if p_stats.promedio < 3.0 %}text-danger{% else %}text-success{% endif %}" style="letter-spacing: -1px;">
+                                                                    {{ p_stats.promedio|floatformat:1 }}
                                                                 </div>
-                                                                {% endif %}
+                                                                <span class="badge bg-light text-dark border rounded-pill px-3">Promedio</span>
+                                                            {% else %}
+                                                                <div class="py-2 opacity-50">
+                                                                    <i class="fas fa-horizontal-rule fa-2x mb-2 text-muted"></i>
+                                                                    <span class="d-block small text-uppercase fw-bold text-muted">En Blanco</span>
+                                                                </div>
+                                                            {% endif %}
+                                                            
+                                                            {% if p_stats.logros %}
+                                                            <div class="mt-auto pt-3 mt-3 border-top text-start">
+                                                                <div class="d-flex align-items-start text-muted">
+                                                                    <i class="fas fa-check-circle text-primary mt-1 me-2 small"></i>
+                                                                    <small class="lh-sm text-truncate-2" title="{{ p_stats.logros.0.descripcion }}">
+                                                                        {{ p_stats.logros.0.descripcion }}
+                                                                    </small>
+                                                                </div>
                                                             </div>
+                                                            {% endif %}
                                                         </div>
                                                     </div>
                                                     {% empty %}
-                                                    <div class="col-12"><div class="alert alert-light border text-center small text-muted">No existen periodos configurados.</div></div>
+                                                    <div class="col-12"><div class="empty-state border rounded-3 p-4 text-center"><p class="text-muted font-monospace small mb-0">_SIN_PERIODOS_CONFIGURADOS_</p></div></div>
                                                     {% endfor %} 
                                                 </div>
                                             </div>
@@ -502,10 +489,10 @@
                     {% endfor %} 
                 {% else %}
                     <div class="col-12">
-                        <div class="card border-0 bg-white shadow-sm p-5 text-center rounded-4">
-                            <i class="fas fa-database fa-3x text-muted opacity-25 mb-3"></i>
-                            <h5 class="fw-bold text-dark">Data no disponible</h5>
-                            <p class="text-secondary mb-0">El sistema está esperando la inyección de calificaciones para compilar estadísticas.</p>
+                        <div class="empty-state-large glass-panel p-5 text-center rounded-4">
+                            <i class="fas fa-database fa-4x text-muted opacity-25 mb-4"></i>
+                            <h3 class="fw-bold text-dark letter-spacing-1">Repositorio Vacío</h3>
+                            <p class="text-secondary lead mb-0">El sistema espera la inyección de calificaciones para compilar la topología.</p>
                         </div>
                     </div>
                 {% endif %}
@@ -513,10 +500,12 @@
         </div>
 
         <div class="tab-pane fade" id="calendario" role="tabpanel">
-            <div class="card border-0 shadow-sm py-5 text-center rounded-4 bg-white">
-                <i class="fas fa-code-branch fa-4x text-primary mb-4 animate__animated animate__pulse animate__infinite"></i>
-                <h4 class="fw-bold text-dark">Módulo en Desarrollo</h4>
-                <p class="text-muted">El componente de sincronización temporal está siendo desplegado.</p>
+            <div class="card border-0 shadow-sm p-5 text-center rounded-4 bg-white">
+                <div class="py-5">
+                    <i class="fas fa-satellite text-primary fa-4x mb-4 pulse-animation"></i>
+                    <h3 class="fw-bold text-dark letter-spacing-1">Módulo en Desarrollo</h3>
+                    <p class="text-muted lead">Sincronización temporal en fase de despliegue orbital.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -524,25 +513,30 @@
 
 <div class="modal fade" id="modalIADocente" tabindex="-1" data-bs-backdrop="static">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content border border-secondary shadow-lg modal-terminal" style="border-radius: 16px; background-color: #0f172a;">
+        <div class="modal-content cyber-modal border-0 shadow-lg">
             
-            <div class="modal-header border-bottom border-secondary bg-dark text-white rounded-top-4 py-3">
-                <div class="d-flex align-items-center">
-                    <div class="spinner-grow spinner-grow-sm text-neon-blue me-3" role="status"></div>
-                    <h5 class="modal-title fw-bold text-white letter-spacing-1 font-monospace" style="font-size: 1.1rem;">SYS_COPILOT // OVERRIDE</h5>
+            <div class="modal-header border-bottom border-light-subtle bg-dark-deep text-white py-3 px-4">
+                <div class="d-flex align-items-center w-100">
+                    <div class="status-dot pulsing me-3"></div>
+                    <div class="flex-grow-1">
+                        <h5 class="modal-title fw-bold text-white letter-spacing-2 font-monospace fs-6 mb-0">SYS_COPILOT // OVERRIDE</h5>
+                        <small class="text-neon-cyan font-monospace opacity-75" style="font-size: 0.65rem;">Conexión segura establecida</small>
+                    </div>
+                    <button type="button" class="btn-close-cyber" data-bs-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
-                <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal"></button>
             </div>
             
-            <div class="modal-body p-4 custom-scrollbar" id="modalBodyIADocente" style="min-height: 350px; max-height: 65vh;">
+            <div class="modal-body p-4 custom-scrollbar bg-dark-deep" id="modalBodyIADocente" style="min-height: 400px; max-height: 65vh;">
                 </div>
 
-            <div class="modal-footer border-top border-secondary bg-dark rounded-bottom-4 p-3">
-                <div class="input-group">
-                    <span class="input-group-text bg-transparent border-secondary text-neon-blue font-monospace">>_</span>
-                    <input type="text" id="chatInputDocente" class="form-control bg-transparent border-secondary text-white font-monospace shadow-none input-terminal" placeholder="Ingresar comando o consulta...">
-                    <button class="btn btn-outline-info border-secondary text-neon-blue hover-glow-btn" onclick="enviarRespuestaChatDocente()">
-                        <i class="fas fa-paper-plane"></i> EJECUTAR
+            <div class="modal-footer border-top border-light-subtle bg-dark-deep p-3">
+                <div class="input-group cyber-input-group">
+                    <span class="input-group-text bg-transparent border-0 text-neon-cyan font-monospace fw-bold ps-3">>_</span>
+                    <input type="text" id="chatInputDocente" class="form-control bg-transparent border-0 text-white font-monospace shadow-none cyber-input" placeholder="Ingresar comando o consulta neuronal...">
+                    <button class="btn btn-cyber-send" onclick="enviarRespuestaChatDocente()">
+                        EJECUTAR <i class="fas fa-level-down-alt fa-rotate-90 ms-1"></i>
                     </button>
                 </div>
             </div>
@@ -551,113 +545,192 @@
 </div>
 
 <style>
-    /* Variables Futuristas */
+    /* --- VARIABLES & PALETA --- */
     :root {
-        --neon-blue: #00f3ff;
-        --deep-space: #0b0f19;
+        --neon-cyan: #00f3ff;
+        --neon-purple: #b026ff;
+        --dark-deep: #060913;
+        --dark-panel: #0f172a;
         --card-bg: #ffffff;
+        --glass-bg: rgba(255, 255, 255, 0.85);
     }
 
-    /* Banners y Fondos */
-    .header-futurista {
-        background: linear-gradient(135deg, #0b0f19 0%, #1e1b4b 50%, #0f172a 100%);
-        border-radius: 20px;
-    }
-    
-    .bg-shape {
-        position: absolute;
-        top: -50%;
-        right: -10%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(0, 243, 255, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
-        border-radius: 50%;
-        z-index: 0;
-    }
-    
-    .bg-gradient-course {
-        background: linear-gradient(90deg, #1e293b 0%, #334155 100%);
-    }
-
-    /* Tipografía y Neón */
-    .text-neon-blue { color: var(--neon-blue); text-shadow: 0 0 15px rgba(0, 243, 255, 0.4); }
+    /* --- UTILIDADES TEXTO --- */
     .letter-spacing-1 { letter-spacing: 1px; }
-    
-    /* Botones Inteligencia Artificial */
-    .btn-ai-pulse {
-        background: linear-gradient(45deg, #4f46e5, #0ea5e9);
-        color: white;
-        border: none;
-        border-radius: 50px;
-        padding: 0.7rem 1.5rem;
-        font-weight: 700;
-        box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
-        transition: all 0.3s ease;
-    }
-    .btn-ai-pulse:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.6);
-        color: white;
-    }
-    
-    .btn-ai-outline {
-        border: 2px solid rgba(79, 70, 229, 0.5) !important;
-        background: transparent;
-        color: #4f46e5 !important;
-        transition: all 0.3s;
-    }
-    .btn-ai-outline:hover {
-        background: rgba(79, 70, 229, 0.1);
-        border-color: #4f46e5 !important;
-        box-shadow: 0 0 10px rgba(79, 70, 229, 0.2);
-    }
+    .letter-spacing-2 { letter-spacing: 2px; }
+    .text-neon-cyan { color: var(--neon-cyan); text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+    .text-neon-purple { color: var(--neon-purple); text-shadow: 0 0 10px rgba(176, 38, 255, 0.5); }
+    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    .btn-soft-primary {
-        background-color: #eff6ff;
-        color: #3b82f6;
-        border: 1px solid #bfdbfe;
-        transition: 0.2s;
+    /* --- HERO & BACKGROUNDS --- */
+    .dashboard-cyber { background-color: #f4f7fb; min-height: 100vh; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    
+    .hero-panel {
+        background: linear-gradient(135deg, #060913 0%, #1e1b4b 50%, #0f172a 100%);
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(15, 23, 42, 0.2);
     }
-    .btn-soft-primary:hover {
-        background-color: #dbebff;
-        color: #1d4ed8;
+    
+    .cyber-grid {
+        position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+        background-size: 30px 30px; z-index: 0; opacity: 0.5;
     }
+    
+    .glow-orb {
+        position: absolute; width: 400px; height: 400px;
+        background: radial-gradient(circle, rgba(0, 243, 255, 0.15) 0%, transparent 70%);
+        border-radius: 50%; z-index: 0; filter: blur(20px);
+    }
+    .glow-orb.top-right { top: -100px; right: -100px; }
+    .glow-orb.bottom-left { bottom: -150px; left: -100px; }
+    .glow-orb.accent-purple { background: radial-gradient(circle, rgba(176, 38, 255, 0.15) 0%, transparent 70%); }
 
-    /* Utilidades DOM */
-    .shadow-hover:hover { transform: translateY(-4px); box-shadow: 0 .5rem 1.5rem rgba(0,0,0,.1) !important; transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); }
-    .hover-lift { transition: transform 0.2s ease-in-out; }
-    .hover-lift:hover { transform: translateY(-3px); }
-    .glass-card { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.05); }
-    .transition-base { transition: all 0.3s ease; }
+    /* --- INDICADORES (KPIs Top) --- */
+    .status-indicator { width: 10px; height: 10px; border-radius: 50%; }
+    .status-indicator.online { background-color: var(--neon-cyan); box-shadow: 0 0 10px var(--neon-cyan); animation: pulse 2s infinite; }
     
-    /* Nav Pills Correction (Fix Blanco sobre Blanco) */
-    .custom-pills .nav-link { color: #475569; background-color: #f8fafc; transition: all 0.3s; }
-    .custom-pills .nav-link:hover { background-color: #e2e8f0; color: #0f172a; }
-    .custom-pills .nav-link.active { background: linear-gradient(90deg, #2563eb, #3b82f6); color: white !important; box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3); }
+    .kpi-group { background: rgba(255,255,255,0.05); padding: 1rem 2rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+    .kpi-divider { width: 1px; background: rgba(255,255,255,0.1); margin: 0 0.5rem; }
+    .kpi-value { font-size: 2.5rem; font-weight: 800; line-height: 1; color: var(--neon-cyan); text-shadow: 0 0 15px rgba(0,243,255,0.3); }
+    .kpi-label { color: rgba(255,255,255,0.6); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.2rem; }
 
-    /* Modales y Tablas */
-    .kpi-card { transition: 0.3s; }
-    .kpi-card:hover { transform: scale(1.02); }
-    .kpi-bg-icon { position: absolute; right: -10px; bottom: -20px; font-size: 8rem; opacity: 0.2; transform: rotate(-15deg); }
-    
-    .custom-table tbody tr { transition: background-color 0.2s; }
-    .custom-table tbody tr:hover { background-color: #f8fafc !important; }
+    /* --- BOTONES AI CYBER --- */
+    .btn-cyber-action {
+        position: relative; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+        color: white; border-radius: 50px; padding: 1rem 2rem; overflow: hidden; transition: all 0.3s ease;
+    }
+    .btn-cyber-action:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); border-color: var(--neon-cyan); color: var(--neon-cyan); }
+    .btn-glow { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(0,243,255,0.4) 0%, transparent 50%); opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+    .btn-cyber-action:hover .btn-glow { opacity: 1; }
+    .icon-pulse { animation: pulse 2s infinite; }
 
-    /* Terminal AI Modal */
-    .input-terminal:focus { border-color: var(--neon-blue); box-shadow: 0 0 0 0.2rem rgba(0, 243, 255, 0.25); color: white; }
-    .input-terminal::placeholder { color: #64748b; }
-    .hover-glow-btn:hover { background: rgba(0, 243, 255, 0.1); color: var(--neon-blue); }
+    /* --- NAVEGACIÓN (TABS) --- */
+    .nav-wrapper { background: var(--glass-bg); backdrop-filter: blur(20px); border-radius: 20px; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
+    .cyber-nav .nav-link { color: #64748b; padding: 1rem 1.5rem; transition: all 0.3s ease; border: 1px solid transparent; }
+    .cyber-nav .nav-link:hover:not(.active):not(.disabled-nav) { background: #f1f5f9; color: #0f172a; }
+    .cyber-nav .nav-link.active { background: #0f172a; color: white !important; box-shadow: 0 10px 20px rgba(15,23,42,0.2); }
+    .ai-trigger { color: #8b5cf6 !important; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.2) !important; }
+    .ai-trigger:hover { background: rgba(139, 92, 246, 0.1) !important; box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); }
+    .disabled-nav { opacity: 0.5; cursor: not-allowed; }
+
+    /* --- TARJETAS & PANELES --- */
+    .neu-card { background: white; border: 1px solid rgba(0,0,0,0.03); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    .shadow-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.08) !important; }
+    .badge-course { background: #f1f5f9; color: #475569; font-size: 0.75rem; letter-spacing: 0.5px; }
+    .glass-panel { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(0,0,0,0.02); }
     
-    /* Scrollbars */
-    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-    .modal-terminal .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; }
+    .info-panel { background: linear-gradient(120deg, #ffffff 0%, #f8fafc 100%); border-radius: 20px; }
+    .icon-box-glow { width: 60px; height: 60px; border-radius: 16px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; box-shadow: 0 10px 20px rgba(37,99,235,0.3); }
+
+    /* Listas y Botones interiores */
+    .subject-item { background: #f8fafc; border: 1px solid transparent; transition: 0.2s; }
+    .subject-item:hover { background: white; border-color: #e2e8f0; box-shadow: 0 5px 15px rgba(0,0,0,0.03); transform: translateX(5px); }
+    .subject-icon { width: 35px; height: 35px; border-radius: 10px; background: #eff6ff; color: #3b82f6; display: flex; align-items: center; justify-content: center; }
+    .btn-action-round { width: 35px; height: 35px; padding: 0; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+    .btn-action-round:hover { transform: scale(1.1) rotate(5deg); }
     
-    /* Arreglo Markdown Modal AI */
-    .modal-terminal .markdown-body { color: #e2e8f0; font-family: monospace; }
-    .modal-terminal .markdown-body h1, .modal-terminal .markdown-body h2, .modal-terminal .markdown-body h3 { color: var(--neon-blue); border-bottom: 1px solid #334155; padding-bottom: 0.3rem;}
-    .modal-terminal .markdown-body strong { color: white; }
+    .btn-outline-primary-cyber { color: #2563eb; border: 2px solid #bfdbfe; background: transparent; transition: 0.3s; }
+    .btn-outline-primary-cyber:hover { background: #2563eb; color: white; border-color: #2563eb; box-shadow: 0 8px 20px rgba(37,99,235,0.25); }
+    .btn-hover-lift { transition: transform 0.2s; }
+    .btn-hover-lift:hover { transform: translateY(-2px); }
+
+    /* Acordeón Estudiantes */
+    .student-accordion-wrapper { border: 1px solid #e2e8f0; border-radius: 16px; background: #f8fafc; overflow: hidden; }
+    .accordion-trigger { transition: 0.2s; }
+    .accordion-trigger:hover { background: #f1f5f9; }
+    .transition-icon { transition: transform 0.3s ease; }
+    .ai-mini-btn { transition: 0.2s; }
+    .ai-mini-btn:hover { background: #8b5cf6 !important; color: white !important; border-color: #8b5cf6 !important; transform: scale(1.1); }
+
+    /* --- PESTAÑA MÉTRICAS --- */
+    .kpi-stat-card { position: relative; z-index: 1; }
+    .kpi-stat-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.8; transition: 0.3s; }
+    .kpi-stat-card:hover::before { opacity: 1; }
+    .kpi-stat-card.danger-theme { background-color: #ef4444; }
+    .kpi-stat-card.danger-theme::before { background: linear-gradient(45deg, #ef4444, #b91c1c); }
+    .kpi-stat-card.warning-theme { background-color: #f59e0b; }
+    .kpi-stat-card.warning-theme::before { background: linear-gradient(45deg, #f59e0b, #d97706); }
+    
+    .stat-icon-wrapper { width: 70px; height: 70px; border-radius: 20px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; backdrop-filter: blur(5px); }
+    .warning-theme .stat-icon-wrapper { background: rgba(0,0,0,0.1); color: #451a03; }
+
+    .title-icon-box { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+
+    .data-panel { border: 1px solid rgba(0,0,0,0.05); }
+    .panel-icon { width: 40px; height: 40px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+    
+    .data-row { transition: 0.2s; border-radius: 8px; padding: 0.5rem; margin-left: -0.5rem; margin-right: -0.5rem; }
+    .data-row:hover { background-color: #f8fafc; padding-left: 1rem; }
+    
+    .score-badge { padding: 0.4rem 0.8rem; border-radius: 50px; font-weight: 800; font-size: 0.85rem; }
+    .score-badge.danger { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+    .score-badge.success { background: #dcfce3; color: #15803d; border: 1px solid #86efac; }
+    .score-badge.warning { background: #fef3c7; color: #b45309; border: 1px solid #fcd34d; }
+    
+    .btn-action-sm { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 0.8rem; transition: 0.2s; border: none; }
+    .btn-action-sm.danger { background: #ef4444; color: white; }
+    .btn-action-sm.danger:hover { background: #b91c1c; transform: scale(1.1); box-shadow: 0 5px 10px rgba(239, 68, 68, 0.3); }
+    .btn-action-sm.success { background: #22c55e; color: white; }
+    .btn-action-sm.success:hover { background: #15803d; transform: scale(1.1); box-shadow: 0 5px 10px rgba(34, 197, 94, 0.3); }
+    .btn-action-sm.dark { background: #1e293b; color: #f59e0b; }
+    .btn-action-sm.dark:hover { background: #0f172a; transform: scale(1.1); box-shadow: 0 5px 10px rgba(30, 41, 59, 0.3); }
+    .btn-action-sm.light { background: white; color: #475569; }
+    .btn-action-sm.light:hover { background: #f1f5f9; color: #0f172a; }
+
+    .medal { font-size: 1.2rem; }
+    .medal.gold { color: #fbbf24; filter: drop-shadow(0 2px 4px rgba(251, 191, 36, 0.4)); }
+    .medal.silver { color: #94a3b8; filter: drop-shadow(0 2px 4px rgba(148, 163, 184, 0.4)); }
+    .medal.bronze { color: #b45309; filter: drop-shadow(0 2px 4px rgba(180, 83, 9, 0.4)); }
+
+    /* Inner Course Cards */
+    .inner-course-card { border: 1px solid #e2e8f0 !important; }
+    .course-avatar { width: 45px; height: 45px; border-radius: 14px; background: linear-gradient(135deg, #eff6ff, #dbeafe); color: #2563eb; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.2rem; }
+    .period-stat-box { background: white; transition: 0.3s; border-color: #e2e8f0 !important; }
+    .period-stat-box:hover { border-color: #cbd5e1 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transform: translateY(-3px); }
+
+    /* --- MODAL TERMINAL CYBER --- */
+    .bg-dark-deep { background-color: var(--dark-deep) !important; }
+    .cyber-modal { border: 1px solid rgba(0, 243, 255, 0.2) !important; box-shadow: 0 0 50px rgba(0,0,0,0.8), 0 0 20px rgba(0, 243, 255, 0.1) !important; }
+    .status-dot { width: 12px; height: 12px; background-color: var(--neon-cyan); border-radius: 50%; }
+    .status-dot.pulsing { animation: pulse-cyan 2s infinite; }
+    
+    .btn-close-cyber { background: transparent; border: none; color: white; font-size: 1.2rem; opacity: 0.5; transition: 0.2s; }
+    .btn-close-cyber:hover { opacity: 1; color: #ef4444; transform: rotate(90deg); }
+    
+    .cyber-input-group { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; overflow: hidden; padding: 5px; }
+    .cyber-input { color: white !important; }
+    .cyber-input::placeholder { color: rgba(255,255,255,0.3); }
+    .cyber-input:focus { background: transparent; box-shadow: none; }
+    
+    .btn-cyber-send { background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3); color: var(--neon-cyan); border-radius: 8px; padding: 0.5rem 1.5rem; font-weight: 700; font-family: monospace; transition: 0.2s; }
+    .btn-cyber-send:hover { background: var(--neon-cyan); color: var(--dark-deep); box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); }
+
+    /* Burbujas Chat */
+    .chat-bubble-sys { background: rgba(30, 41, 59, 0.8); border: 1px solid rgba(255,255,255,0.1); border-left: 3px solid var(--neon-cyan); border-radius: 4px 16px 16px 16px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .chat-bubble-user { background: rgba(0, 243, 255, 0.05); border: 1px solid rgba(0, 243, 255, 0.2); border-right: 3px solid var(--neon-cyan); border-radius: 16px 4px 16px 16px; padding: 1.2rem; }
+
+    /* Animaciones */
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); } 100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); } }
+    @keyframes pulse-cyan { 0% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0.4); } 70% { box-shadow: 0 0 0 10px rgba(0, 243, 255, 0); } 100% { box-shadow: 0 0 0 0 rgba(0, 243, 255, 0); } }
+    
+    /* Custom Scrollbar Global */
+    .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+    
+    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+    .bg-dark-deep.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(0, 243, 255, 0.3); }
+
+    /* Markdown AI Fixes */
+    .markdown-body { color: #e2e8f0; font-family: 'Inter', sans-serif; font-size: 0.95rem; line-height: 1.6; }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 { color: white; font-weight: 700; margin-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem; }
+    .markdown-body h1 { color: var(--neon-cyan); }
+    .markdown-body strong { color: var(--neon-cyan); font-weight: 600; }
+    .markdown-body ul { padding-left: 1.5rem; }
+    .markdown-body li { margin-bottom: 0.5rem; }
 </style>
 
 <script>
@@ -671,9 +744,13 @@
         
         if(action) {
             body.innerHTML = `
-                <div class="text-center py-5" id="loadingDocente">
-                    <div class="spinner-border text-neon-blue mb-3" style="width: 3rem; height: 3rem;" role="status"></div>
-                    <h5 class="fw-bold text-white font-monospace letter-spacing-1">_Analizando matrices de datos...</h5>
+                <div class="text-center py-5 d-flex flex-column align-items-center justify-content-center" id="loadingDocente" style="min-height: 300px;">
+                    <div class="position-relative mb-4">
+                        <div class="spinner-border text-neon-cyan" style="width: 4rem; height: 4rem; border-width: 0.25em;" role="status"></div>
+                        <i class="fas fa-brain position-absolute top-50 start-50 translate-middle text-white fs-4"></i>
+                    </div>
+                    <h5 class="fw-bold text-white font-monospace letter-spacing-2">_SINTETIZANDO_DATOS...</h5>
+                    <p class="text-white-50 small font-monospace mt-2">Estableciendo conexión con LLM Core</p>
                 </div>
             `;
             historialChatDocente = [];
@@ -704,11 +781,11 @@
                 historialChatDocente.push({ role: "assistant", content: data.content });
 
                 body.innerHTML += `
-                    <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeIn">
-                        <div class="border border-secondary p-3 rounded-3 shadow-sm w-100" style="background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(5px);">
-                            <div class="d-flex align-items-center mb-2 border-bottom border-secondary pb-2">
-                                <i class="fas fa-microchip text-neon-blue me-2"></i>
-                                <span class="text-white-50 font-monospace small">SYS_RESPONSE</span>
+                    <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeInUp">
+                        <div class="chat-bubble-sys w-100">
+                            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+                                <i class="fas fa-terminal text-neon-cyan me-2"></i>
+                                <span class="text-white-50 font-monospace small letter-spacing-1">SYS_RESPONSE // FENIX_CORE</span>
                             </div>
                             <div class="markdown-body">
                                 ${marked.parse(data.content)}
@@ -719,7 +796,7 @@
                 body.scrollTop = body.scrollHeight;
             }
         } catch(e) {
-            body.innerHTML += `<div class="alert alert-danger bg-danger text-white border-0 font-monospace">_ERROR_DE_CONEXION_0x882</div>`;
+            body.innerHTML += `<div class="alert bg-danger text-white border-0 font-monospace shadow-lg p-4"><i class="fas fa-radiation me-2"></i>_ERROR_DE_CONEXION_0x882 <br><small class="opacity-75 mt-2 d-block">Conexión con el servidor denegada.</small></div>`;
         }
     }
 
@@ -730,13 +807,13 @@
 
         const body = document.getElementById('modalBodyIADocente');
         body.innerHTML += `
-            <div class="d-flex justify-content-end mb-4">
-                <div class="border border-info p-3 rounded-3 shadow-sm" style="max-width: 85%; background: rgba(0, 243, 255, 0.1);">
-                    <div class="text-neon-blue font-monospace small mb-1">>_ DOCENTE_INPUT</div>
-                    <div class="text-white">${mensaje}</div>
+            <div class="d-flex justify-content-end mb-4 animate__animated animate__fadeInRight">
+                <div class="chat-bubble-user" style="max-width: 85%;">
+                    <div class="text-neon-cyan font-monospace small mb-2 opacity-75 letter-spacing-1">>_ DOCENTE_INPUT</div>
+                    <div class="text-white lh-base">${mensaje}</div>
                 </div>
             </div>`;
-        body.innerHTML += `<div class="text-center my-3" id="loadingChatDocente"><div class="spinner-grow spinner-grow-sm text-neon-blue"></div><div class="spinner-grow spinner-grow-sm text-neon-blue mx-2" style="animation-delay: 0.2s;"></div><div class="spinner-grow spinner-grow-sm text-neon-blue" style="animation-delay: 0.4s;"></div></div>`;
+        body.innerHTML += `<div class="text-center my-4" id="loadingChatDocente"><div class="spinner-grow spinner-grow-sm text-neon-cyan mx-1"></div><div class="spinner-grow spinner-grow-sm text-neon-cyan mx-1" style="animation-delay: 0.2s;"></div><div class="spinner-grow spinner-grow-sm text-neon-cyan mx-1" style="animation-delay: 0.4s;"></div></div>`;
         
         body.scrollTop = body.scrollHeight;
         input.value = '';
@@ -755,11 +832,11 @@
                 historialChatDocente.push({ role: "user", content: mensaje });
                 historialChatDocente.push({ role: "assistant", content: data.content });
                 body.innerHTML += `
-                    <div class="d-flex justify-content-start mb-4">
-                        <div class="border border-secondary p-3 rounded-3 shadow-sm w-100" style="background: rgba(30, 41, 59, 0.7);">
-                            <div class="d-flex align-items-center mb-2 border-bottom border-secondary pb-2">
-                                <i class="fas fa-microchip text-neon-blue me-2"></i>
-                                <span class="text-white-50 font-monospace small">SYS_RESPONSE</span>
+                    <div class="d-flex justify-content-start mb-4 animate__animated animate__fadeInUp">
+                        <div class="chat-bubble-sys w-100">
+                            <div class="d-flex align-items-center mb-3 border-bottom border-secondary pb-2">
+                                <i class="fas fa-terminal text-neon-cyan me-2"></i>
+                                <span class="text-white-50 font-monospace small letter-spacing-1">SYS_RESPONSE // FENIX_CORE</span>
                             </div>
                             <div class="markdown-body">
                                 ${marked.parse(data.content)}
