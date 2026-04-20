@@ -6671,3 +6671,42 @@ def generar_pdf_bienestar(request):
             <pre>{str(e)}</pre>
             <p><strong>Posible solución:</strong> Verifica que instalaste las librerías del sistema (libcairo2, libpango, etc).</p>
         """, status=500)
+
+# ===================================================================
+# 🛡️ API DE BLOQUEO FINANCIERO / ACCESO (KILL SWITCH)
+# ===================================================================
+import json
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+from .models import Matricula
+
+@login_required
+@require_POST
+def panel_api_toggle_acceso(request):
+    """
+    API Endpoint para bloquear/desbloquear el acceso de un estudiante a la plataforma.
+    Modifica el campo 'activo' de su Matrícula.
+    """
+    try:
+        # Decodificamos el JSON que viene del Frontend (Glassmorphism UI)
+        data = json.loads(request.body)
+        estudiante_id = data.get('estudiante_id')
+        nuevo_estado = data.get('estado') # True (Encendido) o False (Bloqueado)
+
+        # Buscamos la matrícula del estudiante
+        # Usamos .first() por si hay historiales, para agarrar la más reciente
+        matricula = Matricula.objects.filter(estudiante_id=estudiante_id).order_by('-fecha_matricula').first()
+        
+        if matricula:
+            # Ejecutamos el cambio de estado (El Kill Switch)
+            matricula.activo = nuevo_estado
+            matricula.save()
+            
+            return JsonResponse({'status': 'ok', 'message': 'Acceso de plataforma actualizado exitosamente.'})
+        else:
+            return JsonResponse({'status': 'error', 'message': 'No se encontró matrícula activa para este usuario.'}, status=404)
+            
+    except Exception as e:
+        # Fallback silencioso para no tirar un Error 500 feo en pantalla
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

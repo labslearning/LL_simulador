@@ -478,6 +478,7 @@ urlpatterns = [
     # Esta es la que te está causando el error NoReverseMatch
     path('panel/boveda/', views_admin.panel_boveda, name='panel_boveda'),
     path('panel/boveda/verificar/<uuid:uuid_operacion>/', views_admin.verificar_integridad_respaldo, name='verificar_integridad'),
+    path('api/toggle-acceso/', views.panel_api_toggle_acceso, name='panel_api_toggle_acceso'),
 
 
 ]
