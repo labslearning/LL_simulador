@@ -156,11 +156,11 @@
                 <div class="card border-0 shadow-sm mb-5">
                     <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                         <h5 class="mb-0 fw-bold"><i class="fas fa-trophy me-2"></i>Logros del Período</h5>
-                        <button type="button" class="btn btn-sm btn-outline-dark" id="btn-agregar-logro"><i class="fas fa-plus me-1"></i>Agregar Logro</button>
+                        <button type="button" class="btn btn-sm btn-dark" id="btn-agregar-logro"><i class="fas fa-plus me-1"></i>Agregar Nuevo Logro</button>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body bg-light">
                         <div id="lista-logros">
-                            <p class="text-muted mb-0">Selecciona un período para ver y editar los logros.</p>
+                            <p class="text-muted mb-0">Cargando logros...</p>
                         </div>
                         <div id="plantilla-nueva-logro" style="display: none;">
                             <div class="logro-item p-3 mb-3 border rounded-3 new-logro-item">
@@ -352,16 +352,17 @@
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title">Nuevo Logro</h5>
+                <h5 class="modal-title fw-bold"><i class="fas fa-plus-circle me-2"></i>Nuevo Logro</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <textarea id="textoNuevoLogro" class="form-control" rows="3" placeholder="Descripción del logro pedagógico..."></textarea>
+                <label class="form-label text-muted">Redacta el logro pedagógico que alcanzaron los estudiantes en este periodo:</label>
+                <textarea id="textoNuevoLogro" class="form-control shadow-sm border-warning" rows="4" placeholder="Ej: Reconoce y aplica las operaciones matemáticas básicas..."></textarea>
                 <input type="hidden" id="periodoLogroActual">
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-warning fw-bold" onclick="guardarLogroModal()">Agregar</button>
+                <button type="button" class="btn btn-warning fw-bold text-dark" onclick="guardarLogroModal()"><i class="fas fa-save me-1"></i>Agregar Logro</button>
             </div>
         </div>
     </div>
@@ -613,21 +614,25 @@
         const listaLogros = document.getElementById('lista-logros');
         let logrosPorPeriodoData = {};
 
+        // PARCHEO QUIRÚRGICO: Recuperación de JSON a prueba de balas
         try {
-            // CORRECCIÓN FINAL: Usamos escapejs y poblamos el objeto JS directamente.
-            // El input oculto se deja VACÍO en el HTML y se llena aquí.
-            const rawData = "{{ logros_por_periodo|escapejs }}"; 
-            logrosPorPeriodoData = JSON.parse(rawData || '{}');
+            let rawData = "{{ logros_por_periodo|escapejs }}"; 
+            if (!rawData || rawData === "None" || rawData === "") {
+                rawData = "{}";
+            }
+            // Fix si Django envió un diccionario de Python en lugar de un JSON estricto
+            rawData = rawData.replace(/'/g, '"');
+            logrosPorPeriodoData = JSON.parse(rawData);
             
-            // Inyectamos los datos en el input oculto para que al guardar (POST) se envíen
             document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
         } catch(e) {
-            console.error("Error al inicializar logros:", e);
+            console.error("Alerta del sistema: Formato de logros inesperado, inicializando en blanco.", e);
             logrosPorPeriodoData = {};
         }
         
         const modalLogroBS = new bootstrap.Modal(document.getElementById('modalAgregarLogro'));
 
+        // INYECCIÓN DE SISTEMA DE EDICIÓN EN CALIENTE PARA LOGROS
         window.renderizarLogros = function() {
             const periodoId = periodoSelector.value;
             const logrosDelPeriodo = logrosPorPeriodoData[periodoId] || [];
@@ -635,16 +640,27 @@
 
             listaLogros.innerHTML = '';
             if (logrosVisibles.length === 0) {
-                listaLogros.innerHTML = '<p class="text-muted mb-0">No hay logros registrados para este período.</p>';
+                listaLogros.innerHTML = '<div class="alert alert-secondary text-center mb-0"><i class="fas fa-info-circle me-2"></i>No hay logros registrados para este período.</div>';
             } else {
                 logrosDelPeriodo.forEach((logro, index) => {
                     if (logro.id >= 0) {
                         const logroItem = document.createElement('div');
-                        logroItem.classList.add('logro-item', 'p-3', 'mb-3', 'border', 'rounded-3');
+                        logroItem.classList.add('logro-item', 'p-3', 'mb-3', 'border', 'border-warning', 'rounded-3', 'bg-white', 'shadow-sm');
+                        
                         logroItem.innerHTML = `
-                            <div class="d-flex justify-content-between align-items-center">
-                                <p class="mb-0">${logro.descripcion}</p>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="borrarLogro('${periodoId}', ${index})"><i class="fas fa-trash"></i></button>
+                            <div class="d-flex justify-content-between align-items-start w-100" id="vista-logro-${index}">
+                                <p class="mb-0 flex-grow-1 me-3 text-dark"><i class="fas fa-check text-success me-2"></i>${logro.descripcion}</p>
+                                <div class="btn-group shadow-sm">
+                                    <button type="button" class="btn btn-sm btn-light border" onclick="editarLogro('${periodoId}', ${index})" title="Editar Logro"><i class="fas fa-edit text-primary"></i></button>
+                                    <button type="button" class="btn btn-sm btn-light border" onclick="borrarLogro('${periodoId}', ${index})" title="Eliminar Logro"><i class="fas fa-trash text-danger"></i></button>
+                                </div>
+                            </div>
+                            <div class="w-100 d-none" id="edicion-logro-${index}">
+                                <textarea class="form-control mb-2 border-primary shadow-sm" id="input-logro-${index}" rows="2">${logro.descripcion}</textarea>
+                                <div class="text-end mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="cancelarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-times me-1"></i>Cancelar</button>
+                                    <button type="button" class="btn btn-sm btn-success fw-bold" onclick="guardarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-check me-1"></i>Actualizar</button>
+                                </div>
                             </div>
                         `;
                         listaLogros.appendChild(logroItem);
@@ -653,6 +669,28 @@
             }
             document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
         }
+
+        window.editarLogro = function(pid, idx) {
+            document.getElementById(`vista-logro-${idx}`).classList.add('d-none');
+            document.getElementById(`edicion-logro-${idx}`).classList.remove('d-none');
+            document.getElementById(`input-logro-${idx}`).focus();
+        };
+
+        window.cancelarEdicionLogro = function(pid, idx) {
+            const logro = logrosPorPeriodoData[pid][idx];
+            document.getElementById(`vista-logro-${idx}`).classList.remove('d-none');
+            document.getElementById(`edicion-logro-${idx}`).classList.add('d-none');
+            document.getElementById(`input-logro-${idx}`).value = logro.descripcion;
+        };
+
+        window.guardarEdicionLogro = function(pid, idx) {
+            const nuevoTexto = document.getElementById(`input-logro-${idx}`).value;
+            if(nuevoTexto.trim()) {
+                logrosPorPeriodoData[pid][idx].descripcion = nuevoTexto;
+                renderizarLogros();
+                floatingSaveButton.classList.remove('d-none');
+            }
+        };
 
         btnAgregarLogro.addEventListener('click', function() {
             document.getElementById('periodoLogroActual').value = periodoSelector.value;
