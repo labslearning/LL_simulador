@@ -467,7 +467,12 @@
         }
         
         actualizarTotal();
-        new bootstrap.Modal(document.getElementById('modalConfigurarPlan')).show();
+        
+        if(typeof bootstrap !== 'undefined') {
+            new bootstrap.Modal(document.getElementById('modalConfigurarPlan')).show();
+        } else {
+            alert("El entorno gráfico aún está cargando. Por favor, intenta de nuevo.");
+        }
     }
 
     function crearFilaConfig(id, nombre, porcentaje, temas) {
@@ -559,16 +564,25 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl)
-        });
+        
+        // Bloque protegido para inicializar tooltips
+        try {
+            if (typeof bootstrap !== 'undefined') {
+                var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+                var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl);
+                });
+            }
+        } catch (err) {
+            console.warn("Advertencia: Componente visual de Bootstrap retrasado.", err);
+        }
 
         const periodoSelector = document.getElementById('periodoSelector');
         const floatingSaveButton = document.getElementById('floating-save-button');
         
         function mostrarPeriodoNotas() {
             const periodoId = periodoSelector.value;
+            if(!periodoId) return;
             document.querySelectorAll('.periodo-header, .periodo-cell').forEach(el => el.style.display = 'none');
             const header = document.querySelector(`.periodo-header[data-periodo-id="${periodoId}"]`);
             if (header) header.style.display = 'table-header-group';
@@ -579,8 +593,11 @@
 
         function calcularPromedio() {
             const periodoId = periodoSelector.value;
+            if(!periodoId) return;
             document.querySelectorAll('tbody tr').forEach(fila => {
-                const estudianteId = fila.querySelector('span[data-estudiante-id]').dataset.estudianteId;
+                const estSpan = fila.querySelector('span[data-estudiante-id]');
+                if(!estSpan) return;
+                const estudianteId = estSpan.dataset.estudianteId;
                 let suma = 0;
                 let porcentajeTotal = 0;
                 
@@ -601,40 +618,62 @@
                 });
 
                 const spanProm = fila.querySelector(`#promedio_${estudianteId}_${periodoId}`);
-                if (porcentajeTotal > 0) {
-                    spanProm.textContent = suma.toFixed(2);
-                    spanProm.className = "fs-5 fw-bold " + (suma < 3.0 ? 'text-danger' : (suma >= 4.0 ? 'text-success' : 'text-dark'));
-                } else {
-                    spanProm.textContent = "-";
+                if (spanProm) {
+                    if (porcentajeTotal > 0) {
+                        spanProm.textContent = suma.toFixed(2);
+                        spanProm.className = "fs-5 fw-bold " + (suma < 3.0 ? 'text-danger' : (suma >= 4.0 ? 'text-success' : 'text-dark'));
+                    } else {
+                        spanProm.textContent = "-";
+                    }
                 }
             });
         }
 
         const btnAgregarLogro = document.getElementById('btn-agregar-logro');
         const listaLogros = document.getElementById('lista-logros');
+        
+        // PARCHEO QUIRÚRGICO ABSOLUTO: Parseo de datos híbrido a prueba de colisiones
         let logrosPorPeriodoData = {};
-
-        // PARCHEO QUIRÚRGICO: Recuperación de JSON a prueba de balas
         try {
-            let rawData = "{{ logros_por_periodo|escapejs }}"; 
-            if (!rawData || rawData === "None" || rawData === "") {
+            let rawData = "{{ logros_por_periodo|escapejs }}";
+            if (!rawData || rawData === "None" || rawData.trim() === "") {
                 rawData = "{}";
             }
-            // Fix si Django envió un diccionario de Python en lugar de un JSON estricto
-            rawData = rawData.replace(/'/g, '"');
-            logrosPorPeriodoData = JSON.parse(rawData);
+            
+            // Transformar valores nativos de Python a JS (Aplica a diccionarios evaluados)
+            rawData = rawData.replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null');
+
+            try {
+                // Intento 1: Paseo estricto JSON
+                logrosPorPeriodoData = JSON.parse(rawData);
+            } catch (e1) {
+                // Intento 2: Evaluación compilada (Sobrevive a estructuras de Python con comillas en conflicto)
+                try {
+                    logrosPorPeriodoData = Function('"use strict"; return (' + rawData + ');')();
+                } catch (e2) {
+                    console.error("Error crítico al parsear base de datos de logros:", e2);
+                    logrosPorPeriodoData = {};
+                }
+            }
+            
+            if (typeof logrosPorPeriodoData !== 'object' || logrosPorPeriodoData === null) {
+                logrosPorPeriodoData = {};
+            }
             
             document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
         } catch(e) {
-            console.error("Alerta del sistema: Formato de logros inesperado, inicializando en blanco.", e);
+            console.error("Fallo general en inicialización de entorno de logros:", e);
             logrosPorPeriodoData = {};
         }
         
-        const modalLogroBS = new bootstrap.Modal(document.getElementById('modalAgregarLogro'));
+        // Inicialización "Lazy" del modal para proteger el hilo de ejecución principal
+        let modalLogroBS = null;
 
         // INYECCIÓN DE SISTEMA DE EDICIÓN EN CALIENTE PARA LOGROS
         window.renderizarLogros = function() {
             const periodoId = periodoSelector.value;
+            if(!periodoId) return;
+            
             const logrosDelPeriodo = logrosPorPeriodoData[periodoId] || [];
             const logrosVisibles = logrosDelPeriodo.filter(l => l.id >= 0);
 
@@ -692,11 +731,16 @@
             }
         };
 
-        btnAgregarLogro.addEventListener('click', function() {
-            document.getElementById('periodoLogroActual').value = periodoSelector.value;
-            document.getElementById('textoNuevoLogro').value = '';
-            modalLogroBS.show();
-        });
+        if(btnAgregarLogro) {
+            btnAgregarLogro.addEventListener('click', function() {
+                if (!modalLogroBS && typeof bootstrap !== 'undefined') {
+                    modalLogroBS = new bootstrap.Modal(document.getElementById('modalAgregarLogro'));
+                }
+                document.getElementById('periodoLogroActual').value = periodoSelector.value;
+                document.getElementById('textoNuevoLogro').value = '';
+                if(modalLogroBS) modalLogroBS.show();
+            });
+        }
 
         window.guardarLogroModal = function() {
             const pid = document.getElementById('periodoLogroActual').value;
@@ -706,7 +750,7 @@
                 logrosPorPeriodoData[pid].push({id: 0, descripcion: texto, periodo_id: parseInt(pid)});
                 renderizarLogros();
                 floatingSaveButton.classList.remove('d-none');
-                modalLogroBS.hide();
+                if(modalLogroBS) modalLogroBS.hide();
             }
         };
 
@@ -720,12 +764,15 @@
             floatingSaveButton.classList.remove('d-none');
         };
 
-        periodoSelector.addEventListener('change', function () {
-            mostrarPeriodoNotas();
-            calcularPromedio();
-            renderizarLogros();
-        });
-        periodoSelector.dispatchEvent(new Event('change'));
+        if(periodoSelector) {
+            periodoSelector.addEventListener('change', function () {
+                mostrarPeriodoNotas();
+                calcularPromedio();
+                renderizarLogros();
+            });
+            // Lanzamos el evento inicial para que renderice la pantalla apenas cargue la página
+            periodoSelector.dispatchEvent(new Event('change'));
+        }
 
         document.querySelector('tbody').addEventListener('input', function(e) {
             if (e.target.classList.contains('nota-input')) {
@@ -737,77 +784,85 @@
         const listaActividades = document.getElementById('lista-actividades');
         const plantillaNuevaActividad = document.getElementById('plantilla-nueva-actividad');
         const btnAgregarActividad = document.getElementById('btn-agregar-actividad');
-        const confirmarBorrarModal = new bootstrap.Modal(document.getElementById('confirmarBorrarModal'));
+        let confirmarBorrarModal = null;
         let id_a_borrar = null;
 
-        btnAgregarActividad.addEventListener('click', function() {
-            const nuevaActividadHtml = plantillaNuevaActividad.querySelector('.new-activity-item').cloneNode(true);
-            nuevaActividadHtml.style.display = '';
-            listaActividades.appendChild(nuevaActividadHtml);
-            
-            const btnGuardar = nuevaActividadHtml.querySelector('.btn-guardar-creacion');
-            const btnCancelar = nuevaActividadHtml.querySelector('.btn-cancelar-creacion');
+        if(btnAgregarActividad && plantillaNuevaActividad && listaActividades) {
+            btnAgregarActividad.addEventListener('click', function() {
+                const nuevaActividadHtml = plantillaNuevaActividad.querySelector('.new-activity-item').cloneNode(true);
+                nuevaActividadHtml.style.display = '';
+                listaActividades.appendChild(nuevaActividadHtml);
+                
+                const btnGuardar = nuevaActividadHtml.querySelector('.btn-guardar-creacion');
+                const btnCancelar = nuevaActividadHtml.querySelector('.btn-cancelar-creacion');
 
-            btnGuardar.addEventListener('click', function() {
-                const titulo = nuevaActividadHtml.querySelector('.titulo-actividad-input').value;
-                const descripcion = nuevaActividadHtml.querySelector('.descripcion-actividad-input').value;
-                const fechaInicio = nuevaActividadHtml.querySelector('.fecha-inicio-actividad-input').value;
-                const fechaFin = nuevaActividadHtml.querySelector('.fecha-fin-actividad-input').value;
+                btnGuardar.addEventListener('click', function() {
+                    const titulo = nuevaActividadHtml.querySelector('.titulo-actividad-input').value;
+                    const descripcion = nuevaActividadHtml.querySelector('.descripcion-actividad-input').value;
+                    const fechaInicio = nuevaActividadHtml.querySelector('.fecha-inicio-actividad-input').value;
+                    const fechaFin = nuevaActividadHtml.querySelector('.fecha-fin-actividad-input').value;
 
-                nuevaActividadHtml.querySelector('input[name="titulo_actividad[]"]').value = titulo;
-                nuevaActividadHtml.querySelector('input[name="descripcion_actividad[]"]').value = descripcion;
-                nuevaActividadHtml.querySelector('input[name="fecha_inicio_actividad[]"]').value = fechaInicio;
-                nuevaActividadHtml.querySelector('input[name="fecha_fin_actividad[]"]').value = fechaFin;
+                    nuevaActividadHtml.querySelector('input[name="titulo_actividad[]"]').value = titulo;
+                    nuevaActividadHtml.querySelector('input[name="descripcion_actividad[]"]').value = descripcion;
+                    nuevaActividadHtml.querySelector('input[name="fecha_inicio_actividad[]"]').value = fechaInicio;
+                    nuevaActividadHtml.querySelector('input[name="fecha_fin_actividad[]"]').value = fechaFin;
 
-                const infoDiv = document.createElement('div');
-                infoDiv.classList.add('actividad-info', 'd-flex', 'justify-content-between', 'align-items-start');
-                infoDiv.innerHTML = `
-                    <div>
-                        <h6 class="fw-bold">${titulo}</h6>
-                        <p class="small text-muted mb-2"><i class="fas fa-calendar-alt me-1"></i>Fechas: ${fechaInicio} - ${fechaFin}</p>
-                        <p class="mb-0">${descripcion}</p>
-                    </div>
-                    <div class="actividad-acciones">
-                        <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-actividad"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                nuevaActividadHtml.innerHTML = infoDiv.outerHTML + `
-                    <input type="hidden" name="actividad_id[]" value="">
-                    <input type="hidden" name="titulo_actividad[]" value="${titulo}">
-                    <input type="hidden" name="descripcion_actividad[]" value="${descripcion}">
-                    <input type="hidden" name="fecha_inicio_actividad[]" value="${fechaInicio}">
-                    <input type="hidden" name="fecha_fin_actividad[]" value="${fechaFin}">
-                `;
-                floatingSaveButton.classList.remove('d-none');
-                nuevaActividadHtml.querySelector('.btn-borrar-actividad').addEventListener('click', function() {
-                    this.closest('.actividad-item').remove();
+                    const infoDiv = document.createElement('div');
+                    infoDiv.classList.add('actividad-info', 'd-flex', 'justify-content-between', 'align-items-start');
+                    infoDiv.innerHTML = `
+                        <div>
+                            <h6 class="fw-bold">${titulo}</h6>
+                            <p class="small text-muted mb-2"><i class="fas fa-calendar-alt me-1"></i>Fechas: ${fechaInicio} - ${fechaFin}</p>
+                            <p class="mb-0">${descripcion}</p>
+                        </div>
+                        <div class="actividad-acciones">
+                            <button type="button" class="btn btn-sm btn-outline-danger btn-borrar-actividad-creada"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    nuevaActividadHtml.innerHTML = infoDiv.outerHTML + `
+                        <input type="hidden" name="actividad_id[]" value="">
+                        <input type="hidden" name="titulo_actividad[]" value="${titulo}">
+                        <input type="hidden" name="descripcion_actividad[]" value="${descripcion}">
+                        <input type="hidden" name="fecha_inicio_actividad[]" value="${fechaInicio}">
+                        <input type="hidden" name="fecha_fin_actividad[]" value="${fechaFin}">
+                    `;
                     floatingSaveButton.classList.remove('d-none');
+                    nuevaActividadHtml.querySelector('.btn-borrar-actividad-creada').addEventListener('click', function() {
+                        this.closest('.actividad-item').remove();
+                        floatingSaveButton.classList.remove('d-none');
+                    });
+                });
+
+                btnCancelar.addEventListener('click', function() {
+                    nuevaActividadHtml.remove();
                 });
             });
-
-            btnCancelar.addEventListener('click', function() {
-                nuevaActividadHtml.remove();
-            });
-        });
+        }
 
         document.querySelectorAll('.btn-borrar-actividad').forEach(btn => {
             btn.addEventListener('click', function() {
                 id_a_borrar = this.dataset.id;
-                confirmarBorrarModal.show();
+                if (!confirmarBorrarModal && typeof bootstrap !== 'undefined') {
+                    confirmarBorrarModal = new bootstrap.Modal(document.getElementById('confirmarBorrarModal'));
+                }
+                if(confirmarBorrarModal) confirmarBorrarModal.show();
             });
         });
         
-        document.getElementById('btn-confirmar-borrar').addEventListener('click', function() {
-            if (id_a_borrar) {
-                const actividadItem = document.querySelector(`.actividad-item[data-id="${id_a_borrar}"]`);
-                if (actividadItem) {
-                    actividadItem.querySelector('input[name="actividad_id[]"]').value = -id_a_borrar;
-                    actividadItem.style.display = 'none';
-                    confirmarBorrarModal.hide();
-                    floatingSaveButton.classList.remove('d-none');
+        const btnConfirmarBorrar = document.getElementById('btn-confirmar-borrar');
+        if(btnConfirmarBorrar) {
+            btnConfirmarBorrar.addEventListener('click', function() {
+                if (id_a_borrar) {
+                    const actividadItem = document.querySelector(`.actividad-item[data-id="${id_a_borrar}"]`);
+                    if (actividadItem) {
+                        actividadItem.querySelector('input[name="actividad_id[]"]').value = -id_a_borrar;
+                        actividadItem.style.display = 'none';
+                        if(confirmarBorrarModal) confirmarBorrarModal.hide();
+                        floatingSaveButton.classList.remove('d-none');
+                    }
                 }
-            }
-        });
+            });
+        }
 
         document.addEventListener('click', function(e) {
             if (e.target.closest('.btn-editar-actividad')) {
