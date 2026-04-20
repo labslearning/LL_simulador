@@ -1,0 +1,36 @@
+# --- Python y Compilados ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Entornos Virtuales (Varias formas de nombrarlos) ---
+venv/
+env/
+.venv/
+.env_chat/
+
+# --- Base de Datos (Nunca subir la DB local) ---
+*.sqlite3
+db.sqlite3
+
+# --- Variables de Entorno y Secretos (CRÍTICO) ---
+.env
+.env.*
+.env.local
+
+# --- Archivos Estáticos y Media ---
+# staticfiles: Se genera automáticamente en Railway
+staticfiles/
+# media: Son archivos subidos por usuarios (fotos, pdfs), no es código
+media/
+
+# --- Logs y Errores ---
+*.log
+celerybeat-schedule
+celerybeat.pid
+
+# --- Sistema Operativo y Editores ---
+.DS_Store
+.vscode/
+.idea/
+*.swp
