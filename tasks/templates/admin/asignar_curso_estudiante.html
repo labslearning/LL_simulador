@@ -2,20 +2,21 @@
 
 {% block content %}
 <div class="container py-5">
-    <div class="card p-4 p-md-5 shadow-lg border-0">
+    <div class="card p-4 p-md-5 shadow-lg border-0 rounded-4">
         <div class="card-header bg-white border-0 text-center pb-4">
-            <h2 class="fw-bold text-primary-dark">
+            <h2 class="fw-bold text-primary-dark" style="color: #1e1b4b;">
                 <i class="fas fa-chalkboard-teacher me-2 text-primary"></i>
                 Gestión de Matrículas
             </h2>
             <p class="text-muted">Asignación de cursos y gestión de ciclo de vida del estudiante.</p>
         </div>
 
-        <div class="card-body bg-light rounded-3 border mb-5 p-4">
+        <div class="card-body bg-light rounded-4 border mb-5 p-4 shadow-sm">
             <form method="POST">
                 {% csrf_token %}
-                <div class="row g-3 align-items-start"> <div class="col-md-5">
-                        <label for="estudiante_select" class="form-label fw-bold small text-uppercase text-muted">
+                <div class="row g-3 align-items-start"> 
+                    <div class="col-md-5">
+                        <label for="estudiante_select" class="form-label fw-bold small text-uppercase text-muted letter-spacing-1">
                             Estudiantes (Selección Múltiple)
                         </label>
                         <select name="estudiantes" id="estudiante_select" class="form-select select2" multiple required>
@@ -25,15 +26,15 @@
                                 </option>
                             {% endfor %}
                         </select>
-                        <div class="form-text small text-muted mt-1">
-                            <i class="fas fa-info-circle"></i> Haz clic para añadir varios estudiantes.
+                        <div class="form-text small text-muted mt-2">
+                            <i class="fas fa-info-circle text-primary"></i> Haz clic para añadir varios estudiantes al lote.
                         </div>
                     </div>
 
                     <div class="col-md-5">
-                        <label for="curso_select" class="form-label fw-bold small text-uppercase text-muted">Curso Destino</label>
+                        <label for="curso_select" class="form-label fw-bold small text-uppercase text-muted letter-spacing-1">Curso Destino</label>
                         <select name="curso" id="curso_select" class="form-select select2" required>
-                            <option value="">Seleccionar curso...</option>
+                            <option value="">Seleccionar escuadrón / curso...</option>
                             {% for curso in cursos %}
                                 <option value="{{ curso.id }}">
                                     {{ curso.get_grado_display }} {{ curso.seccion }} 
@@ -43,8 +44,9 @@
                         </select>
                     </div>
 
-                    <div class="col-md-2 align-self-center"> <button type="submit" class="btn btn-success w-100 fw-bold shadow-sm" style="height: 42px;">
-                            <i class="fas fa-users me-2"></i> Asignar Lote
+                    <div class="col-md-2 align-self-center mt-4"> 
+                        <button type="submit" class="btn btn-primary w-100 fw-bold shadow-sm rounded-pill" style="height: 45px; transition: all 0.3s;">
+                            <i class="fas fa-users-cog me-2"></i> Asignar
                         </button>
                     </div>
                 </div>
@@ -53,60 +55,63 @@
 
         <hr class="border-secondary opacity-10 my-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold mb-0">Estudiantes Matriculados <span class="text-muted fs-6 fw-normal">({{ anio_escolar }})</span></h4>
-            <span class="badge bg-primary rounded-pill">{{ estudiantes_con_curso|length }} Activos</span>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold mb-0 text-dark">Nómina Operativa <span class="text-muted fs-6 fw-normal font-monospace">({{ anio_escolar }})</span></h4>
+            <span class="badge bg-success-subtle text-success border border-success rounded-pill px-3 py-2 fw-bold shadow-sm">
+                <i class="fas fa-check-circle me-1"></i> {{ estudiantes_con_curso|length }} Activos
+            </span>
         </div>
 
-        <div class="table-responsive rounded-3 border">
-            <table class="table table-hover align-middle mb-0">
+        <div class="table-responsive rounded-4 border shadow-sm">
+            <table class="table table-hover align-middle mb-0 bg-white">
                 <thead class="bg-dark text-white">
-                    <tr>
-                        <th scope="col" class="ps-3">Estudiante</th>
-                        <th scope="col">Acudiente</th>
-                        <th scope="col">Curso</th>
-                        <th scope="col" class="text-center">Generar Docs</th> 
-                        <th scope="col" class="text-center">Visibilidad Boletín</th> 
-                        <th scope="col" class="text-center">Visibilidad Obs.</th> 
-                        <th scope="col" class="text-center">Retirar</th>
+                    <tr class="text-uppercase small" style="letter-spacing: 0.5px;">
+                        <th scope="col" class="ps-4 py-3">Estudiante</th>
+                        <th scope="col" class="py-3">Acudiente</th>
+                        <th scope="col" class="py-3">Curso</th>
+                        <th scope="col" class="text-center py-3">Archivos</th> 
+                        <th scope="col" class="text-center py-3"><i class="fas fa-file-invoice text-info"></i> Boletín</th> 
+                        <th scope="col" class="text-center py-3"><i class="fas fa-user-shield text-warning"></i> Obs.</th> 
+                        <th scope="col" class="text-center py-3 text-danger"><i class="fas fa-lock"></i> Acceso</th> 
+                        <th scope="col" class="text-center py-3">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="bg-white">
+                <tbody class="border-top-0">
                     {% for item in estudiantes_con_curso %}
-                    <tr>
-                        <td class="ps-3">
+                    <tr class="transition-base hover-bg-light">
+                        <td class="ps-4 py-3">
                             <div class="d-flex flex-column">
                                 <span class="fw-bold text-dark">{{ item.user.last_name }} {{ item.user.first_name }}</span>
-                                <code class="text-muted small">{{ item.user.username }}</code>
+                                <code class="text-muted small bg-transparent p-0">{{ item.user.username }}</code>
                             </div>
                         </td>
-                        <td>
+                        <td class="py-3">
                             <div class="d-flex flex-column small">
-                                <span class="fw-semibold">{{ item.acudiente_nombre }}</span>
-                                <span class="text-muted">{{ item.acudiente_username }}</span>
+                                <span class="fw-semibold text-secondary">{{ item.acudiente_nombre }}</span>
+                                <span class="text-muted font-monospace" style="font-size: 0.75rem;">{{ item.acudiente_username }}</span>
                             </div>
                         </td>
-                        <td>
-                            <span class="badge bg-light text-dark border">
+                        <td class="py-3">
+                            <span class="badge bg-light text-dark border rounded-pill px-3 py-2 shadow-sm font-monospace">
                                 {{ item.curso.get_grado_display }} - {{ item.curso.seccion }}
                             </span>
                         </td>
                         
-                        <td class="text-center">
-                            <div class="btn-group" role="group">
-                                <a href="{% url 'panel_generar_boletin' item.user.id %}" class="btn btn-outline-primary btn-sm" target="_blank" title="Ver Boletín Actual">
+                        <td class="text-center py-3">
+                            <div class="btn-group shadow-sm" role="group">
+                                <a href="{% url 'panel_generar_boletin' item.user.id %}" class="btn btn-outline-primary btn-sm px-3" target="_blank" title="Ver Boletín Actual">
                                     <i class="fas fa-file-invoice"></i>
                                 </a>
-                                <a href="{% url 'generar_observador_pdf' item.user.id %}" class="btn btn-outline-dark btn-sm" target="_blank" title="Ver Observador Actual">
+                                <a href="{% url 'generar_observador_pdf' item.user.id %}" class="btn btn-outline-dark btn-sm px-3" target="_blank" title="Ver Observador Actual">
                                     <i class="fas fa-user-shield"></i>
                                 </a>
                             </div>
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center py-3 bg-light bg-opacity-50">
                             {% if item.matricula %}
-                            <div class="form-check form-switch d-flex justify-content-center">
-                                <input class="form-check-input toggle-permiso cursor-pointer" type="checkbox" 
+                            <div class="form-check form-switch d-flex justify-content-center m-0">
+                                <input class="form-check-input toggle-permiso cursor-pointer custom-switch" type="checkbox" 
                                        data-tipo="boletin" 
                                        data-estudiante-id="{{ item.user.id }}"
                                        id="bol-switch-{{ item.user.id }}"
@@ -117,10 +122,10 @@
                             {% endif %}
                         </td>
 
-                        <td class="text-center">
+                        <td class="text-center py-3">
                             {% if item.matricula %}
-                            <div class="form-check form-switch d-flex justify-content-center">
-                                <input class="form-check-input toggle-permiso cursor-pointer" type="checkbox" 
+                            <div class="form-check form-switch d-flex justify-content-center m-0">
+                                <input class="form-check-input toggle-permiso cursor-pointer custom-switch" type="checkbox" 
                                        data-tipo="observador" 
                                        data-estudiante-id="{{ item.user.id }}"
                                        id="obs-switch-{{ item.user.id }}"
@@ -131,20 +136,35 @@
                             {% endif %}
                         </td>
 
-                        <td class="text-center">
-                            <button type="button" class="btn btn-sm btn-outline-danger btn-retirar shadow-sm"
+                        <td class="text-center py-3 bg-danger bg-opacity-10 border-start border-end border-danger border-opacity-25">
+                            {% if item.matricula %}
+                            <div class="form-check form-switch d-flex justify-content-center m-0" title="Apagar acceso a plataforma (Falta de pago)">
+                                <input class="form-check-input toggle-permiso cursor-pointer switch-danger shadow-sm" type="checkbox" 
+                                       data-tipo="financiero" 
+                                       data-estudiante-id="{{ item.user.id }}"
+                                       id="fin-switch-{{ item.user.id }}"
+                                       {% if item.matricula.activo %}checked{% endif %}>
+                            </div>
+                            {% else %}
+                            <span class="text-muted small">-</span>
+                            {% endif %}
+                        </td>
+
+                        <td class="text-center py-3 pe-4">
+                            <button type="button" class="btn btn-sm btn-danger btn-retirar shadow-sm rounded-pill px-3 fw-bold btn-hover-lift"
                                     data-bs-toggle="modal"
                                     data-bs-target="#modalRetirarEstudiante"
                                     data-estudiante-id="{{ item.user.id }}"
                                     data-estudiante-nombre="{{ item.user.get_full_name|default:item.user.username }}">
-                                <i class="fas fa-user-times me-1"></i> Retirar
+                                <i class="fas fa-power-off me-1"></i> Expulsar
                             </button>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
-                            <i class="fas fa-users-slash fa-3x mb-3 opacity-50"></i><br>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <i class="fas fa-users-slash fa-3x mb-3 opacity-25"></i><br>
+                            <span class="fw-bold">Matriz de datos vacía.</span><br>
                             No hay estudiantes matriculados en este periodo activo.
                         </td>
                     </tr>
@@ -157,48 +177,48 @@
 
 <div class="modal fade" id="modalRetirarEstudiante" tabindex="-1" aria-labelledby="modalRetirarLabel" aria-hidden="true" data-bs-backdrop="static">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title fw-bold" id="modalRetirarLabel">
-            <i class="fas fa-exclamation-triangle me-2"></i>Zona de Peligro: Retiro
+    <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+      <div class="modal-header bg-danger text-white border-0 py-3">
+        <h5 class="modal-title fw-bold font-monospace" id="modalRetirarLabel">
+            <i class="fas fa-exclamation-triangle me-2 pulse-icon"></i> OVERRIDE // EXPULSIÓN
         </h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="btn-close btn-close-white opacity-75" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       
       <form method="POST" action="{% url 'admin_eliminar_estudiante' %}" id="formRetiro">
         {% csrf_token %}
-        <div class="modal-body p-4">
+        <div class="modal-body p-4 bg-light">
             <div class="text-center mb-4">
-                <div class="avatar-placeholder bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
-                    <i class="fas fa-user-graduate fa-3x text-secondary"></i>
+                <div class="avatar-placeholder bg-danger bg-opacity-10 text-danger border border-danger rounded-circle d-inline-flex align-items-center justify-content-center mb-3 shadow-sm" style="width: 80px; height: 80px;">
+                    <i class="fas fa-user-slash fa-3x"></i>
                 </div>
-                <h4 class="fw-bold text-dark" id="nombreEstudianteModal">Cargando...</h4>
-                <p class="text-muted small">Confirmación de salida institucional</p>
+                <h4 class="fw-bold text-dark mb-1" id="nombreEstudianteModal">Cargando...</h4>
+                <p class="text-danger small fw-bold font-monospace tracking-wide">CORTANDO ACCESO INSTITUCIONAL</p>
             </div>
             
-            <div class="alert alert-warning border-warning">
-                <h6 class="alert-heading fw-bold"><i class="fas fa-info-circle"></i> Protocolo de Retiro:</h6>
-                <ul class="mb-0 small text-dark">
-                    <li>El estudiante se moverá a <strong>Ex-Alumnos</strong>.</li>
-                    <li>Se generarán y archivarán sus <strong>Boletines</strong>.</li>
-                    <li>Se congelará su <strong>Observador Disciplinario</strong> actual.</li>
-                    <li>Se desactivará el acceso a la plataforma.</li>
+            <div class="alert alert-warning border-warning shadow-sm">
+                <h6 class="alert-heading fw-bold mb-2"><i class="fas fa-shield-alt me-1"></i> Consecuencias del protocolo:</h6>
+                <ul class="mb-0 small text-dark ps-3">
+                    <li class="mb-1">El perfil será reasignado al archivo <strong>Ex-Alumnos</strong>.</li>
+                    <li class="mb-1"><strong>Boletines y Notas</strong> se congelarán y archivarán en PDF.</li>
+                    <li class="mb-1"><strong>Observador Disciplinario</strong> sellado inmutablemente.</li>
+                    <li><strong>Acceso bloqueado</strong> para Acudiente y Alumno inmediatamente.</li>
                 </ul>
             </div>
             
             <input type="hidden" name="estudiante_id" id="idEstudianteRetirar" value="">
             
-            <div class="form-check mt-3">
-                <input class="form-check-input" type="checkbox" id="checkConfirm" required>
-                <label class="form-check-label small" for="checkConfirm">
-                    Confirmo que he verificado la identidad del estudiante y deseo proceder.
+            <div class="form-check mt-4 bg-white p-3 rounded-3 border shadow-sm">
+                <input class="form-check-input ms-1 border-secondary" type="checkbox" id="checkConfirm" required>
+                <label class="form-check-label small ms-2 fw-semibold text-dark" for="checkConfirm">
+                    Soy consciente de las implicaciones y confirmo la ejecución de esta directiva.
                 </label>
             </div>
         </div>
-        <div class="modal-footer bg-light">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-            <button type="submit" class="btn btn-danger fw-bold" id="btnConfirmarRetiro" disabled>
-                <i class="fas fa-archive me-2"></i>Ejecutar Retiro
+        <div class="modal-footer bg-white border-top p-3">
+            <button type="button" class="btn btn-light border fw-bold rounded-pill px-4" data-bs-dismiss="modal">Abortar</button>
+            <button type="submit" class="btn btn-danger fw-bold rounded-pill px-4 shadow-sm" id="btnConfirmarRetiro" disabled>
+                <i class="fas fa-skull-crossbones me-2"></i> Confirmar Expulsión
             </button>
         </div>
       </form>
@@ -208,30 +228,74 @@
 
 <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
-    /* Estilos para Select2 Single (Curso) */
+    /* Estilos Select2 Premium */
     .select2-container .select2-selection--single { 
-        height: 38px; 
-        border: 1px solid #ced4da; 
+        height: 45px; 
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
     }
     .select2-container--default .select2-selection--single .select2-selection__rendered { 
-        line-height: 36px; 
-    }
-    .select2-container--default .select2-selection--single .select2-selection__arrow { 
-        height: 36px; 
-    }
-
-    /* NUEVO: Estilos para Select2 Multiple (Estudiantes) */
-    .select2-container .select2-selection--multiple {
-        min-height: 38px;
-        border: 1px solid #ced4da;
-    }
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
-        background-color: #e9ecef;
-        border: 1px solid #ced4da;
+        line-height: 43px;
+        padding-left: 15px;
         color: #495057;
     }
+    .select2-container--default .select2-selection--single .select2-selection__arrow { 
+        height: 43px;
+        right: 10px;
+    }
 
+    .select2-container .select2-selection--multiple {
+        min-height: 45px;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        padding: 4px;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #e0e7ff;
+        border: 1px solid #bfdbfe;
+        color: #1e40af;
+        border-radius: 6px;
+        padding: 2px 8px;
+        font-weight: 500;
+    }
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #1e40af;
+        margin-right: 5px;
+    }
+
+    /* Toggles Custom Premium */
     .cursor-pointer { cursor: pointer; }
+    .custom-switch {
+        width: 3em !important;
+        height: 1.5em !important;
+    }
+    .custom-switch:checked {
+        background-color: #10b981;
+        border-color: #10b981;
+    }
+    
+    /* Toggle Peligro (Bloqueo Financiero) */
+    .switch-danger {
+        width: 3em !important;
+        height: 1.5em !important;
+        background-color: #ef4444; /* Rojo cuando está apagado/bloqueado */
+        border-color: #ef4444;
+    }
+    .switch-danger:checked {
+        background-color: #10b981; /* Verde cuando está prendido/activo */
+        border-color: #10b981;
+    }
+    
+    /* Utilidades extra */
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .tracking-wide { letter-spacing: 0.5px; }
+    .transition-base { transition: all 0.2s ease-in-out; }
+    .hover-bg-light:hover { background-color: #f8fafc !important; }
+    .btn-hover-lift { transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-hover-lift:hover { transform: translateY(-2px); box-shadow: 0 8px 15px rgba(0,0,0,0.1) !important; }
+    
+    @keyframes pulse-dot { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+    .pulse-icon { animation: pulse-dot 2s infinite; }
 </style>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> 
@@ -242,7 +306,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar Select2
     $('.select2').select2({ width: '100%', dropdownParent: $('body') });
 
-    // Lógica del Modal
+    // Lógica del Modal de Retiro Intacta
     var modalElement = document.getElementById('modalRetirarEstudiante');
     var checkConfirm = document.getElementById('checkConfirm');
     var btnConfirmar = document.getElementById('btnConfirmarRetiro');
@@ -267,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Lógica Toggles (Permisos)
+    // Lógica CSRF Token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -284,6 +348,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     const csrftoken = getCookie('csrftoken');
 
+    // 🔥 LOGICA DE TOGGLES ASINCRONOS EXTENDIDA (MANTIENE LA EXISTENTE) 🔥
     const toggles = document.querySelectorAll('.toggle-permiso');
     toggles.forEach(switchEl => {
         switchEl.addEventListener('change', async function(e) {
@@ -291,21 +356,48 @@ document.addEventListener('DOMContentLoaded', function() {
             const nuevoEstado = e.target.checked;
             const tipo = e.target.dataset.tipo;
             
-            let urlApi = (tipo === 'boletin') 
-                ? "{% url 'panel_api_toggle_boletin_permiso' %}" 
-                : "{% url 'panel_api_toggle_observador' %}";
+            // Ruteo Inteligente a la API
+            let urlApi = "";
+            
+            if (tipo === 'boletin') {
+                urlApi = "{% url 'panel_api_toggle_boletin_permiso' %}";
+            } else if (tipo === 'observador') {
+                urlApi = "{% url 'panel_api_toggle_observador' %}";
+            } else if (tipo === 'financiero') {
+                // ESTA URL DEBE EXISTIR EN urls.py y views.py (EJ: path('api/toggle_acceso/', views.panel_api_toggle_acceso, name='panel_api_toggle_acceso'))
+                urlApi = "{% url 'panel_api_toggle_acceso' %}"; 
+            }
 
             try {
+                // Indicador visual de carga en el switch
+                e.target.style.opacity = '0.5';
+                
                 const response = await fetch(urlApi, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrftoken },
                     body: JSON.stringify({ 'estudiante_id': estudianteId, 'estado': nuevoEstado })
                 });
+                
                 const data = await response.json();
+                e.target.style.opacity = '1'; // Restaurar opacidad
+                
                 if (!response.ok || data.status !== 'ok') throw new Error();
+                
+                // Feedback opcional visual (flash verde)
+                const tdParent = e.target.closest('td');
+                tdParent.style.backgroundColor = 'rgba(16, 185, 129, 0.2)';
+                setTimeout(() => { tdParent.style.backgroundColor = ''; }, 500);
+
             } catch (error) {
+                // Revertir el switch si falla la BD
+                e.target.style.opacity = '1';
                 e.target.checked = !nuevoEstado;
-                alert('No se pudo actualizar el permiso.');
+                
+                let errorMsg = 'No se pudo actualizar el permiso de datos.';
+                if(tipo === 'financiero') {
+                    errorMsg = 'Error al ejecutar bloqueo de plataforma. ¿Aseguraste crear la vista "panel_api_toggle_acceso" en views.py?';
+                }
+                alert(errorMsg);
             }
         });
     });
