@@ -2976,96 +2976,42 @@ def _generar_boletin_pdf_logica(request, matricula_id: int):
 @role_required('ADMINISTRADOR')
 def generar_boletin_pdf_admin(request, estudiante_id, return_file=False):
     """
-    Genera el Boletín Académico.
-    CORRECCIÓN APLICADA: Nombre del template corregido.
+    Genera el Boletín Académico Oficial desde el panel de Administración.
+    ⚡ REFACTORIZACIÓN GOD-TIER: Ahora usa el motor centralizado DRY,
+    garantizando que el Admin vea exactamente lo mismo que el Acudiente.
     """
-    # Imports necesarios
-    from .models import Matricula, AsignacionMateria, Nota, Materia, Convivencia, Periodo, Institucion
-    from django.template.loader import render_to_string
-    from django.core.files.base import ContentFile
     try:
-        from weasyprint import HTML
-    except ImportError:
-        HTML = None
-
-    try:
-        # 1. Obtener Estudiante
         estudiante = get_object_or_404(User, id=estudiante_id)
 
-        # 2. Obtener Matrícula (Flexible: Activa o Histórica)
+        # 1. Obtener Matrícula (Flexible: Activa o Histórica)
+        # Esto es vital porque el Admin a veces quiere ver boletines de años pasados
         matricula = Matricula.objects.filter(estudiante=estudiante, activo=True).select_related('curso').first()
         
         if not matricula:
-            # Si no hay activa, busca la última histórica
+            # Fallback a la matrícula más reciente si no hay activa
             matricula = Matricula.objects.filter(estudiante=estudiante).select_related('curso').order_by('-id').first()
 
         if not matricula:
             if return_file: return None
-            messages.error(request, "Este estudiante nunca ha sido matriculado.")
+            messages.error(request, "Este estudiante nunca ha sido matriculado. No se puede generar boletín.")
             return redirect('admin_dashboard')
 
-        curso = matricula.curso
-
-        # 3. Datos Académicos
-        periodos = Periodo.objects.filter(curso=curso).order_by('id')
+        # 2. Reutilización Inteligente del Motor Central
+        # Llamamos a la lógica interna que ya procesa perfectamente las notas (la misma del acudiente)
+        response = _generar_boletin_pdf_logica(request, matricula.id)
         
-        materias_ids = set(AsignacionMateria.objects.filter(curso=curso).values_list('materia_id', flat=True))
-        materias_ids.update(Nota.objects.filter(estudiante=estudiante, periodo__curso=curso).values_list('materia_id', flat=True))
-        materias = Materia.objects.filter(id__in=materias_ids).order_by('nombre')
-
-        notas_por_materia = {}
-        for materia in materias:
-            notas_materia = {}
-            for periodo in periodos:
-                qs = Nota.objects.filter(estudiante=estudiante, materia=materia, periodo=periodo).order_by('numero_nota')
-                if qs.exists():
-                    notas_materia[periodo] = qs
-            if notas_materia:
-                notas_por_materia[materia] = notas_materia
-
-        # Convivencia
-        convivencia_data = {}
-        convivencias = Convivencia.objects.filter(estudiante=estudiante, curso=curso).select_related('periodo')
-        for c in convivencias:
-            convivencia_data[c.periodo.id] = {'valor': c.valor, 'comentario': c.comentario}
-
-        # 4. Renderizado
-        context = {
-            'institucion': Institucion.objects.first(),
-            'estudiante': estudiante,
-            'curso': curso,
-            'matricula': matricula,
-            'periodos': periodos,
-            'materias': materias,
-            'notas_por_materia': notas_por_materia,
-            'convivencia_notas': convivencia_data,
-            'fecha_emision': timezone.now(),
-            'request': request
-        }
-
-        # --- AQUÍ ESTABA EL ERROR: CAMBIADO A 'boletin_template.html' ---
-        html_string = render_to_string('pdf/boletin_template.html', context)
-
-        if HTML is None:
-            if return_file: return None
-            return HttpResponse("Error: Librería PDF no instalada.", status=500)
-
-        pdf_bytes = HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
-
-        # 5. Retorno
-        filename = f"Boletin_{estudiante.username}.pdf"
-        
+        # 3. Manejo especial si se requiere como archivo (Retiros masivos)
         if return_file:
-            return ContentFile(pdf_bytes, name=filename)
+            from django.core.files.base import ContentFile
+            # Extraemos los bytes del HttpResponse que generó WeasyPrint
+            return ContentFile(response.content, name=f"Boletin_{estudiante.username}.pdf")
 
-        response = HttpResponse(pdf_bytes, content_type='application/pdf')
-        response['Content-Disposition'] = f'inline; filename="{filename}"'
         return response
 
     except Exception as e:
-        print(f"❌ ERROR: {e}") # Dejamos el print por seguridad
+        logger.exception(f"Error generando boletín desde panel Admin: {e}")
         if return_file: return None
-        messages.error(request, f"Error generando boletín: {e}")
+        messages.error(request, f"Error crítico al generar el documento: {str(e)}")
         return redirect('admin_dashboard')
 
 
