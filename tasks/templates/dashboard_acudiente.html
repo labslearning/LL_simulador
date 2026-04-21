@@ -1,496 +1,394 @@
 {% extends 'base.html' %}
-
 {% load dict_filters %}
-
 {% load custom_filters %}
-
 {% load note_filters %}
-
 {% load static %}
 
-
-
 {% block content %}
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-
-
 <style>
-
-/* Estilos adicionales para un look más profesional */
+/* Variables Maestras de Arquitectura CYBER-DARK (Alineadas con Estudiante) */
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap');
 
 :root {
+    /* Paleta Cybernetics Dark */
+    --color-primary-candy: #3b82f6;   /* Cyber Blue */
+    --color-secondary-candy: #0ea5e9; /* Ocean Blue */
+    --color-accent-candy: #d946ef;    /* Neon Fuchsia */
+    --color-success-candy: #10b981;   /* Matrix Emerald */
+    --color-danger-candy: #f43f5e;    /* Alert Rose */
+    --color-warning-candy: #f59e0b;   /* Warning Amber */
+    --color-cyan: #06b6d4;            /* Terminal Cyan */
+    
+    /* UI Structure Dark */
+    --color-bg-base: #020617;         /* Void Black */
+    --color-dark-omni: #0f172a;       /* Deep Slate Core */
+    --color-glass-base: rgba(15, 23, 42, 0.85); /* Dark Glass */
+    
+    /* Complex Gradients Dark */
+    --gradient-primary-candy: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    --gradient-accent-candy: linear-gradient(135deg, #d946ef 0%, #9333ea 100%);
+    --gradient-danger-candy: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+    --gradient-success: linear-gradient(135deg, #10b981 0%, #047857 100%);
+    --gradient-aurora: linear-gradient(135deg, #3b82f6 0%, #d946ef 50%, #f43f5e 100%);
+    --gradient-cyber: linear-gradient(135deg, #020617 0%, #0f172a 100%);
+    --gradient-cyan: linear-gradient(135deg, #06b6d4 0%, #0369a1 100%);
+    --gradient-warning: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+    
+    /* Typography */
+    --font-sans: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', SFMono-Regular, Consolas, monospace;
+    
+    /* Depth, Elevation & Light (Shadows) Dark Mode */
+    --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+    --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
+    --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+    --shadow-hyper: 0 0 40px rgba(16, 185, 129, 0.15); /* Emerald ambient for Acudiente */
+    --shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.5);
+    --shadow-inner-dark: inset 0 2px 10px 0 rgba(0, 0, 0, 0.8);
+    
+    /* Neon Glows */
+    --shadow-glow-aurora: 0 0 20px rgba(217, 70, 239, 0.5);
+    --shadow-glow-success: 0 0 20px rgba(16, 185, 129, 0.5);
+    --shadow-glow-danger: 0 0 20px rgba(244, 63, 94, 0.5);
+    --shadow-glow-warning: 0 0 20px rgba(245, 158, 11, 0.5);
+    --shadow-glow-cyan: 0 0 20px rgba(6, 182, 212, 0.5);
+    --shadow-glow-primary: 0 0 20px rgba(59, 130, 246, 0.5);
 
-    --edu-acudiente-primary: #28a745; /* Verde éxito de Bootstrap como primario */
-
-    --edu-acudiente-primary-light: #d1e7dd; /* Verde claro para fondos */
-
-    --edu-acudiente-bg: #f8f9fa; /* Fondo general */
-
-    --edu-acudiente-card-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-
-    --edu-acudiente-radius: 0.75rem; /* Bordes más redondeados */
-
+    /* Text Shadows */
+    --text-shadow-glow: 0 0 10px rgba(255, 255, 255, 0.3);
+    --text-shadow-glow-cyan: 0 0 10px rgba(6, 182, 212, 0.6);
+    --text-shadow-glow-success: 0 0 10px rgba(16, 185, 129, 0.6);
+    --text-shadow-glow-warning: 0 0 10px rgba(245, 158, 11, 0.6);
 }
-
-
 
 body {
-
-    background-color: var(--edu-acudiente-bg);
-
+    background-color: var(--color-bg-base);
+    color: #e2e8f0;
+    font-family: var(--font-sans);
 }
 
+/* Global Reset for Components */
+.font-monospace { font-family: var(--font-mono) !important; }
+.fw-black { font-weight: 900 !important; }
+.tracking-widest { letter-spacing: 0.1em; }
+.text-shadow-glow { text-shadow: var(--text-shadow-glow); }
+.text-shadow-glow-success { text-shadow: var(--text-shadow-glow-success); }
+.text-shadow-glow-cyan { text-shadow: var(--text-shadow-glow-cyan); }
+.ls-1 { letter-spacing: 1px; }
 
+/* Backgrounds & Glassmorphism */
+.bg-dark-omni { background-color: var(--color-dark-omni) !important; }
+.bg-void { background-color: var(--color-bg-base) !important; }
+.omni-glass-panel { 
+    background: var(--color-glass-base); 
+    backdrop-filter: blur(24px) saturate(150%); 
+    -webkit-backdrop-filter: blur(24px) saturate(150%); 
+    border: 1px solid rgba(16, 185, 129, 0.15); /* Emerald tint for Acudiente */
+}
+.omni-glass-modal { 
+    background: rgba(15, 23, 42, 0.95) !important; 
+    backdrop-filter: blur(30px) saturate(200%); 
+    border: 1px solid rgba(16, 185, 129, 0.3) !important; 
+}
 
+/* 🛡️ Guardian Header */
 .acudiente-header {
-
-    padding: 2.5rem 1.5rem;
-
-    background: linear-gradient(135deg, var(--edu-acudiente-primary), #208a38); /* Gradiente sutil */
-
-    color: white;
-
-    border-radius: var(--edu-acudiente-radius);
-
+    padding: 3rem 2rem;
+    background: var(--gradient-cyber);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 24px;
     margin-bottom: 2.5rem;
-
-    box-shadow: 0 0.5rem 1rem rgba(40, 167, 69, 0.3);
-
+    box-shadow: var(--shadow-glow-success);
+    position: relative;
+    overflow: hidden;
+}
+.acudiente-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 4px;
+    background: var(--gradient-success);
+}
+.acudiente-header .icon-container {
+    position: relative;
+    display: inline-block;
+}
+.acudiente-header .pulse-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 140%; height: 140%;
+    border-radius: 50%;
+    background: var(--gradient-success);
+    filter: blur(20px);
+    opacity: 0.3;
+    animation: pulseRing 3s infinite alternate;
+    z-index: 0;
 }
 
-
-
-.acudiente-header i {
-
-    opacity: 0.8;
-
-}
-
-
-
-.nav-tabs .nav-link {
-
-    color: var(--edu-acudiente-primary);
-
-    font-weight: 500;
-
-    border: none;
-
-    border-bottom: 3px solid transparent;
-
-    padding: 0.8rem 1.5rem;
-
-    margin-bottom: -1px; /* Alinea con el borde del contenido */
-
-    transition: all 0.2s ease-in-out;
-
-}
-
-
-
-.nav-tabs .nav-link.active {
-
-    color: var(--edu-acudiente-primary);
-
-    font-weight: 600;
-
-    background-color: transparent; /* Fondo transparente */
-
-    border-bottom: 3px solid var(--edu-acudiente-primary);
-
-}
-
-
-
-.nav-tabs .nav-link:hover:not(.active) {
-
-    border-bottom: 3px solid #a6d9b3; /* Verde muy claro para hover */
-
-    background-color: rgba(40, 167, 69, 0.05);
-
-}
-
-
-
-.tab-content {
-
-    background-color: white;
-
-    padding: 2rem;
-
-    border: 1px solid #dee2e6;
-
-    border-top: none; /* El borde superior lo simulan las tabs */
-
-    border-radius: 0 0 var(--edu-acudiente-radius) var(--edu-acudiente-radius);
-
-    box-shadow: var(--edu-acudiente-card-shadow);
-
-}
-
-
-
-/* Ajustes para el contenido incluido */
-
-.tab-pane .card {
-
-    box-shadow: none !important; /* Quitar sombras anidadas si las hay */
-
-    border: 1px solid #eee; /* Añadir un borde sutil si es necesario */
-
-}
-
-
-
-/* 🤖 Estilo para el botón de IA */
-
+/* 🤖 Botón de IA (Stratos) */
 .btn-ai-acudiente {
-
-    background: linear-gradient(to right, #6a11cb, #2575fc);
-
+    background: var(--gradient-primary-candy);
     color: white;
-
-    border: none;
-
-    transition: transform 0.2s;
-
+    border: 1px solid rgba(255,255,255,0.2);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--shadow-glow-primary);
 }
-
 .btn-ai-acudiente:hover {
-
-    transform: scale(1.05);
-
+    transform: translateY(-4px) scale(1.05);
     color: white;
-
-    box-shadow: 0 4px 15px rgba(106, 17, 203, 0.4);
-
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8);
+    border-color: #fff;
 }
 
-
-
-/* 📊 Nuevos Estilos para las Estadísticas */
-
+/* 📊 Tarjetas de Estadísticas Cyber */
 .stat-card {
-
-    border: 1px solid rgba(0,0,0,0.05);
-
-    border-radius: 1rem;
-
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-
-    transition: transform 0.2s;
-
+    background: var(--color-dark-omni);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 16px;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
     height: 100%;
-
-    background: #fff;
-
     position: relative;
-
+    overflow: hidden;
 }
-
 .stat-card:hover {
-
-    transform: translateY(-3px);
-
-    box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-hyper);
+    border-color: rgba(16, 185, 129, 0.3);
 }
-
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; width: 4px; height: 100%;
+    background: var(--gradient-success);
+    opacity: 0.5;
+}
 .chart-container {
-
     position: relative;
-
     width: 100%;
-
 }
 
+/* Gráfico circular CSS para asistencia (Dark Mode adaptado) */
+.circular-chart { display: block; margin: 0 auto; max-width: 100%; max-height: 250px; filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.4)); transform: rotate(-90deg); }
+.circle-bg { fill: none; stroke: rgba(255,255,255,0.05); stroke-width: 3.8; }
+.circle { fill: none; stroke-width: 2.8; stroke-linecap: round; animation: progress 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+@keyframes progress { 0% { stroke-dasharray: 0 100; } }
+@keyframes pulseRing { 0% { transform: translate(-50%, -50%) scale(0.8); opacity: 0.1; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; } }
 
-
-/* Gráfico circular CSS para asistencia */
-
-.circular-chart {
-
-  display: block;
-
-  margin: 0 auto;
-
-  max-width: 100%;
-
-  max-height: 250px;
-
+/* Navegación por Pestañas Cyber */
+.nav-tabs { border-bottom: 1px solid rgba(16, 185, 129, 0.3); }
+.nav-tabs .nav-link {
+    background-color: var(--color-bg-base);
+    color: var(--color-cyan);
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px 12px 0 0;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 1rem 2rem;
+    transition: all 0.3s ease;
+    margin-bottom: -1px;
+}
+.nav-tabs .nav-link:hover {
+    background-color: rgba(6, 182, 212, 0.1);
+    color: var(--color-success-candy);
+}
+.nav-tabs .nav-link.active {
+    background: var(--color-dark-omni);
+    color: var(--color-success-candy);
+    border-color: rgba(16, 185, 129, 0.3) rgba(16, 185, 129, 0.3) transparent rgba(16, 185, 129, 0.3);
+    box-shadow: 0 -5px 15px rgba(16, 185, 129, 0.1);
+    border-bottom: 3px solid var(--color-dark-omni);
+}
+.tab-content {
+    background: var(--color-dark-omni);
+    padding: 2rem;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+    box-shadow: var(--shadow-hyper);
 }
 
-.circle-bg {
-
-  fill: none;
-
-  stroke: #eee;
-
-  stroke-width: 3.8;
-
+/* Ajustes Tablas Cyber */
+.table { color: #e2e8f0; }
+.table-hover tbody tr:hover { color: #fff; background-color: rgba(16, 185, 129, 0.05); }
+.table thead th { 
+    background-color: var(--color-bg-base) !important; 
+    color: var(--color-success-candy); 
+    border-bottom: 2px solid rgba(16, 185, 129, 0.3); 
+    font-family: var(--font-mono); 
+    letter-spacing: 0.05em;
 }
+.table td { border-bottom: 1px solid rgba(255,255,255,0.05); background-color: transparent !important; }
+.table-striped tbody tr:nth-of-type(odd) { background-color: rgba(255,255,255,0.02); }
+.table-danger th { background-color: rgba(244, 63, 94, 0.1) !important; color: var(--color-danger-candy) !important; border-bottom-color: rgba(244, 63, 94, 0.3); }
 
-.circle {
-
-  fill: none;
-
-  stroke-width: 2.8;
-
-  stroke-linecap: round;
-
-  animation: progress 1s ease-out forwards;
-
+/* Modales y Formularios */
+.modal-header { border-bottom: 1px solid rgba(255,255,255,0.1); }
+.modal-footer { border-top: 1px solid rgba(255,255,255,0.1); }
+.form-control {
+    background-color: var(--color-bg-base) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #fff !important;
+    font-family: var(--font-mono);
 }
-
-@keyframes progress {
-
-  0% { stroke-dasharray: 0 100; }
-
+.form-control:focus {
+    box-shadow: var(--shadow-glow-cyan) !important;
+    border-color: var(--color-cyan) !important;
 }
-
+.form-floating label { color: var(--color-textMuted); }
+.input-group-text { background-color: var(--color-dark-omni); border-color: rgba(255,255,255,0.1); color: var(--color-cyan); }
 </style>
-
-
 
 <div class="container mt-4 py-4">
 
-    
     {% if messages %}
     <div class="row justify-content-center mb-4" style="position: relative; z-index: 100;">
         <div class="col-md-10">
             {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show shadow-sm border-0" role="alert">
+                <div class="alert bg-dark-omni border border-{% if message.tags == 'error' %}danger{% else %}success{% endif %} alert-dismissible fade show shadow-hyper" role="alert">
                     <div class="d-flex align-items-center">
-                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %} fa-lg me-3"></i>
-                        <div><strong>Aviso del Sistema:</strong> {{ message }}</div>
+                        <i class="fas {% if message.tags == 'error' %}fa-exclamation-triangle text-danger-candy{% else %}fa-shield-check text-success-candy{% endif %} fa-2x me-3 text-shadow-glow"></i>
+                        <div class="font-monospace text-white"><strong class="{% if message.tags == 'error' %}text-danger-candy{% else %}text-success-candy{% endif %}">TELEMETRÍA:</strong> {{ message }}</div>
                     </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white opacity-50 hover-opacity-100" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             {% endfor %}
         </div>
     </div>
     {% endif %}
 
-
-    <div class="acudiente-header text-center shadow-sm">
-
-        <i class="fas fa-user-shield fa-4x mb-3"></i>
-
-        <h2 class="fw-bold">Panel del Acudiente</h2>
-
-        <p class="lead mb-0">Bienvenido, {{ acudiente.get_full_name|default:acudiente.username }}.</p>
-
-    </div>
-
-
-
-    <div class="row justify-content-center mb-4" style="margin-top: -20px; position: relative; z-index: 10;">
-
-        <div class="col-md-10 col-lg-8">
-
-            <div class="card border-0 shadow-sm">
-
-                <div class="card-body p-3 d-flex justify-content-between align-items-center">
-
-                    <div class="d-flex align-items-center">
-
-                        <div class="rounded-circle p-3 me-3 d-flex align-items-center justify-content-center"
-
-                            style="width: 50px; height: 50px; background-color: {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}#d1e7dd{% else %}#f8d7da{% endif %};">
-
-                            <i class="fas fa-sms fa-lg {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}text-success{% else %}text-danger{% endif %}"></i>
-
-                        </div>
-
-                        <div>
-
-                            <h6 class="fw-bold mb-0 text-dark">Alertas al Celular</h6>
-
-                            <small class="text-muted">
-
-                                {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}
-
-                                    Activo en: <strong>+57 {{ request.user.perfil.telefono_sms }}</strong>
-
-                                {% else %}
-
-                                    <span class="text-danger">⚠️ Servicio inactivo.</span>
-
-                                {% endif %}
-
-                            </small>
-
-                        </div>
-
-                    </div>
-
-                    <button class="btn btn-outline-dark btn-sm rounded-pill px-4" data-bs-toggle="modal" data-bs-target="#modalSMS">
-
-                        <i class="fas fa-cog me-1"></i> Configurar
-
-                    </button>
-
-                </div>
-
-            </div>
-
+    <div class="acudiente-header text-center shadow-hyper">
+        <div class="icon-container mb-3">
+            <div class="pulse-ring"></div>
+            <i class="fas fa-user-shield fa-4x text-white position-relative" style="z-index: 2; filter: drop-shadow(0 0 10px rgba(16,185,129,0.8));"></i>
         </div>
-
+        <h2 class="fw-black text-white text-shadow-glow tracking-widest text-uppercase font-monospace mb-2">Panel de Control Guardián</h2>
+        <p class="text-success-candy fw-bold mb-0 font-monospace tracking-wide">ID Autorizado: <span class="text-white">{{ acudiente.get_full_name|default:acudiente.username }}</span></p>
     </div>
 
-
+    <div class="row justify-content-center mb-4" style="margin-top: -40px; position: relative; z-index: 10;">
+        <div class="col-md-10 col-lg-8">
+            <div class="card bg-dark-omni border border-success shadow-hyper rounded-4">
+                <div class="card-body p-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle p-3 me-3 d-flex align-items-center justify-content-center border {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}border-success bg-void shadow-glow-success{% else %}border-danger bg-void shadow-glow-danger{% endif %}"
+                            style="width: 50px; height: 50px;">
+                            <i class="fas fa-satellite-dish fa-lg {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}text-success-candy{% else %}text-danger-candy{% endif %}"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-black mb-0 text-white font-monospace tracking-widest text-uppercase fs-8">Enlace de Telemetría Móvil</h6>
+                            <small class="font-monospace">
+                                {% if request.user.perfil.telefono_sms and request.user.perfil.recibir_sms %}
+                                    <span class="text-success-candy"><i class="fas fa-circle pulse-fast me-1" style="font-size:0.5rem;"></i>Activo:</span> <strong class="text-white">+57 {{ request.user.perfil.telefono_sms }}</strong>
+                                {% else %}
+                                    <span class="text-danger-candy"><i class="fas fa-exclamation-triangle me-1"></i>Enlace Desconectado</span>
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    <button class="btn bg-gradient-cyber border border-success text-success-candy fw-bold font-monospace shadow-glow-success rounded-pill px-4 btn-sm" data-bs-toggle="modal" data-bs-target="#modalSMS">
+                        <i class="fas fa-sliders-h me-1"></i> Calibrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="modal fade" id="modalSMS" tabindex="-1" aria-hidden="true">
-
         <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content">
-
-                <div class="modal-header bg-dark text-white">
-
-                    <h5 class="modal-title"><i class="fas fa-mobile-alt me-2"></i>Ajustes de Notificación</h5>
-
+            <div class="modal-content omni-glass-modal shadow-hyper rounded-4">
+                <div class="modal-header bg-void border-bottom border-success">
+                    <h5 class="modal-title text-success-candy fw-black font-monospace tracking-widest text-uppercase fs-6"><i class="fas fa-satellite me-2 text-shadow-glow-success"></i>Ajustes de Notificación</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-
                 </div>
-
                 <form action="{% url 'actualizar_configuracion_sms' %}" method="POST">
-
                     {% csrf_token %}
-
-                    <div class="modal-body">
-
-                        <div class="alert alert-info border-0 shadow-sm small">
-
+                    <div class="modal-body bg-dark-omni p-4">
+                        <div class="alert bg-void border border-cyan text-cyan shadow-glow-cyan small font-monospace mb-4">
                             <i class="fas fa-shield-alt me-1"></i>
-
-                            Recibirás alertas inmediatas por fallas de asistencia y recordatorios de mensajes acumulados.
-
+                            Recibirás alertas inmediatas por fallas de asistencia y recordatorios de mensajes acumulados en tu terminal.
                         </div>
-
                         <div class="mb-3">
-
-                            <label class="form-label fw-bold">Número de Celular (Colombia)</label>
-
-                            <div class="input-group input-group-lg">
-
-                                <span class="input-group-text bg-light text-muted border-end-0">+57</span>
-
-                                <input type="tel" name="telefono_sms" class="form-control border-start-0 ps-1"
-
+                            <label class="form-label fw-bold text-white font-monospace tracking-wide">Número de Celular (Colombia)</label>
+                            <div class="input-group input-group-lg shadow-inner-dark rounded-3 overflow-hidden border border-secondary">
+                                <span class="input-group-text bg-void text-success-candy border-0 fw-black">+57</span>
+                                <input type="tel" name="telefono_sms" class="form-control border-0 bg-void text-white fw-bold ps-1"
                                     placeholder="3001234567"
-
                                     value="{{ request.user.perfil.telefono_sms|default:'' }}"
-
                                     pattern="[0-9]{10}" maxlength="10" required>
-
                             </div>
-
                         </div>
-
-                        <div class="form-check form-switch mb-3">
-
-                            <input class="form-check-input" type="checkbox" name="recibir_sms" id="checkSMS"
-
+                        <div class="form-check form-switch mb-2 d-flex align-items-center">
+                            <input class="form-check-input me-3" type="checkbox" name="recibir_sms" id="checkSMS" style="transform: scale(1.3);"
                                 {% if request.user.perfil.recibir_sms %}checked{% endif %}>
-
-                            <label class="form-check-label" for="checkSMS">Autorizo recibir mensajes de texto</label>
-
+                            <label class="form-check-label text-white-50 font-monospace tracking-wide mt-1" for="checkSMS">Autorizo recibir mensajes de texto</label>
                         </div>
-
                     </div>
-
-                    <div class="modal-footer bg-light">
-
-                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-
-                        <button type="submit" class="btn btn-success px-4">Guardar Cambios</button>
-
+                    <div class="modal-footer bg-void border-top border-secondary">
+                        <button type="button" class="btn btn-link text-muted text-decoration-none font-monospace" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn bg-gradient-success text-white fw-black font-monospace tracking-widest text-uppercase rounded-pill px-4 shadow-glow-success border border-white">Guardar Cambios</button>
                     </div>
-
                 </form>
-
             </div>
-
         </div>
-
     </div>
 
     {% if estudiantes_data %}
-
         {% if estudiantes_data|length > 1 %}
-
             <ul class="nav nav-tabs nav-fill mb-0" id="studentTab" role="tablist">
-
                 {% for data in estudiantes_data %}
-
                     <li class="nav-item" role="presentation">
-
                         <button class="nav-link {% if forloop.first %}active{% endif %}"
-
                                 id="tab-{{ data.estudiante.id }}"
-
                                 data-bs-toggle="tab"
-
                                 data-bs-target="#content-{{ data.estudiante.id }}"
-
                                 type="button" role="tab"
-
                                 aria-controls="content-{{ data.estudiante.id }}"
-
                                 aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-
-                            <i class="fas fa-user-graduate me-2"></i>{{ data.estudiante.get_full_name }}
-
+                            <i class="fas fa-user-astronaut me-2"></i>{{ data.estudiante.get_full_name }}
                         </button>
-
                     </li>
-
                 {% endfor %}
-
             </ul>
-
         {% endif %}
 
-
-
         <div class="tab-content {% if estudiantes_data|length == 1 %}mt-4{% endif %}" id="studentTabContent"> 
-
             {% for data in estudiantes_data %}
-
                 <div class="tab-pane fade {% if forloop.first %}show active{% endif %}"
-
                      id="content-{{ data.estudiante.id }}" role="tabpanel"
-
                      aria-labelledby="tab-{{ data.estudiante.id }}">
 
-
-
-                    <div class="card border-0 shadow-sm mb-4" style="background: linear-gradient(to right, #ffffff, #f8f9fa);">
+                    <div class="card border border-cyan shadow-hyper mb-4 bg-dark-omni rounded-4 overflow-hidden position-relative">
+                        <div class="position-absolute top-0 start-0 w-100 bg-gradient-cyan" style="height: 4px;"></div>
                         <div class="card-body p-4">
                             <div class="row align-items-center">
                                 <div class="col-lg-6 mb-3 mb-lg-0">
                                     <div class="d-flex align-items-center">
-                                        <div class="bg-white p-2 rounded-circle shadow-sm border me-3">
-                                            <i class="fas fa-id-card fa-2x text-secondary"></i>
+                                        <div class="bg-gradient-cyber p-3 rounded-circle shadow-glow-cyan border border-cyan me-3 d-flex justify-content-center align-items-center flex-shrink-0" style="width: 60px; height: 60px;">
+                                            <i class="fas fa-id-card fa-2x text-cyan text-shadow-glow-cyan"></i>
                                         </div>
                                         <div>
-                                            <small class="text-muted text-uppercase fw-bold ls-1" style="font-size: 0.7rem;">Documento de Identidad</small>
+                                            <small class="text-cyan text-uppercase fw-black tracking-widest font-monospace opacity-75 fs-9">Documento de Identidad</small>
                                             <div class="d-flex align-items-center gap-2">
-                                                <h3 class="fw-bold text-dark mb-0">
+                                                <h3 class="fw-black text-white mb-0 font-monospace text-shadow-glow">
                                                     {% if data.estudiante.perfil.numero_documento %}
                                                         {{ data.estudiante.perfil.numero_documento }}
                                                     {% else %}
-                                                        <span class="text-danger small">Sin registrar</span>
+                                                        <span class="text-danger-candy small">Sin registrar</span>
                                                     {% endif %}
                                                 </h3>
-                                                <button class="btn btn-link btn-sm text-muted p-0" data-bs-toggle="modal" data-bs-target="#modalEditDoc_{{ data.estudiante.id }}" title="Editar Documento">
-                                                    <i class="fas fa-pencil-alt"></i>
+                                                <button class="btn btn-dark-omni border border-cyan text-cyan shadow-glow-cyan btn-sm rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 28px; height: 28px;" data-bs-toggle="modal" data-bs-target="#modalEditDoc_{{ data.estudiante.id }}" title="Editar Documento">
+                                                    <i class="fas fa-pencil-alt fs-9"></i>
                                                 </button>
                                             </div>
-                                            <small class="text-success"><i class="fas fa-check-circle me-1"></i>Estudiante Activo</small>
+                                            <small class="text-success-candy font-monospace"><i class="fas fa-check-circle me-1"></i>Sujeto En Línea</small>
                                         </div>
                                     </div>
                                 </div>
@@ -499,25 +397,25 @@ body {
                                     <div class="d-flex justify-content-lg-end gap-2 flex-wrap">
                                         
                                         <a href="#" onclick="iniciarAnalisisAcudiente(event, '{% url 'ai_engine' %}?action=apoyo_acudiente&target_id={{ data.estudiante.id }}', '{{ data.estudiante.get_full_name }}')"
-                                           class="btn btn-ai-acudiente rounded-pill px-3 shadow-sm fw-bold small">
-                                            <i class="fas fa-robot me-2"></i>Guía IA
+                                           class="btn btn-ai-acudiente rounded-pill px-3 py-2 shadow-glow-primary border border-white fw-black font-monospace text-uppercase tracking-wide small d-flex align-items-center">
+                                            <i class="fas fa-brain me-2 fs-5"></i>Guía IA
                                         </a>
 
                                         {% if data.matricula %}
-                                            <a href="{% url 'generar_certificado_estudiantil' data.estudiante.id %}" target="_blank" class="btn btn-warning text-dark fw-bold shadow-sm rounded-pill px-3 small" title="Descargar Certificado Oficial">
-                                                <i class="fas fa-certificate me-2"></i>Certificado
+                                            <a href="{% url 'generar_certificado_estudiantil' data.estudiante.id %}" target="_blank" class="btn bg-gradient-warning text-white fw-black shadow-glow-warning border border-white rounded-pill px-3 py-2 small font-monospace text-uppercase tracking-wide d-flex align-items-center" title="Descargar Certificado Oficial">
+                                                <i class="fas fa-certificate me-2 fs-5"></i>Certificado
                                             </a>
                                         {% endif %}
 
                                         {% if data.matricula and data.matricula.puede_generar_boletin %}
-                                            <a href="{% url 'generar_boletin_acudiente' data.estudiante.id %}" class="btn btn-success rounded-pill px-3 small" target="_blank">
-                                                <i class="fas fa-file-pdf me-2"></i>Boletín
+                                            <a href="{% url 'generar_boletin_acudiente' data.estudiante.id %}" class="btn bg-gradient-success text-white fw-black shadow-glow-success border border-white rounded-pill px-3 py-2 small font-monospace text-uppercase tracking-wide d-flex align-items-center" target="_blank">
+                                                <i class="fas fa-file-pdf me-2 fs-5"></i>Boletín
                                             </a>
                                         {% endif %}
 
                                         {% if data.matricula and data.matricula.puede_ver_observador %}
-                                            <a href="{% url 'descargar_observador_acudiente' data.estudiante.id %}" target="_blank" class="btn btn-outline-primary rounded-pill px-3 small">
-                                                <i class="fas fa-file-signature me-2"></i>Obs.
+                                            <a href="{% url 'descargar_observador_acudiente' data.estudiante.id %}" target="_blank" class="btn bg-gradient-cyber border border-cyan text-cyan fw-black shadow-glow-cyan rounded-pill px-3 py-2 small font-monospace text-uppercase tracking-wide d-flex align-items-center">
+                                                <i class="fas fa-eye me-2 fs-5"></i>Obs.
                                             </a>
                                         {% endif %}
                                     </div>
@@ -528,41 +426,41 @@ body {
 
                     <div class="modal fade" id="modalEditDoc_{{ data.estudiante.id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content border-0 shadow-lg">
-                                <div class="modal-header bg-dark text-white">
-                                    <h5 class="modal-title fs-6"><i class="fas fa-edit me-2"></i>Actualizar Identificación</h5>
+                            <div class="modal-content omni-glass-modal border border-cyan shadow-hyper rounded-4">
+                                <div class="modal-header bg-void border-bottom border-cyan">
+                                    <h5 class="modal-title fs-6 fw-black text-cyan font-monospace tracking-widest text-uppercase"><i class="fas fa-fingerprint me-2 text-shadow-glow-cyan"></i>Actualizar Identidad</h5>
                                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                                 </div>
                                 <form action="{% url 'actualizar_documento_estudiante' %}" method="POST">
                                     {% csrf_token %}
-                                    <div class="modal-body p-4">
+                                    <div class="modal-body p-4 bg-dark-omni">
                                         <input type="hidden" name="estudiante_id" value="{{ data.estudiante.id }}">
                                         
                                         <div class="text-center mb-4">
-                                            <div class="avatar-md bg-light rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                            <div class="avatar-md bg-gradient-cyber border border-cyan shadow-glow-cyan rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
                                                 <span class="fs-2">🆔</span>
                                             </div>
-                                            <h6 class="fw-bold">{{ data.estudiante.get_full_name }}</h6>
-                                            <p class="text-muted small">Ingrese el número de documento oficial para trámites y certificados.</p>
+                                            <h6 class="fw-black text-white font-monospace text-uppercase tracking-widest">{{ data.estudiante.get_full_name }}</h6>
+                                            <p class="text-cyan opacity-75 small font-monospace">Ingrese el número de documento oficial para trámites y certificados.</p>
                                         </div>
 
-                                        <div class="form-floating mb-3">
-                                            <input type="text" name="numero_documento" class="form-control fw-bold" id="floatingInput_{{ data.estudiante.id }}" 
+                                        <div class="form-floating mb-3 shadow-inner-dark rounded-3 overflow-hidden border border-secondary">
+                                            <input type="text" name="numero_documento" class="form-control fw-bold bg-void border-0 text-white font-monospace" id="floatingInput_{{ data.estudiante.id }}" 
                                                    placeholder="Número de Documento" 
                                                    value="{{ data.estudiante.perfil.numero_documento|default:'' }}" required>
-                                            <label for="floatingInput_{{ data.estudiante.id }}">Número de Documento</label>
+                                            <label for="floatingInput_{{ data.estudiante.id }}" class="text-muted font-monospace tracking-wide">Número de Documento</label>
                                         </div>
                                         
-                                        <div class="alert alert-warning border-0 d-flex align-items-center small">
-                                            <i class="fas fa-exclamation-triangle me-2 fs-5"></i>
+                                        <div class="alert bg-void border border-warning text-warning-candy shadow-glow-warning d-flex align-items-center small font-monospace">
+                                            <i class="fas fa-exclamation-triangle me-2 fs-5 text-shadow-glow-warning"></i>
                                             <div>
-                                                <strong>Nota Importante:</strong> Este cambio se reflejará inmediatamente en los certificados y boletines generados.
+                                                <strong>Alerta del Sistema:</strong> Este cambio se reflejará inmediatamente en los certificados y boletines generados.
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="modal-footer bg-light border-0">
-                                        <button type="button" class="btn btn-link text-muted text-decoration-none" data-bs-dismiss="modal">Cancelar</button>
-                                        <button type="submit" class="btn btn-primary px-4 fw-bold rounded-pill">Guardar Cambios</button>
+                                    <div class="modal-footer bg-void border-top border-secondary">
+                                        <button type="button" class="btn btn-link text-muted text-decoration-none font-monospace" data-bs-dismiss="modal">Cancelar</button>
+                                        <button type="submit" class="btn bg-gradient-cyan text-white px-4 fw-black rounded-pill border border-white shadow-glow-cyan font-monospace text-uppercase tracking-widest">Guardar Cambios</button>
                                     </div>
                                 </form>
                             </div>
@@ -570,593 +468,361 @@ body {
                     </div>
 
                     <div class="row mb-4">
-
-                        <div class="col-12">
-
-                            <h4 class="fw-bold text-secondary mb-3"><i class="fas fa-chart-pie me-2"></i>Analítica de Rendimiento</h4>
-
+                        <div class="col-12 d-flex align-items-center justify-content-center mb-4 mt-2">
+                            <div class="header-line flex-grow-1 border-top border-cyan opacity-25"></div>
+                            <h4 class="fw-black text-white text-center px-4 m-0 text-uppercase tracking-widest font-monospace text-shadow-glow-cyan"><i class="fas fa-chart-pie text-cyan me-2"></i>Analítica de Rendimiento</h4>
+                            <div class="header-line flex-grow-1 border-top border-cyan opacity-25"></div>
                         </div>
 
-                        
-
                         <div class="col-md-3 mb-3">
-
-                            <div class="stat-card p-3 text-center d-flex flex-column justify-content-center align-items-center h-100">
-
-                                <h6 class="text-muted text-uppercase small ls-1 mb-2">Promedio General</h6>
-
-                                <h1 class="display-3 fw-bold mb-0 {% if data.stats.promedio_general < 3.5 %}text-danger{% else %}text-success{% endif %}">
-
+                            <div class="stat-card p-3 text-center d-flex flex-column justify-content-center align-items-center border-success shadow-glow-success">
+                                <h6 class="text-success-candy text-uppercase small tracking-widest font-monospace mb-2">Promedio General</h6>
+                                <h1 class="display-3 fw-black mb-0 font-monospace lh-1 {% if data.stats.promedio_general < 3.5 %}text-danger-candy text-shadow-glow-danger{% else %}text-success-candy text-shadow-glow-success{% endif %}">
                                     {{ data.stats.promedio_general }}
-
                                 </h1>
-
-                                <small class="text-muted">Escala 1.0 - 5.0</small>
-
+                                <small class="text-muted font-monospace mt-2">Escala 1.0 - 5.0</small>
                             </div>
-
                         </div>
-
-
 
                         <div class="col-md-3 mb-3">
-
-                            <div class="stat-card p-3 text-center d-flex flex-column justify-content-center align-items-center h-100">
-
-                                <h6 class="text-muted text-uppercase small ls-1 mb-2">Asistencia Total</h6>
-
+                            <div class="stat-card p-3 text-center d-flex flex-column justify-content-center align-items-center border-warning shadow-glow-warning">
+                                <h6 class="text-warning-candy text-uppercase small tracking-widest font-monospace mb-2">Asistencia Total</h6>
                                 <div class="position-relative d-flex justify-content-center align-items-center" style="width: 100px; height: 100px;">
-
                                     <svg viewBox="0 0 36 36" class="circular-chart" style="width: 100%; height: 100%;">
-
-                                        <path class="circle-bg"
-
-                                            d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
-
+                                        <path class="circle-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
                                         <path class="circle"
-
                                             stroke-dasharray="{{ data.stats.asistencia_pct }}, 100"
-
                                             d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-
-                                            stroke="{% if data.stats.asistencia_pct < 85 %}#dc3545{% else %}#28a745{% endif %}" />
-
+                                            stroke="{% if data.stats.asistencia_pct < 85 %}#f43f5e{% else %}#10b981{% endif %}" 
+                                            style="filter: drop-shadow(0 0 5px {% if data.stats.asistencia_pct < 85 %}#f43f5e{% else %}#10b981{% endif %});"/>
                                     </svg>
-
-                                    <div class="position-absolute fw-bold fs-4">{{ data.stats.asistencia_pct }}%</div>
-
+                                    <div class="position-absolute fw-black fs-4 font-monospace text-white text-shadow-glow">{{ data.stats.asistencia_pct }}%</div>
                                 </div>
-
-                                <div class="mt-2">
-
-                                    <small class="text-muted d-block">Fallas acumuladas: <strong>{{ data.stats.total_fallas }}</strong></small>
-
+                                <div class="mt-2 w-100 d-flex flex-column align-items-center">
+                                    <small class="text-muted d-block font-monospace">Fallas acumuladas: <strong class="text-white">{{ data.stats.total_fallas }}</strong></small>
                                     {% if data.stats.total_fallas > 0 %}
-
-                                    <button class="btn btn-sm btn-outline-secondary mt-1 rounded-pill" data-bs-toggle="modal" data-bs-target="#modalAsistencia_{{ data.estudiante.id }}">
-
+                                    <button class="btn btn-sm btn-dark-omni border border-warning text-warning-candy shadow-glow-warning mt-2 rounded-pill font-monospace" data-bs-toggle="modal" data-bs-target="#modalAsistencia_{{ data.estudiante.id }}">
                                         <i class="fas fa-list-ul"></i> Ver Historial
-
                                     </button>
-
                                     {% endif %}
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
 
                         <div class="col-md-6 mb-3">
-
-                            <div class="stat-card p-3 h-100">
-
-                                <h6 class="text-muted fw-bold mb-3">Evolución por Periodo</h6>
-
-                                <div class="chart-container" style="height: 180px;">
-
+                            <div class="stat-card p-3 border-secondary shadow-hyper d-flex flex-column">
+                                <h6 class="text-white fw-black font-monospace text-uppercase tracking-widest mb-3"><i class="fas fa-wave-square text-cyan me-2"></i>Evolución por Periodo</h6>
+                                <div class="chart-container flex-grow-1 bg-void rounded-3 border border-secondary p-2" style="height: 180px;">
                                     <canvas id="chartPeriodos_{{ data.estudiante.id }}"></canvas>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
 
                         <div class="col-md-4 mb-3">
-
-                            <div class="stat-card p-3 h-100">
-
-                                <h6 class="text-muted fw-bold mb-3">Estado de Materias</h6>
-
-                                <div class="d-flex align-items-center justify-content-center h-75">
-
-                                    <div class="chart-container" style="height: 150px; width: 150px;">
-
+                            <div class="stat-card p-3 border-secondary shadow-hyper d-flex flex-column">
+                                <h6 class="text-white fw-black font-monospace text-uppercase tracking-widest mb-3"><i class="fas fa-balance-scale text-accent-candy me-2"></i>Estado de Materias</h6>
+                                <div class="d-flex align-items-center justify-content-center flex-grow-1">
+                                    <div class="chart-container" style="height: 140px; width: 140px;">
                                         <canvas id="chartStatus_{{ data.estudiante.id }}"></canvas>
-
                                     </div>
-
-                                    <div class="ms-3 small">
-
-                                        <div class="mb-2"><span class="badge bg-success rounded-pill me-1">&bull;</span> Ganando: <strong>{{ data.stats.ganadas }}</strong></div>
-
-                                        <div><span class="badge bg-danger rounded-pill me-1">&bull;</span> Perdiendo: <strong>{{ data.stats.perdidas }}</strong></div>
-
+                                    <div class="ms-3 font-monospace d-flex flex-column gap-2">
+                                        <div class="d-flex flex-column bg-void p-2 rounded border border-success">
+                                            <span class="text-muted fs-10 text-uppercase tracking-widest">Ganando</span>
+                                            <span class="fw-black fs-6 text-success-candy text-shadow-glow-success">{{ data.stats.ganadas }}</span>
+                                        </div>
+                                        <div class="d-flex flex-column bg-void p-2 rounded border border-danger">
+                                            <span class="text-muted fs-10 text-uppercase tracking-widest">Perdiendo</span>
+                                            <span class="fw-black fs-6 text-danger-candy text-shadow-glow-danger">{{ data.stats.perdidas }}</span>
+                                        </div>
                                     </div>
-
                                 </div>
-
                             </div>
-
                         </div>
-
-
 
                         <div class="col-md-8 mb-3">
-
-                            <div class="stat-card p-3 h-100">
-
-                                <h6 class="text-muted fw-bold mb-3">Desempeño por Materia (Acumulado)</h6>
-
-                                <div class="chart-container" style="height: 200px;">
-
+                            <div class="stat-card p-3 border-secondary shadow-hyper d-flex flex-column">
+                                <h6 class="text-white fw-black font-monospace text-uppercase tracking-widest mb-3"><i class="fas fa-layer-group text-cyan me-2"></i>Desempeño por Materia (Acumulado)</h6>
+                                <div class="chart-container flex-grow-1 bg-void rounded-3 border border-secondary p-2" style="height: 200px;">
                                     <canvas id="chartMaterias_{{ data.estudiante.id }}"></canvas>
-
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
-
 
                     <div class="row mb-5">
-
                         <div class="col-12">
-
-                            <h4 class="fw-bold text-secondary mb-3"><i class="fas fa-chalkboard-teacher me-2"></i>Equipo Docente</h4>
-
-                            
-
-                            <div class="card stat-card shadow-sm">
-
-                                <div class="card-body p-0">
-
-                                    <div class="table-responsive" style="max-height: 300px;">
-
-                                        <table class="table table-hover align-middle mb-0">
-
-                                            <thead class="bg-light sticky-top">
-
-                                                <tr>
-
-                                                    <th class="ps-4" style="width: 60px;">Foto</th>
-
-                                                    <th>Docente</th>
-
-                                                    <th>Asignatura</th>
-
-                                                    <th class="text-end pe-4">Contacto</th>
-
-                                                </tr>
-
-                                            </thead>
-
-                                            <tbody>
-
-                                                {% for profe in data.docentes %}
-
-                                                <tr>
-
-                                                    <td class="ps-4">
-
-                                                        <div class="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center fw-bold" style="width: 40px; height: 40px; font-size: 1.1em;">
-
-                                                            {% if profe.foto_url %}
-
-                                                                <img src="{{ profe.foto_url }}" class="rounded-circle" width="40" height="40" style="object-fit: cover;">
-
-                                                            {% else %}
-
-                                                                {{ profe.nombre|slice:":1" }}
-
-                                                            {% endif %}
-
-                                                        </div>
-
-                                                    </td>
-
-                                                    <td class="fw-bold text-dark">{{ profe.nombre }}</td>
-
-                                                    <td class="text-muted">{{ profe.materia_principal }}</td>
-
-                                                    <td class="text-end pe-4">
-
-                                                        <a href="{% url 'enviar_mensaje' %}?destinatario={{ profe.id }}&asunto=Consulta de Acudiente: {{ data.estudiante.get_full_name }}" 
-
-                                                           class="btn btn-outline-primary btn-sm rounded-pill px-3">
-
-                                                            <i class="fas fa-envelope me-1"></i> Mensaje
-
-                                                        </a>
-
-                                                    </td>
-
-                                                </tr>
-
-                                                {% empty %}
-
-                                                <tr>
-
-                                                    <td colspan="4" class="text-center py-4 text-muted">
-
-                                                        No hay docentes asignados todavía.
-
-                                                    </td>
-
-                                                </tr>
-
-                                                {% endfor %}
-
-                                            </tbody>
-
-                                        </table>
-
-                                    </div>
-
-                                </div>
-
+                            <div class="d-flex align-items-center justify-content-center mb-4 mt-2">
+                                <div class="header-line flex-grow-1 border-top border-accent opacity-25"></div>
+                                <h4 class="fw-black text-white text-center px-4 m-0 text-uppercase tracking-widest font-monospace text-shadow-glow-aurora"><i class="fas fa-chalkboard-teacher text-accent-candy me-2"></i>Equipo Docente</h4>
+                                <div class="header-line flex-grow-1 border-top border-accent opacity-25"></div>
                             </div>
-
+                            
+                            <div class="card stat-card shadow-hyper border border-accent bg-dark-omni overflow-hidden">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive custom-scrollbar" style="max-height: 300px;">
+                                        <table class="table table-hover align-middle mb-0 border-0">
+                                            <thead class="bg-void sticky-top">
+                                                <tr>
+                                                    <th class="ps-4 border-0 py-3 text-accent-candy font-monospace tracking-widest" style="width: 80px;">Foto</th>
+                                                    <th class="border-0 py-3 text-accent-candy font-monospace tracking-widest">Docente</th>
+                                                    <th class="border-0 py-3 text-accent-candy font-monospace tracking-widest">Asignatura</th>
+                                                    <th class="text-end pe-4 border-0 py-3 text-accent-candy font-monospace tracking-widest">Contacto</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody class="border-top border-secondary">
+                                                {% for profe in data.docentes %}
+                                                <tr class="transition-all-300">
+                                                    <td class="ps-4 py-3">
+                                                        <div class="bg-gradient-cyber border border-cyan text-cyan rounded-circle d-flex justify-content-center align-items-center fw-black shadow-glow-cyan" style="width: 40px; height: 40px; font-size: 1.1em;">
+                                                            {% if profe.foto_url %}
+                                                                <img src="{{ profe.foto_url }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
+                                                            {% else %}
+                                                                {{ profe.nombre|slice:":1" }}
+                                                            {% endif %}
+                                                        </div>
+                                                    </td>
+                                                    <td class="fw-black text-white font-monospace">{{ profe.nombre }}</td>
+                                                    <td><span class="badge bg-void border border-secondary text-muted font-monospace tracking-widest fs-9 px-2 py-1"><i class="fas fa-cube me-1 opacity-50"></i>{{ profe.materia_principal }}</span></td>
+                                                    <td class="text-end pe-4">
+                                                        <a href="{% url 'enviar_mensaje' %}?destinatario={{ profe.id }}&asunto=Consulta de Acudiente: {{ data.estudiante.get_full_name }}" 
+                                                           class="btn btn-dark-omni border border-cyan text-cyan btn-sm rounded-pill px-3 shadow-glow-cyan font-monospace tracking-wide fw-bold text-uppercase transform-hover">
+                                                            <i class="fas fa-envelope me-1"></i> Mensaje
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                {% empty %}
+                                                <tr>
+                                                    <td colspan="4" class="text-center py-4 text-muted font-monospace">
+                                                        No hay docentes asignados todavía.
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
                     </div>
-
-
 
                     <div class="modal fade" id="modalAsistencia_{{ data.estudiante.id }}" tabindex="-1" aria-hidden="true">
-
                         <div class="modal-dialog modal-dialog-centered">
-
-                            <div class="modal-content">
-
-                                <div class="modal-header bg-light">
-
-                                    <h5 class="modal-title"><i class="fas fa-calendar-times text-danger me-2"></i>Historial de Fallas</h5>
-
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
-
+                            <div class="modal-content omni-glass-modal shadow-hyper border border-warning rounded-4">
+                                <div class="modal-header bg-void border-bottom border-warning">
+                                    <h5 class="modal-title fw-black text-warning-candy font-monospace tracking-widest text-uppercase"><i class="fas fa-calendar-times text-danger-candy me-2 text-shadow-glow-danger"></i>Historial de Fallas</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                                 </div>
-
-                                <div class="modal-body p-0">
-
+                                <div class="modal-body p-0 bg-dark-omni custom-scrollbar" style="max-height: 50vh; overflow-y: auto;">
                                     {% if data.stats.detalle_fallas %}
-
-                                    <table class="table table-striped mb-0">
-
-                                        <thead class="table-danger">
-
+                                    <table class="table table-striped mb-0 border-0">
+                                        <thead class="bg-void">
                                             <tr>
-
-                                                <th class="ps-4">Fecha</th>
-
-                                                <th>Materia / Clase</th>
-
-                                                <th>Estado</th>
-
+                                                <th class="ps-4 border-0 text-warning-candy font-monospace">Fecha</th>
+                                                <th class="border-0 text-warning-candy font-monospace">Materia / Clase</th>
+                                                <th class="border-0 text-warning-candy font-monospace">Estado</th>
                                             </tr>
-
                                         </thead>
-
-                                        <tbody>
-
+                                        <tbody class="border-top border-secondary">
                                             {% for falla in data.stats.detalle_fallas %}
-
                                             <tr>
-
-                                                <td class="ps-4">{{ falla.fecha|date:"d M, Y" }}</td>
-
-                                                <td class="fw-bold">{{ falla.materia.nombre }}</td>
-
-                                                <td><span class="badge bg-danger">Falla</span></td>
-
+                                                <td class="ps-4 text-cyan font-monospace">{{ falla.fecha|date:"d M, Y" }}</td>
+                                                <td class="fw-black text-white font-monospace">{{ falla.materia.nombre }}</td>
+                                                <td><span class="badge bg-danger-candy text-white font-monospace shadow-glow-danger border border-white">Falla</span></td>
                                             </tr>
-
                                             {% endfor %}
-
                                         </tbody>
-
                                     </table>
-
                                     {% else %}
-
-                                    <div class="p-4 text-center text-muted">
-
+                                    <div class="p-4 text-center text-cyan opacity-75 font-monospace">
                                         No hay detalles disponibles.
-
                                     </div>
-
                                     {% endif %}
-
                                 </div>
-
-                                <div class="modal-footer">
-
-                                    <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar</button>
-
+                                <div class="modal-footer bg-void border-top border-secondary">
+                                    <button type="button" class="btn btn-dark-omni border border-cyan text-cyan rounded-pill font-monospace text-uppercase shadow-glow-cyan px-4" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
-
                             </div>
-
                         </div>
-
                     </div>
-
                     
-
                     {# Encabezado del reporte si hay más de un estudiante #}
-
                     {% if estudiantes_data|length > 1 %}
-
-                    <div class="student-report-header mb-4 p-3 rounded" style="background-color: var(--edu-acudiente-primary-light);">
-
-                        <h4 class="mb-0 fw-semibold text-success d-flex justify-content-between align-items-center">
-
+                    <div class="student-report-header mb-4 p-4 rounded-4 border border-cyan shadow-glow-cyan bg-dark-omni position-relative overflow-hidden mt-5">
+                        <div class="position-absolute top-0 start-0 w-100 bg-gradient-cyan opacity-25" style="height: 100%;"></div>
+                        <h4 class="mb-0 fw-black text-white d-flex justify-content-between align-items-center position-relative z-index-2 font-monospace tracking-widest text-uppercase fs-6">
                             <span>
-
-                                <i class="fas fa-chart-line me-2"></i>
-
-                                Reporte de: {{ data.estudiante.get_full_name }}
-
+                                <i class="fas fa-microchip text-cyan me-3 fs-4 text-shadow-glow-cyan"></i>
+                                Reporte de: <span class="text-cyan">{{ data.estudiante.get_full_name }}</span>
                             </span>
-
                             {% if data.curso %}
-
-                                <span class="badge bg-success fw-normal">{{ data.curso.nombre }}</span>
-
+                                <span class="badge bg-void border border-success text-success-candy shadow-glow-success fs-8 py-2 px-3">{{ data.curso.nombre }}</span>
                             {% else %}
-
-                                <span class="badge bg-warning text-dark fw-normal">Sin Matrícula Activa</span>
-
+                                <span class="badge bg-void border border-warning text-warning-candy shadow-glow-warning fs-8 py-2 px-3">Sin Matrícula Activa</span>
                             {% endif %}
-
                         </h4>
-
                     </div>
-
                     {% endif %}
 
-
-
                     {# Inclusión del dashboard original del estudiante #}
-
                     {% with estudiante=data.estudiante perfil=data.perfil curso=data.curso matricula=data.matricula periodos_disponibles=data.periodos_disponibles materias_con_notas=data.materias_con_notas comentarios_docente=data.comentarios_docente actividades_semanales=data.actividades_semanales logros_por_materia_por_periodo=data.logros_por_materia_por_periodo convivencia_notas=data.convivencia_notas %}
-
                         {% include "dashboard_estudiante.html" %}
-
                     {% endwith %}
 
-
-
                     <script>
-
                         document.addEventListener('DOMContentLoaded', function() {
+                            // Injecting Dark Theme defaults for ChartJS
+                            Chart.defaults.color = '#94a3b8';
+                            Chart.defaults.font.family = "'JetBrains Mono', monospace";
 
-                            // 1. Gráfica de Evolución (Línea)
-
+                            // 1. Gráfica de Evolución (Línea) Dark Cyber
                             const ctxPeriodos = document.getElementById('chartPeriodos_{{ data.estudiante.id }}');
-
                             if (ctxPeriodos) {
+                                const gradientFill = ctxPeriodos.getContext('2d').createLinearGradient(0, 0, 0, 200);
+                                gradientFill.addColorStop(0, 'rgba(16, 185, 129, 0.5)'); // Success Green
+                                gradientFill.addColorStop(1, 'rgba(16, 185, 129, 0.01)');
 
                                 new Chart(ctxPeriodos.getContext('2d'), {
-
                                     type: 'line',
-
                                     data: {
-
                                         labels: {{ data.stats.periodos_labels|safe }},
-
                                         datasets: [{
-
                                             label: 'Promedio',
-
                                             data: {{ data.stats.periodos_data|safe }},
-
-                                            borderColor: '#28a745',
-
-                                            backgroundColor: 'rgba(40, 167, 69, 0.1)',
-
+                                            borderColor: '#10b981',
+                                            backgroundColor: gradientFill,
                                             tension: 0.3,
-
                                             fill: true,
-
+                                            borderWidth: 3,
                                             pointRadius: 4,
-
-                                            pointHoverRadius: 6
-
+                                            pointBackgroundColor: '#020617',
+                                            pointBorderColor: '#10b981',
+                                            pointBorderWidth: 2,
+                                            pointHoverRadius: 8
                                         }]
-
                                     },
-
                                     options: {
-
                                         responsive: true,
-
                                         maintainAspectRatio: false,
-
-                                        scales: { y: { min: 1, max: 5, grid: { borderDash: [5, 5] } } },
-
+                                        scales: { 
+                                            y: { min: 1, max: 5, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: {font: {weight: '700'}} },
+                                            x: { grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false }, ticks: {color: '#10b981', font: {weight: '800'}} }
+                                        },
                                         plugins: { legend: { display: false } }
-
                                     }
-
                                 });
-
                             }
 
-
-
-                            // 2. Gráfica de Estatus (Dona)
-
+                            // 2. Gráfica de Estatus (Dona) Dark Cyber
                             const ctxStatus = document.getElementById('chartStatus_{{ data.estudiante.id }}');
-
                             if (ctxStatus) {
-
                                 new Chart(ctxStatus.getContext('2d'), {
-
                                     type: 'doughnut',
-
                                     data: {
-
                                         labels: ['Ganando', 'Perdiendo'],
-
                                         datasets: [{
-
                                             data: {{ data.stats.distribucion_data|safe }},
-
-                                            backgroundColor: ['#28a745', '#dc3545'],
-
+                                            backgroundColor: ['#10b981', '#f43f5e'],
                                             borderWidth: 2,
-
-                                            borderColor: '#ffffff'
-
+                                            borderColor: '#0f172a',
+                                            hoverOffset: 6
                                         }]
-
                                     },
-
                                     options: {
-
                                         responsive: true,
-
                                         maintainAspectRatio: false,
-
-                                        cutout: '70%',
-
+                                        cutout: '75%',
                                         plugins: { legend: { display: false } }
-
                                     }
-
                                 });
-
                             }
 
-
-
-                            // 3. Gráfica por Materias (Barras)
-
+                            // 3. Gráfica por Materias (Barras) Dark Cyber
                             const ctxMaterias = document.getElementById('chartMaterias_{{ data.estudiante.id }}');
-
                             if (ctxMaterias) {
-
                                 const rawData = {{ data.stats.materias_data|safe }};
-
-                                const bgColors = rawData.map(val => val < 3.5 ? 'rgba(220, 53, 69, 0.8)' : 'rgba(40, 167, 69, 0.8)');
-
+                                const context2d = ctxMaterias.getContext('2d');
                                 
-
-                                new Chart(ctxMaterias.getContext('2d'), {
-
-                                    type: 'bar',
-
-                                    data: {
-
-                                        labels: {{ data.stats.materias_labels|safe }},
-
-                                        datasets: [{
-
-                                            label: 'Promedio',
-
-                                            data: rawData,
-
-                                            backgroundColor: bgColors,
-
-                                            borderRadius: 4,
-
-                                            barPercentage: 0.7
-
-                                        }]
-
-                                    },
-
-                                    options: {
-
-                                        responsive: true,
-
-                                        maintainAspectRatio: false,
-
-                                        scales: { y: { min: 0, max: 5 } },
-
-                                        plugins: { legend: { display: false } }
-
+                                const bgColors = rawData.map(val => {
+                                    const grad = context2d.createLinearGradient(0, 0, 0, 200);
+                                    if(val < 3.5) {
+                                        grad.addColorStop(0, '#f43f5e'); grad.addColorStop(1, '#be123c');
+                                    } else {
+                                        grad.addColorStop(0, '#10b981'); grad.addColorStop(1, '#047857');
                                     }
-
+                                    return grad;
                                 });
-
+                                
+                                new Chart(context2d, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: {{ data.stats.materias_labels|safe }},
+                                        datasets: [{
+                                            label: 'Promedio',
+                                            data: rawData,
+                                            backgroundColor: bgColors,
+                                            borderRadius: 4,
+                                            borderWidth: 1,
+                                            borderColor: 'rgba(255,255,255,0.1)',
+                                            barPercentage: 0.6
+                                        }]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: { 
+                                            y: { min: 0, max: 5, grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false} },
+                                            x: { grid: { display: false }, ticks: { font: {size: 10, weight: '700'} } }
+                                        },
+                                        plugins: { legend: { display: false } }
+                                    }
+                                });
                             }
-
                         });
-
                     </script>
 
-
-
                 </div>
-
             {% endfor %}
-
         </div>
-
     {% else %}
-
-        <div class="alert alert-warning text-center shadow-sm">
-
-            <i class="fas fa-info-circle fa-2x me-2 align-middle"></i>
-
-            <span class="align-middle fs-5">No tienes estudiantes vinculados a tu perfil. Por favor, contacta a la administración.</span>
-
+        <div class="alert bg-dark-omni border border-secondary text-center shadow-hyper py-5 rounded-4 mt-4">
+            <i class="fas fa-info-circle fa-4x mb-3 text-cyan opacity-50 animate__animated animate__float text-shadow-glow-cyan"></i>
+            <h4 class="text-white fw-black font-monospace tracking-widest text-uppercase">Ausencia de Sujetos</h4>
+            <p class="text-cyan opacity-75 font-monospace fs-5">No tienes estudiantes vinculados a tu perfil operativo. Por favor, contacta a la administración de la red.</p>
         </div>
-
     {% endif %}
-
 </div>
 
 <div class="modal fade" id="modalStratosAcudiente" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-2xl overflow-hidden" style="border-radius: 24px;">
-            <div class="modal-body p-0 text-center">
-                <div class="position-relative py-5 px-4" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div class="modal-content border-0 shadow-hyper overflow-hidden bg-dark-omni border border-cyan shadow-glow-cyan" style="border-radius: 24px;">
+            <div class="modal-body p-0 text-center position-relative">
+                <div class="position-absolute top-0 start-0 w-100 bg-gradient-primary-candy" style="height: 4px; z-index: 10;"></div>
+                <div class="position-relative py-5 px-4 bg-void">
                     
                     <div class="mb-4 position-relative d-inline-block">
-                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 150px; height: 150px; background: rgba(255, 255, 255, 0.1); border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></div>
-                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 110px; height: 110px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.5s;"></div>
+                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 150px; height: 150px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;"></div>
+                        <div class="position-absolute top-50 start-50 translate-middle" style="width: 110px; height: 110px; background: rgba(59, 130, 246, 0.2); border-radius: 50%; animation: pulseRing 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite 0.5s;"></div>
                         
-                        <div class="bg-white rounded-circle position-relative d-flex align-items-center justify-content-center shadow-lg" style="width: 80px; height: 80px; z-index: 10;">
-                            <i class="fas fa-home fa-2x text-success animate__animated animate__pulse animate__infinite"></i>
+                        <div class="bg-gradient-cyber border border-primary text-primary-candy rounded-circle position-relative d-flex align-items-center justify-content-center shadow-glow-primary" style="width: 80px; height: 80px; z-index: 10;">
+                            <i class="fas fa-home fa-2x text-primary-candy animate__animated animate__pulse animate__infinite text-shadow-glow"></i>
                         </div>
                     </div>
 
-                    <h4 class="text-white fw-bold mb-2">Conectando con la Escuela...</h4>
-                    <p class="text-white-50 small mb-0">Stratos AI está preparando su guía familiar</p>
+                    <h4 class="text-white fw-black mb-2 font-monospace tracking-widest text-uppercase text-shadow-glow">Enlazando Matriz Escolar</h4>
+                    <p class="text-primary-candy small mb-0 font-monospace opacity-75">Stratos AI está compilando su guía táctica familiar</p>
                 </div>
 
-                <div class="bg-white p-4">
+                <div class="bg-dark-omni p-4 border-top border-secondary">
                     <div class="d-flex align-items-center justify-content-center mb-3">
-                        <span class="spinner-border spinner-border-sm text-success me-2" role="status"></span>
-                        <span id="acudienteStatusText" class="fw-bold text-dark small text-uppercase ls-1">Iniciando análisis...</span>
+                        <div class="spinner-grow spinner-grow-sm text-primary-candy me-2 shadow-glow-primary" role="status"></div>
+                        <span id="acudienteStatusText" class="fw-black text-white small text-uppercase tracking-widest font-monospace">Iniciando handshake neural...</span>
                     </div>
                     
-                    <div class="progress" style="height: 6px; border-radius: 10px;">
-                        <div id="acudienteProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%; transition: width 0.5s ease;"></div>
+                    <div class="progress bg-void border border-secondary shadow-inner-dark" style="height: 8px; border-radius: 10px;">
+                        <div id="acudienteProgressBar" class="progress-bar bg-gradient-primary-candy shadow-glow-primary" role="progressbar" style="width: 0%; transition: width 0.5s ease;"></div>
                     </div>
                     
-                    <p class="text-muted x-small mt-3 fst-italic">Analizando el progreso de su acudido.</p>
+                    <p class="text-muted-ultralight fs-10 mt-3 font-monospace tracking-widest text-uppercase"><i class="fas fa-lock me-1"></i> Analizando el progreso de su cadete</p>
                 </div>
             </div>
         </div>
@@ -1191,12 +857,12 @@ body {
         const statusText = document.getElementById('acudienteStatusText');
         const progressBar = document.getElementById('acudienteProgressBar');
         
-        // 2. Guión de pasos para el Acudiente
+        // 2. Guión de pasos Cyberpunk para el Acudiente
         const pasos = [
-            { msg: `Recuperando notas de ${nombreEstudiante}...`, progress: 20 },
-            { msg: "Identificando áreas de mejora...", progress: 50 },
-            { msg: "Traduciendo datos a consejos prácticos...", progress: 80 },
-            { msg: "Generando guía de apoyo para el hogar...", progress: 100 }
+            { msg: `EXTRAYENDO TELEMETRÍA DE [ ${nombreEstudiante.toUpperCase()} ]`, progress: 20 },
+            { msg: "IDENTIFICANDO VECTORES DE DEBILIDAD...", progress: 50 },
+            { msg: "DECODIFICANDO AXIOMAS DE APOYO...", progress: 80 },
+            { msg: "ENLACE NEURAL FAMILIAR ESTABLECIDO.", progress: 100 }
         ];
 
         let pasoActual = 0;
