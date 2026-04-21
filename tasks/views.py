@@ -871,6 +871,7 @@ def get_description_nota(numero_nota):
         5: 'Promedio ponderado'
     }.get(numero_nota, f'Nota {numero_nota}')
 @role_required('DOCENTE')
+@transaction.atomic
 def subir_notas(request, materia_id):
     # 1. VALIDACIÓN DE ACCESO Y CONTEXTO ACADÉMICO
     asignacion = get_object_or_404(AsignacionMateria, materia_id=materia_id, docente=request.user, activo=True)
@@ -975,41 +976,47 @@ def subir_notas(request, materia_id):
                             )
 
                 # --------------------------------------------------------------
-                # B. GESTIÓN DE LOGROS (VIA JSON)
+                # B. GESTIÓN DE LOGROS (VIA JSON) - BLINDADO TIER-GOD
                 # --------------------------------------------------------------
                 logros_json = request.POST.get('logros_json_data', '')
                 if logros_json:
                     try:
+                        # Procesamiento de la data sin el candado tóxico de SQL
                         data_logros = json.loads(logros_json)
-                        # Recolectar IDs para saber cuáles borrar
-                        ids_logros_mantener = []
-                        for plist in data_logros.values():
-                            for l in plist:
-                                if l.get('id', 0) > 0:
-                                    ids_logros_mantener.append(l['id'])
+                        ids_a_mantener = []
                         
-                        # Borrado masivo de logros eliminados
-                        LogroPeriodo.objects.filter(curso=curso, materia=materia, docente=request.user)\
-                            .exclude(id__in=ids_logros_mantener).delete()
-                        
-                        # Guardado/Actualización
                         for pid_str, lista_logros in data_logros.items():
                             periodo_obj = Periodo.objects.get(id=int(pid_str))
+                            
                             for l in lista_logros:
-                                desc_l = (l.get('descripcion') or "").strip()
-                                if desc_l:
-                                    if l.get('id', 0) > 0:
-                                        LogroPeriodo.objects.filter(id=l['id']).update(descripcion=desc_l)
-                                    else:
-                                        LogroPeriodo.objects.create(
-                                            curso=curso, periodo=periodo_obj, materia=materia,
-                                            docente=request.user, descripcion=desc_l
-                                        )
+                                desc_l = str(l.get('descripcion', '')).strip()
+                                l_id = int(l.get('id', 0))
+                                
+                                if not desc_l: continue # Ignoramos los vacíos
+                                
+                                if l_id > 0:
+                                    # Actualizar existente
+                                    LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
+                                    ids_a_mantener.append(l_id)
+                                elif l_id == 0:
+                                    # Crear nuevo (Ya sin candados)
+                                    nuevo_logro = LogroPeriodo.objects.create(
+                                        curso=curso, periodo=periodo_obj, materia=materia,
+                                        docente=request.user, descripcion=desc_l
+                                    )
+                                    ids_a_mantener.append(nuevo_logro.id)
+                        
+                        # Borrado Quirúrgico: Elimina los borrados, pero protege el archivo de planeación
+                        LogroPeriodo.objects.filter(
+                            curso=curso, materia=materia, docente=request.user
+                        ).exclude(id__in=ids_a_mantener).exclude(descripcion="Ver documento de planeación adjunto.").delete()
+
                     except Exception as e_json:
+                        print(f"❌ ERROR CRÍTICO JSON LOGROS: {e_json}")
                         logger.error(f"Error procesando JSON de logros: {e_json}")
 
                 # --------------------------------------------------------------
-                # B.2. RECEPCIÓN DE ARCHIVOS DE LOGROS ADJUNTOS (NUEVO)
+                # B.2. RECEPCIÓN DE ARCHIVOS DE LOGROS ADJUNTOS
                 # --------------------------------------------------------------
                 for periodo in periodos:
                     archivo_key = f'archivo_logros_{periodo.id}'
@@ -1017,7 +1024,7 @@ def subir_notas(request, materia_id):
                     if archivo_key in request.FILES:
                         archivo_subido = request.FILES[archivo_key]
                         
-                        # 1. Buscamos el primer logro de este periodo para adjuntarle el documento
+                        # Buscamos el primer logro de este periodo para adjuntarle el documento
                         # o creamos un registro base si el profesor solo subió el archivo sin escribir nada.
                         logro_base = LogroPeriodo.objects.filter(
                             curso=curso, materia=materia, periodo=periodo, docente=request.user
@@ -1029,7 +1036,7 @@ def subir_notas(request, materia_id):
                                 docente=request.user, descripcion="Ver documento de planeación adjunto."
                             )
                         
-                        # 2. Guardamos el archivo
+                        # Guardamos el archivo
                         logro_base.archivo_adjunto = archivo_subido
                         logro_base.save()
 
@@ -1053,19 +1060,16 @@ def subir_notas(request, materia_id):
                         suma_porcentajes = Decimal('0.0')
 
                         for definicion in definiciones:
-                            # Nombre del input HTML: nota_ESTUDIANTEID_DEFINICIONID
                             input_name = f'nota_{est.id}_{definicion.id}'
                             val_str = request.POST.get(input_name)
                             key_nota = (est.id, definicion.id)
 
-                            # --- LOGICA DE GUARDADO ---
                             if val_str and val_str.strip():
                                 try:
                                     val_limpio = val_str.replace(',', '.')
                                     val_decimal = Decimal(val_limpio)
                                     
                                     if 1.0 <= val_decimal <= 5.0:
-                                        # Guardamos o actualizamos la nota real
                                         NotaDetallada.objects.update_or_create(
                                             estudiante=est, definicion=definicion,
                                             defaults={
@@ -1073,24 +1077,18 @@ def subir_notas(request, materia_id):
                                                 'registrado_por': request.user
                                             }
                                         )
-                                        
-                                        # Acumulamos para el promedio
                                         peso = definicion.porcentaje / Decimal('100.0')
                                         suma_ponderada += val_decimal * peso
                                         suma_porcentajes += peso
                                 except Exception:
                                     pass # Ignoramos valores no numéricos
                             
-                            # --- LOGICA DE BORRADO ---
                             else:
-                                # Si viene vacío y existía en BD, lo borramos
                                 if key_nota in notas_existentes:
                                     notas_existentes[key_nota].delete()
-                                    # Al borrar, NO sumamos al promedio
 
                         # --- SINCRONIZACIÓN CON SISTEMA LEGACY (Nota #5) ---
                         if suma_porcentajes > 0:
-                            # Calculamos la definitiva (Suma acumulativa)
                             definitiva = suma_ponderada
                             
                             Nota.objects.update_or_create(
@@ -1102,7 +1100,6 @@ def subir_notas(request, materia_id):
                                 }
                             )
                         else:
-                            # Si no hay notas, borramos también la definitiva
                             Nota.objects.filter(
                                 estudiante=est, materia=materia, periodo=periodo, numero_nota=5
                             ).delete()
@@ -1140,7 +1137,6 @@ def subir_notas(request, materia_id):
     # ==========================================================================
     
     # 1. Recuperar notas existentes optimizadamente
-    # Estructura map: notas_map[estudiante_id][definicion_id] = valor
     notas_detalladas = NotaDetallada.objects.filter(
         definicion__materia=materia,
         estudiante__in=[m.estudiante for m in estudiantes_matriculados]
@@ -1160,7 +1156,6 @@ def subir_notas(request, materia_id):
             comentarios_map[c.estudiante_id] = {}
         comentarios_map[c.estudiante_id][c.periodo_id] = c.comentario
     
-    # Rellenar vacíos para evitar errores en template
     for m in estudiantes_matriculados:
         if m.estudiante_id not in comentarios_map:
             comentarios_map[m.estudiante_id] = {}
@@ -1178,36 +1173,27 @@ def subir_notas(request, materia_id):
             'id': l.id, 
             'descripcion': l.descripcion, 
             'periodo_id': l.periodo.id,
-            # También pasamos la URL del archivo al frontend si existe
             'archivo_url': l.archivo_adjunto.url if l.archivo_adjunto else None 
         })
 
-    # CONTEXTO FINAL
     context = {
         'materia': materia,
         'curso': curso,
         'estudiantes_matriculados': estudiantes_matriculados,
         'periodos': periodos,
         
-        # Nuevos Datos Dinámicos
         'definiciones_map': definiciones_map,
         'notas_map': notas_map,
         
-        # Datos Legacy / Compatibilidad
         'comentarios_data': comentarios_map,
         'actividades_semanales': actividades,
         'logros_por_periodo': json.dumps(logros_por_periodo),
         
-        # Constantes
         'escala_min': 1.0,
         'escala_max': 5.0,
     }
     
     return render(request, 'subir_notas.html', context)
-
-# Helper simple para validar fechas en listas
-def dates_ok(lista, index):
-    return index < len(lista) and lista[index] and lista[index].strip()
 
 #hasta aqui 
 

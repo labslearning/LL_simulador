@@ -515,7 +515,16 @@ class LogroPeriodo(models.Model):
     class Meta:
         verbose_name = "Logro del Periodo"
         verbose_name_plural = "Logros de los Periodos"
-        # 🛡️ CIRUGÍA: Eliminamos el unique_together. Ahora la BD permite múltiples logros.
+        unique_together = ('curso', 'periodo', 'docente', 'materia')
+        ordering = ['periodo', '-fecha_creacion']
+
+    def __str__(self):
+        return f"Logro de {self.docente.username} para {self.curso.nombre} en {self.periodo.nombre}"
+
+    class Meta:
+        verbose_name = "Logro del Periodo"
+        verbose_name_plural = "Logros de los Periodos"
+        unique_together = ('curso', 'periodo', 'docente', 'materia')
         ordering = ['periodo', '-fecha_creacion']
 
     def __str__(self):
