@@ -8,7 +8,7 @@ from django.urls import path
 from . import views
 
 from tasks.views_pdf import generar_pdf_bienestar
-from tasks import ai_views
+from . import ai_views
 
 from .views import (
 
@@ -479,6 +479,7 @@ urlpatterns = [
     path('panel/boveda/', views_admin.panel_boveda, name='panel_boveda'),
     path('panel/boveda/verificar/<uuid:uuid_operacion>/', views_admin.verificar_integridad_respaldo, name='verificar_integridad'),
     path('api/toggle-acceso/', views.panel_api_toggle_acceso, name='panel_api_toggle_acceso'),
+    path('api/ai-agent/', ai_views.api_ai_agent, name='api_ai_agent'),
 
 
 ]
