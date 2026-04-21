@@ -216,9 +216,9 @@
                                         </div>
                                         {% if definicion.temas %}
                                             <i class="fas fa-info-circle position-absolute top-0 end-0 m-1 text-info" 
-                                               data-bs-toggle="tooltip" 
-                                               data-bs-placement="top" 
-                                               title="Temas: {{ definicion.temas }}">
+                                                data-bs-toggle="tooltip" 
+                                                data-bs-placement="top" 
+                                                title="Temas: {{ definicion.temas }}">
                                             </i>
                                         {% endif %}
                                     </th>
@@ -452,6 +452,10 @@
     .bg-warning-light { background-color: #fff3cd !important; }
 </style>
 
+<script id="logros-data" type="application/json">
+    {{ logros_por_periodo|safe }}
+</script>
+
 <script>
     const definicionesGlobales = {
         {% for periodo in periodos %}
@@ -658,32 +662,14 @@
         const listaLogros = document.getElementById('lista-logros');
         
         let logrosPorPeriodoData = {};
+        
+        // 🔥 EXTRACCIÓN 100% SEGURA DEL JSON (Adiós al replace asesino)
         try {
-            let rawData = "{{ logros_por_periodo|escapejs }}";
-            if (!rawData || rawData === "None" || rawData.trim() === "") {
-                rawData = "{}";
-            }
-            
-            rawData = rawData.replace(/\bTrue\b/g, 'true').replace(/\bFalse\b/g, 'false').replace(/\bNone\b/g, 'null');
-
-            try {
-                logrosPorPeriodoData = JSON.parse(rawData);
-            } catch (e1) {
-                try {
-                    logrosPorPeriodoData = Function('"use strict"; return (' + rawData + ');')();
-                } catch (e2) {
-                    console.error("Error crítico al parsear base de datos de logros:", e2);
-                    logrosPorPeriodoData = {};
-                }
-            }
-            
-            if (typeof logrosPorPeriodoData !== 'object' || logrosPorPeriodoData === null) {
-                logrosPorPeriodoData = {};
-            }
-            
+            const rawData = document.getElementById('logros-data').textContent;
+            logrosPorPeriodoData = JSON.parse(rawData || "{}");
             document.getElementById('logros-json-data').value = JSON.stringify(logrosPorPeriodoData);
         } catch(e) {
-            console.error("Fallo general en inicialización de entorno de logros:", e);
+            console.error("Error crítico cargando logros DB:", e);
             logrosPorPeriodoData = {};
         }
         
@@ -716,8 +702,8 @@
                             <div class="w-100 d-none" id="edicion-logro-${index}">
                                 <textarea class="form-control mb-2 border-primary shadow-sm" id="input-logro-${index}" rows="2">${logro.descripcion}</textarea>
                                 <div class="text-end mt-2">
-                                    <button type="button" class="btn btn-sm btn-outline-secondary me-2" onclick="cancelarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-times me-1"></i>Cancelar</button>
-                                    <button type="button" class="btn btn-sm btn-success fw-bold" onclick="guardarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-check me-1"></i>Actualizar</button>
+                                    <button type="button" class="btn btn-sm btn-secondary me-2" onclick="cancelarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-times me-1"></i>Cancelar</button>
+                                    <button type="button" class="btn btn-sm btn-primary fw-bold" onclick="guardarEdicionLogro('${periodoId}', ${index})"><i class="fas fa-check me-1"></i>Actualizar</button>
                                 </div>
                             </div>
                         `;
@@ -769,12 +755,15 @@
                 logrosPorPeriodoData[pid].push({id: 0, descripcion: texto, periodo_id: parseInt(pid)});
                 renderizarLogros();
                 floatingSaveButton.classList.remove('d-none');
+                
+                // Efecto Ametralladora (opcional, si quieres que se cierre puedes descomentar la siguiente línea)
                 if(modalLogroBS) modalLogroBS.hide();
             }
         };
 
         window.borrarLogro = function(pid, idx) {
             if (logrosPorPeriodoData[pid][idx].id > 0) {
+                // Al ponerlo en negativo, el backend sabe que tiene que hacer el .delete()
                 logrosPorPeriodoData[pid][idx].id = -logrosPorPeriodoData[pid][idx].id;
             } else {
                 logrosPorPeriodoData[pid].splice(idx, 1);
@@ -921,7 +910,6 @@
             }
         });
 
-        // Activar el botón de guardar ante cualquier cambio en el form (ahora incluyendo select e input file)
         document.querySelectorAll('#notasForm input, #notasForm textarea, #notasForm select').forEach(el => {
             if(el.id !== 'periodoSelector') {
                 el.addEventListener('input', () => floatingSaveButton.classList.remove('d-none'));
@@ -929,7 +917,6 @@
             }
         });
         
-        // Listener extra por seguridad para el input file de logros
         document.querySelectorAll('.input-archivo-logro').forEach(el => {
             el.addEventListener('change', () => floatingSaveButton.classList.remove('d-none'));
         });

@@ -981,11 +981,10 @@ def subir_notas(request, materia_id):
                 logros_json = request.POST.get('logros_json_data', '')
                 if logros_json:
                     try:
+                        # 🔥 AUTO-HEALING CON BURBUJA: Aislamos el SQL bruto para no envenenar el guardado
                         from django.db import connection, transaction
-                        
-                        # 🔥 BURBUJA 1: Destrucción del candado de base de datos
                         try:
-                            with transaction.atomic():
+                            with transaction.atomic(): # <--- ESTO SALVA LA VIDA DE LA TRANSACCIÓN
                                 with connection.cursor() as cursor:
                                     cursor.execute("""
                                         SELECT constraint_name 
@@ -995,7 +994,7 @@ def subir_notas(request, materia_id):
                                     for row in cursor.fetchall():
                                         cursor.execute(f'ALTER TABLE tasks_logroperiodo DROP CONSTRAINT IF EXISTS "{row[0]}" CASCADE;')
                         except Exception as db_e:
-                            pass # Ignoramos, la burbuja protege la transacción principal
+                            pass # Ignoramos si ya está limpio, la transacción principal sigue intacta
 
                         # Procesamiento de la data
                         data_logros = json.loads(logros_json)
@@ -1010,8 +1009,7 @@ def subir_notas(request, materia_id):
                                 
                                 if not desc_l: continue # Ignoramos los vacíos
                                 
-                                # 🔥 BURBUJA 2: Guardado individual de cada logro
-                                # Si un logro da error, se ignora y el sistema pasa al siguiente
+                                # 🔥 BURBUJA DE GUARDADO INDIVIDUAL: Si un logro falla, los demás pasan
                                 try:
                                     with transaction.atomic():
                                         if l_id > 0:
@@ -1025,10 +1023,10 @@ def subir_notas(request, materia_id):
                                                 docente=request.user, descripcion=desc_l
                                             )
                                             ids_a_mantener.append(nuevo_logro.id)
-                                except Exception as e_ind:
-                                    print(f"Logro fallido y aislado: {e_ind}")
+                                except Exception as individual_logro_error:
+                                    print(f"Logro omitido (Error interno): {individual_logro_error}")
                         
-                        # Borrado Quirúrgico: Ahora se ejecutará SIEMPRE porque los errores previos fueron encapsulados
+                        # Borrado Quirúrgico: Ahora se ejecutará SIEMPRE
                         LogroPeriodo.objects.filter(
                             curso=curso, materia=materia, docente=request.user
                         ).exclude(id__in=ids_a_mantener).exclude(descripcion="Ver documento de planeación adjunto.").delete()
