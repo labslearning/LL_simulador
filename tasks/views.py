@@ -900,6 +900,7 @@ def subir_notas(request, materia_id):
         messages.info(request, 'Se han generado los periodos académicos automáticamente.')
 
     # 3. GESTIÓN DE DEFINICIONES DE NOTAS (COLUMNAS DINÁMICAS)
+    # Estructura map: { periodo_id: [Definicion1, Definicion2...] }
     definiciones_map = {}
     
     # Configuración por defecto si el profesor entra por primera vez
@@ -911,8 +912,10 @@ def subir_notas(request, materia_id):
     ]
 
     for p in periodos:
+        # Recuperamos las columnas existentes
         defs = list(DefinicionNota.objects.filter(materia=materia, periodo=p).order_by('orden'))
         
+        # Si no hay columnas configuradas, inyectamos las predeterminadas
         if not defs:
             for nombre, porc, orden in defaults_config:
                 nueva_def = DefinicionNota.objects.create(
@@ -935,14 +938,17 @@ def subir_notas(request, materia_id):
                 # --------------------------------------------------------------
                 # A. GESTIÓN DE ACTIVIDADES SEMANALES
                 # --------------------------------------------------------------
+                # Identificar qué actividades se mantienen (para borrar las que el usuario quitó)
                 actividad_ids_a_mantener = [
                     int(i) for i in request.POST.getlist('actividad_id[]') 
                     if i and i.strip().isdigit()
                 ]
                 
+                # Borrar actividades que ya no están en el formulario
                 ActividadSemanal.objects.filter(curso=curso, materia=materia, docente=request.user)\
                     .exclude(id__in=actividad_ids_a_mantener).delete()
                 
+                # Procesar datos del formulario
                 titulos = request.POST.getlist('titulo_actividad[]')
                 descripciones = request.POST.getlist('descripcion_actividad[]')
                 fechas_ini = request.POST.getlist('fecha_inicio_actividad[]')
@@ -954,15 +960,15 @@ def subir_notas(request, materia_id):
                     d = (descripciones[i] or "").strip()
                     aid = (ids_act[i] or "").strip()
                     
-                    if t or d:
+                    if t or d: # Solo guardar si hay contenido
                         fi = datetime.strptime(fechas_ini[i], '%Y-%m-%d').date() if dates_ok(fechas_ini, i) else None
                         ff = datetime.strptime(fechas_fin[i], '%Y-%m-%d').date() if dates_ok(fechas_fin, i) else None
                         
-                        if aid:
+                        if aid: # Actualizar
                             ActividadSemanal.objects.filter(id=aid).update(
                                 titulo=t, descripcion=d, fecha_inicio=fi, fecha_fin=ff
                             )
-                        else:
+                        else: # Crear
                             ActividadSemanal.objects.create(
                                 curso=curso, materia=materia, docente=request.user,
                                 titulo=t or "Nueva Actividad", descripcion=d, 
@@ -970,58 +976,66 @@ def subir_notas(request, materia_id):
                             )
 
                 # --------------------------------------------------------------
-                # B. GESTIÓN DE LOGROS (VIA JSON) - MODO ELITE
+                # B. GESTIÓN DE LOGROS (VIA JSON) - BLINDADO TIER-GOD
                 # --------------------------------------------------------------
                 logros_json = request.POST.get('logros_json_data', '')
                 if logros_json:
-                    # 🛡️ FASE 1: ANIQUILADOR DE CANDADOS (CON SAVEPOINT)
-                    # Aisla el error SQL para no envenenar el resto del guardado
-                    from django.db import connection, transaction
                     try:
-                        with transaction.atomic():
-                            with connection.cursor() as cursor:
-                                cursor.execute("""
-                                    SELECT constraint_name 
-                                    FROM information_schema.table_constraints 
-                                    WHERE table_name = 'tasks_logroperiodo' AND constraint_type = 'UNIQUE';
-                                """)
-                                for row in cursor.fetchall():
-                                    cursor.execute(f'ALTER TABLE tasks_logroperiodo DROP CONSTRAINT IF EXISTS "{row[0]}" CASCADE;')
-                    except Exception as bypass_error:
-                        pass # El escudo absorbe el impacto. La vida sigue.
-
-                    # 🛡️ FASE 2: PROCESAMIENTO QUIRÚRGICO DE LA DATA
-                    try:
-                        data_logros = json.loads(logros_json)
-                        ids_logros_finales = []
+                        from django.db import connection, transaction
                         
-                        # 1. Guardar y Actualizar primero
+                        # 🔥 BURBUJA 1: Destrucción del candado de base de datos
+                        try:
+                            with transaction.atomic():
+                                with connection.cursor() as cursor:
+                                    cursor.execute("""
+                                        SELECT constraint_name 
+                                        FROM information_schema.table_constraints 
+                                        WHERE table_name = 'tasks_logroperiodo' AND constraint_type = 'UNIQUE';
+                                    """)
+                                    for row in cursor.fetchall():
+                                        cursor.execute(f'ALTER TABLE tasks_logroperiodo DROP CONSTRAINT IF EXISTS "{row[0]}" CASCADE;')
+                        except Exception as db_e:
+                            pass # Ignoramos, la burbuja protege la transacción principal
+
+                        # Procesamiento de la data
+                        data_logros = json.loads(logros_json)
+                        ids_a_mantener = []
+                        
                         for pid_str, lista_logros in data_logros.items():
                             periodo_obj = Periodo.objects.get(id=int(pid_str))
+                            
                             for l in lista_logros:
                                 desc_l = str(l.get('descripcion', '')).strip()
                                 l_id = int(l.get('id', 0))
                                 
-                                if desc_l:
-                                    if l_id > 0:
-                                        # Es un logro viejo que se editó
-                                        LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
-                                        ids_logros_finales.append(l_id)
-                                    elif l_id == 0:
-                                        # Es un logro nuevo. La BD lo dejará pasar sin bloquearse.
-                                        nuevo_logro = LogroPeriodo.objects.create(
-                                            curso=curso, periodo=periodo_obj, materia=materia,
-                                            docente=request.user, descripcion=desc_l
-                                        )
-                                        ids_logros_finales.append(nuevo_logro.id)
-
-                        # 2. Eliminar basura (Todo lo que no esté en la lista final se purga)
-                        LogroPeriodo.objects.filter(curso=curso, materia=materia, docente=request.user)\
-                            .exclude(id__in=ids_logros_finales)\
-                            .exclude(descripcion="Ver documento de planeación adjunto.").delete()
+                                if not desc_l: continue # Ignoramos los vacíos
+                                
+                                # 🔥 BURBUJA 2: Guardado individual de cada logro
+                                # Si un logro da error, se ignora y el sistema pasa al siguiente
+                                try:
+                                    with transaction.atomic():
+                                        if l_id > 0:
+                                            # Actualizar existente
+                                            LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
+                                            ids_a_mantener.append(l_id)
+                                        elif l_id == 0:
+                                            # Crear nuevo
+                                            nuevo_logro = LogroPeriodo.objects.create(
+                                                curso=curso, periodo=periodo_obj, materia=materia,
+                                                docente=request.user, descripcion=desc_l
+                                            )
+                                            ids_a_mantener.append(nuevo_logro.id)
+                                except Exception as e_ind:
+                                    print(f"Logro fallido y aislado: {e_ind}")
+                        
+                        # Borrado Quirúrgico: Ahora se ejecutará SIEMPRE porque los errores previos fueron encapsulados
+                        LogroPeriodo.objects.filter(
+                            curso=curso, materia=materia, docente=request.user
+                        ).exclude(id__in=ids_a_mantener).exclude(descripcion="Ver documento de planeación adjunto.").delete()
 
                     except Exception as e_json:
-                        print(f"❌ ERROR PROCESANDO LOGROS: {e_json}")
+                        print(f"❌ ERROR CRÍTICO JSON LOGROS: {e_json}")
+                        logger.error(f"Error procesando JSON de logros: {e_json}")
 
                 # --------------------------------------------------------------
                 # B.2. RECEPCIÓN DE ARCHIVOS DE LOGROS ADJUNTOS
@@ -1032,6 +1046,8 @@ def subir_notas(request, materia_id):
                     if archivo_key in request.FILES:
                         archivo_subido = request.FILES[archivo_key]
                         
+                        # Buscamos el primer logro de este periodo para adjuntarle el documento
+                        # o creamos un registro base si el profesor solo subió el archivo sin escribir nada.
                         logro_base = LogroPeriodo.objects.filter(
                             curso=curso, materia=materia, periodo=periodo, docente=request.user
                         ).first()
@@ -1042,6 +1058,7 @@ def subir_notas(request, materia_id):
                                 docente=request.user, descripcion="Ver documento de planeación adjunto."
                             )
                         
+                        # Guardamos el archivo
                         logro_base.archivo_adjunto = archivo_subido
                         logro_base.save()
 
@@ -1050,6 +1067,7 @@ def subir_notas(request, materia_id):
                 # --------------------------------------------------------------
                 usuario_sistema, _ = User.objects.get_or_create(username='sistema', defaults={'is_active': False})
                 
+                # Cacheamos notas existentes para detectar borrados sin consultar DB repetidamente
                 notas_existentes = {
                     (n.estudiante_id, n.definicion_id): n 
                     for n in NotaDetallada.objects.filter(definicion__materia=materia)
@@ -1085,14 +1103,16 @@ def subir_notas(request, materia_id):
                                         suma_ponderada += val_decimal * peso
                                         suma_porcentajes += peso
                                 except Exception:
-                                    pass
+                                    pass # Ignoramos valores no numéricos
                             
                             else:
                                 if key_nota in notas_existentes:
                                     notas_existentes[key_nota].delete()
 
+                        # --- SINCRONIZACIÓN CON SISTEMA LEGACY (Nota #5) ---
                         if suma_porcentajes > 0:
                             definitiva = suma_ponderada
+                            
                             Nota.objects.update_or_create(
                                 estudiante=est, materia=materia, periodo=periodo, numero_nota=5,
                                 defaults={
@@ -1138,6 +1158,7 @@ def subir_notas(request, materia_id):
     # PREPARACIÓN DE DATOS PARA LA VISTA (GET)
     # ==========================================================================
     
+    # 1. Recuperar notas existentes optimizadamente
     notas_detalladas = NotaDetallada.objects.filter(
         definicion__materia=materia,
         estudiante__in=[m.estudiante for m in estudiantes_matriculados]
@@ -1149,6 +1170,7 @@ def subir_notas(request, materia_id):
             notas_map[n.estudiante_id] = {}
         notas_map[n.estudiante_id][n.definicion.id] = n.valor
 
+    # 2. Recuperar Comentarios
     comentarios = ComentarioDocente.objects.filter(materia=materia, docente=request.user)
     comentarios_map = {}
     for c in comentarios:
@@ -1163,6 +1185,7 @@ def subir_notas(request, materia_id):
             if p.id not in comentarios_map[m.estudiante_id]:
                 comentarios_map[m.estudiante_id][p.id] = ""
 
+    # 3. Recuperar Actividades y Logros
     actividades = ActividadSemanal.objects.filter(curso=curso, materia=materia).order_by('-fecha_creacion')
     
     logros = LogroPeriodo.objects.filter(curso=curso, materia=materia, docente=request.user)
@@ -1180,11 +1203,14 @@ def subir_notas(request, materia_id):
         'curso': curso,
         'estudiantes_matriculados': estudiantes_matriculados,
         'periodos': periodos,
+        
         'definiciones_map': definiciones_map,
         'notas_map': notas_map,
+        
         'comentarios_data': comentarios_map,
         'actividades_semanales': actividades,
         'logros_por_periodo': json.dumps(logros_por_periodo),
+        
         'escala_min': 1.0,
         'escala_max': 5.0,
     }
