@@ -133,6 +133,9 @@
     const userInput = document.getElementById('user-input');
     const typingIndicator = document.getElementById('typing-indicator');
 
+    // 🔥 MEMORIA A LARGO PLAZO PARA LA IA
+    let conversationHistory = [];
+
     function appendMessage(role, text) {
         const wrapper = document.createElement('div');
         wrapper.className = `d-flex justify-content-${role === 'user' ? 'end' : 'start'} mb-4 animate__animated animate__fadeInUp`;
@@ -167,6 +170,10 @@
         wrapper.innerHTML = content;
         chatBox.appendChild(wrapper);
         chatBox.scrollTop = chatBox.scrollHeight;
+
+        // Guardamos el contexto
+        conversationHistory.push({ role: role, content: text });
+        if (conversationHistory.length > 10) conversationHistory.shift(); // Límite de retención
     }
 
     chatForm.addEventListener('submit', async (e) => {
@@ -182,21 +189,21 @@
         chatBox.scrollTop = chatBox.scrollHeight;
 
         try {
-            // 🔥 ARQUITECTURA ÉLITE: POST perfecto, CSRF seguro, payload alineado.
+            // 🔥 ARQUITECTURA ÉLITE: Carga Exacta
             const url = `{% url 'ai_engine' %}`;
             const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
             
             if (!csrfInput) {
-                throw new Error("CSRF token no encontrado en el DOM.");
+                throw new Error("CSRF token ausente. Violación de seguridad interceptada.");
             }
             
             const csrftoken = csrfInput.value;
             
-            // Payload estructurado EXACTAMENTE como lo exige ai_views.py
+            // Payload perfectamente acoplado a tasks/ai_views.py
             const payload = {
-                action: 'chat_socratico', // ¡CRÍTICO! Debe ser 'action', no 'action_type'
-                query: text,              // Tu ai_views.py espera 'query' o 'user_query' dependiendo de la acción. Para chat_socratico espera 'query'
-                historial: []             // Para contexto a largo plazo
+                action_type: 'chat_socratico', 
+                query: text,              
+                historial: conversationHistory             
             };
 
             const response = await fetch(url, {
@@ -221,14 +228,12 @@
             if (data.success) {
                 appendMessage('ai', data.content);
             } else {
-                // Manejo de errores controlados desde el backend
-                appendMessage('ai', `**Aviso del sistema:** ${data.content || 'Error desconocido'}`);
+                appendMessage('ai', `**Aviso del sistema:** ${data.content || 'Excepción no manejada.'}`);
             }
 
         } catch (error) {
             typingIndicator.style.display = 'none';
-            // Manejo de fallos de red o errores críticos
-            appendMessage('ai', `**Error de conexión crítico:** No se pudo establecer enlace con el motor de IA. Detalles: ${error.message}`);
+            appendMessage('ai', `**Error de conexión crítico:** Ruptura en el enlace FENIX_CORE. Detalles: ${error.message}`);
             console.error("Error en la petición POST a la IA:", error);
         }
     });
