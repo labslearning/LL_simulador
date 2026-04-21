@@ -976,27 +976,11 @@ def subir_notas(request, materia_id):
                             )
 
                 # --------------------------------------------------------------
-                # B. GESTIÓN DE LOGROS (VIA JSON) - BLINDADO TIER-GOD
+                # 🔥 B. GESTIÓN DE LOGROS (BLINDADO CON FALLBACK)
                 # --------------------------------------------------------------
                 logros_json = request.POST.get('logros_json_data', '')
                 if logros_json:
                     try:
-                        # 🔥 AUTO-HEALING CON BURBUJA: Aislamos el SQL bruto para no envenenar el guardado
-                        from django.db import connection, transaction
-                        try:
-                            with transaction.atomic(): # <--- ESTO SALVA LA VIDA DE LA TRANSACCIÓN
-                                with connection.cursor() as cursor:
-                                    cursor.execute("""
-                                        SELECT constraint_name 
-                                        FROM information_schema.table_constraints 
-                                        WHERE table_name = 'tasks_logroperiodo' AND constraint_type = 'UNIQUE';
-                                    """)
-                                    for row in cursor.fetchall():
-                                        cursor.execute(f'ALTER TABLE tasks_logroperiodo DROP CONSTRAINT IF EXISTS "{row[0]}" CASCADE;')
-                        except Exception as db_e:
-                            pass # Ignoramos si ya está limpio, la transacción principal sigue intacta
-
-                        # Procesamiento de la data
                         data_logros = json.loads(logros_json)
                         ids_a_mantener = []
                         
@@ -1004,35 +988,48 @@ def subir_notas(request, materia_id):
                             periodo_obj = Periodo.objects.get(id=int(pid_str))
                             
                             for l in lista_logros:
-                                desc_l = str(l.get('descripcion', '')).strip()
                                 l_id = int(l.get('id', 0))
+                                desc_l = str(l.get('descripcion', '')).strip()
+                                
+                                # ACCIÓN: ELIMINAR EXPLÍCITO (Papelera)
+                                if l_id < 0:
+                                    LogroPeriodo.objects.filter(id=abs(l_id), docente=request.user).delete()
+                                    continue
                                 
                                 if not desc_l: continue # Ignoramos los vacíos
                                 
-                                # 🔥 BURBUJA DE GUARDADO INDIVIDUAL: Si un logro falla, los demás pasan
-                                try:
-                                    with transaction.atomic():
-                                        if l_id > 0:
-                                            # Actualizar existente
-                                            LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
-                                            ids_a_mantener.append(l_id)
-                                        elif l_id == 0:
-                                            # Crear nuevo
+                                # ACCIÓN: ACTUALIZAR EXISTENTE
+                                if l_id > 0:
+                                    LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
+                                    ids_a_mantener.append(l_id)
+                                
+                                # ACCIÓN: CREAR NUEVO (Con Escudo Atómico por si Railway no migró)
+                                elif l_id == 0:
+                                    try:
+                                        with transaction.atomic():
                                             nuevo_logro = LogroPeriodo.objects.create(
                                                 curso=curso, periodo=periodo_obj, materia=materia,
                                                 docente=request.user, descripcion=desc_l
                                             )
                                             ids_a_mantener.append(nuevo_logro.id)
-                                except Exception as individual_logro_error:
-                                    print(f"Logro omitido (Error interno): {individual_logro_error}")
+                                    except Exception as error_db:
+                                        # Si Railway rechaza el insert, adjuntamos el texto al logro que ya existe (Fallback)
+                                        logro_existente = LogroPeriodo.objects.filter(
+                                            curso=curso, periodo=periodo_obj, materia=materia, docente=request.user
+                                        ).first()
+                                        if logro_existente:
+                                            logro_existente.descripcion += f" | {desc_l}"
+                                            logro_existente.save()
+                                            ids_a_mantener.append(logro_existente.id)
+                                        else:
+                                            logger.error(f"Fallo crÃ­tico DB: {error_db}")
                         
-                        # Borrado Quirúrgico: Ahora se ejecutará SIEMPRE
+                        # Borrado Quirúrgico Final (Garbage Collector)
                         LogroPeriodo.objects.filter(
                             curso=curso, materia=materia, docente=request.user
                         ).exclude(id__in=ids_a_mantener).exclude(descripcion="Ver documento de planeación adjunto.").delete()
 
                     except Exception as e_json:
-                        print(f"❌ ERROR CRÍTICO JSON LOGROS: {e_json}")
                         logger.error(f"Error procesando JSON de logros: {e_json}")
 
                 # --------------------------------------------------------------

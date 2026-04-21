@@ -216,9 +216,9 @@
                                         </div>
                                         {% if definicion.temas %}
                                             <i class="fas fa-info-circle position-absolute top-0 end-0 m-1 text-info" 
-                                                data-bs-toggle="tooltip" 
-                                                data-bs-placement="top" 
-                                                title="Temas: {{ definicion.temas }}">
+                                               data-bs-toggle="tooltip" 
+                                               data-bs-placement="top" 
+                                               title="Temas: {{ definicion.temas }}">
                                             </i>
                                         {% endif %}
                                     </th>
@@ -663,7 +663,7 @@
         
         let logrosPorPeriodoData = {};
         
-        // 🔥 EXTRACCIÓN 100% SEGURA DEL JSON (Adiós al replace asesino)
+        // 🔥 EXTRACCIÓN 100% SEGURA DEL JSON
         try {
             const rawData = document.getElementById('logros-data').textContent;
             logrosPorPeriodoData = JSON.parse(rawData || "{}");
@@ -756,7 +756,6 @@
                 renderizarLogros();
                 floatingSaveButton.classList.remove('d-none');
                 
-                // Efecto Ametralladora (opcional, si quieres que se cierre puedes descomentar la siguiente línea)
                 if(modalLogroBS) modalLogroBS.hide();
             }
         };
