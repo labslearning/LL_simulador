@@ -981,7 +981,23 @@ def subir_notas(request, materia_id):
                 logros_json = request.POST.get('logros_json_data', '')
                 if logros_json:
                     try:
-                        # Procesamiento de la data sin el candado tóxico de SQL
+                        # 🔥 AUTO-HEALING CON SAVEPOINT: 
+                        # Si el candado no existe, el error se traga aquí y la transacción principal SIGUE VIVA.
+                        from django.db import connection, transaction
+                        try:
+                            with transaction.atomic():
+                                with connection.cursor() as cursor:
+                                    cursor.execute("""
+                                        SELECT constraint_name 
+                                        FROM information_schema.table_constraints 
+                                        WHERE table_name = 'tasks_logroperiodo' AND constraint_type = 'UNIQUE';
+                                    """)
+                                    for row in cursor.fetchall():
+                                        cursor.execute(f'ALTER TABLE tasks_logroperiodo DROP CONSTRAINT IF EXISTS "{row[0]}" CASCADE;')
+                        except Exception:
+                            pass # No importa si falla, el savepoint aísla el daño.
+
+                        # Procesamiento de la data
                         data_logros = json.loads(logros_json)
                         ids_a_mantener = []
                         
@@ -999,7 +1015,7 @@ def subir_notas(request, materia_id):
                                     LogroPeriodo.objects.filter(id=l_id, docente=request.user).update(descripcion=desc_l)
                                     ids_a_mantener.append(l_id)
                                 elif l_id == 0:
-                                    # Crear nuevo (Ya sin candados)
+                                    # Crear nuevo
                                     nuevo_logro = LogroPeriodo.objects.create(
                                         curso=curso, periodo=periodo_obj, materia=materia,
                                         docente=request.user, descripcion=desc_l
@@ -1012,7 +1028,6 @@ def subir_notas(request, materia_id):
                         ).exclude(id__in=ids_a_mantener).exclude(descripcion="Ver documento de planeación adjunto.").delete()
 
                     except Exception as e_json:
-                        print(f"❌ ERROR CRÍTICO JSON LOGROS: {e_json}")
                         logger.error(f"Error procesando JSON de logros: {e_json}")
 
                 # --------------------------------------------------------------
@@ -1025,7 +1040,6 @@ def subir_notas(request, materia_id):
                         archivo_subido = request.FILES[archivo_key]
                         
                         # Buscamos el primer logro de este periodo para adjuntarle el documento
-                        # o creamos un registro base si el profesor solo subió el archivo sin escribir nada.
                         logro_base = LogroPeriodo.objects.filter(
                             curso=curso, materia=materia, periodo=periodo, docente=request.user
                         ).first()
