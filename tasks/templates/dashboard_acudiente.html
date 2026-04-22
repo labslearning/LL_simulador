@@ -61,6 +61,7 @@
     --text-shadow-glow-cyan: 0 0 10px rgba(6, 182, 212, 0.6);
     --text-shadow-glow-success: 0 0 10px rgba(16, 185, 129, 0.6);
     --text-shadow-glow-warning: 0 0 10px rgba(245, 158, 11, 0.6);
+    --text-shadow-glow-danger: 0 0 10px rgba(244, 63, 94, 0.6);
 }
 
 body {
@@ -246,18 +247,18 @@ body {
 }
 
 /* Tablas Cyber - Directorio de Comandos Tácticos */
-.table { color: #e2e8f0; }
-.table-hover tbody tr { transition: all 0.3s ease; }
-.table-hover tbody tr:hover { background-color: rgba(16, 185, 129, 0.05); transform: translateX(5px); }
+.table { color: #e2e8f0; border-collapse: separate; border-spacing: 0 0.5rem; }
+.table-hover tbody tr { transition: all 0.3s ease; background-color: var(--color-bg-base); border-radius: 0.5rem;}
+.table-hover tbody tr:hover { background-color: rgba(6, 182, 212, 0.05); transform: translateX(5px); box-shadow: var(--shadow-glow-cyan);}
 .table thead th { 
-    background-color: var(--color-bg-base) !important; 
-    color: var(--color-success-candy); 
-    border-bottom: 2px solid rgba(16, 185, 129, 0.3); 
+    background-color: transparent !important; 
+    color: var(--color-accent-candy); 
+    border-bottom: none; 
     font-family: var(--font-mono); 
     letter-spacing: 0.05em;
+    padding-bottom: 1rem;
 }
-.table td { border-bottom: 1px solid rgba(255,255,255,0.05); background-color: transparent !important; vertical-align: middle;}
-.table-striped tbody tr:nth-of-type(odd) { background-color: rgba(255,255,255,0.02); }
+.table td { border-bottom: none; border-top: none; background-color: transparent !important; vertical-align: middle;}
 
 /* Modales y Formularios */
 .modal-header { border-bottom: 1px solid rgba(255,255,255,0.1); }
@@ -593,21 +594,21 @@ body {
                             
                             <div class="card stat-card shadow-hyper border border-accent bg-dark-omni overflow-hidden">
                                 <div class="card-body p-0">
-                                    <div class="table-responsive custom-scrollbar" style="max-height: 350px;">
+                                    <div class="table-responsive custom-scrollbar" style="max-height: 400px; padding: 1rem;">
                                         <table class="table table-hover align-middle mb-0 border-0">
                                             <thead class="sticky-top bg-void">
                                                 <tr>
-                                                    <th class="ps-4 border-0 py-3 text-accent-candy font-monospace tracking-widest" style="width: 80px;">Rostro</th>
-                                                    <th class="border-0 py-3 text-accent-candy font-monospace tracking-widest">Identidad del Docente</th>
-                                                    <th class="border-0 py-3 text-accent-candy font-monospace tracking-widest">Sector Operativo</th>
-                                                    <th class="text-end pe-4 border-0 py-3 text-accent-candy font-monospace tracking-widest">Comms</th>
+                                                    <th class="ps-4 border-0 py-3 text-cyan font-monospace tracking-widest" style="width: 80px;"><i class="fas fa-id-badge me-2"></i>ID</th>
+                                                    <th class="border-0 py-3 text-cyan font-monospace tracking-widest"><i class="fas fa-user-astronaut me-2"></i>Identidad</th>
+                                                    <th class="border-0 py-3 text-cyan font-monospace tracking-widest"><i class="fas fa-satellite me-2"></i>Sector</th>
+                                                    <th class="text-end pe-4 border-0 py-3 text-cyan font-monospace tracking-widest"><i class="fas fa-link me-2"></i>Comms</th>
                                                 </tr>
                                             </thead>
                                             <tbody class="border-top border-secondary">
                                                 {% for profe in data.docentes %}
-                                                <tr>
+                                                <tr class="transition-all-300">
                                                     <td class="ps-4 py-3">
-                                                        <div class="bg-gradient-cyber border border-cyan text-cyan rounded-circle d-flex justify-content-center align-items-center fw-black shadow-glow-cyan" style="width: 48px; height: 48px; font-size: 1.2em;">
+                                                        <div class="bg-gradient-cyber border border-accent text-accent-candy rounded-circle d-flex justify-content-center align-items-center fw-black shadow-glow-aurora" style="width: 48px; height: 48px; font-size: 1.2em;">
                                                             {% if profe.foto_url %}
                                                                 <img src="{{ profe.foto_url }}" class="rounded-circle w-100 h-100" style="object-fit: cover;">
                                                             {% else %}
@@ -616,11 +617,16 @@ body {
                                                         </div>
                                                     </td>
                                                     <td class="fw-black text-white font-monospace">{{ profe.nombre }}</td>
-                                                    <td><span class="badge bg-void border border-secondary text-muted font-monospace tracking-widest fs-9 px-3 py-2"><i class="fas fa-cube me-2 opacity-50"></i>{{ profe.materia_principal }}</span></td>
+                                                    <td>
+                                                        <div class="d-inline-flex align-items-center bg-void border border-secondary rounded-pill px-3 py-1 shadow-inner-dark">
+                                                            <i class="fas fa-cube text-accent-candy me-2 text-shadow-glow-aurora"></i>
+                                                            <span class="text-muted font-monospace tracking-widest fs-9 text-uppercase">{{ profe.materia_principal }}</span>
+                                                        </div>
+                                                    </td>
                                                     <td class="text-end pe-4">
                                                         <a href="{% url 'enviar_mensaje' %}?destinatario={{ profe.id }}&asunto=Consulta de Acudiente: {{ data.estudiante.get_full_name }}" 
-                                                           class="btn btn-dark-omni border border-cyan text-cyan btn-sm rounded-pill px-4 shadow-glow-cyan font-monospace tracking-wide fw-bold text-uppercase transform-hover py-2">
-                                                            <i class="fas fa-satellite-dish me-2"></i> Enlazar
+                                                           class="btn bg-gradient-cyan text-white btn-sm rounded-pill px-4 shadow-glow-cyan font-monospace tracking-wide fw-bold text-uppercase transform-hover py-2 border border-white">
+                                                            <i class="fas fa-paper-plane me-2"></i> Transmitir
                                                         </a>
                                                     </td>
                                                 </tr>
@@ -656,7 +662,7 @@ body {
                                         {% for falla in data.stats.detalle_fallas %}
                                         <div class="bg-void p-4 rounded-4 shadow-hyper border border-secondary d-flex align-items-center transition-all-300 transform-hover">
                                             <div class="bg-dark-omni border border-danger rounded-circle d-flex justify-content-center align-items-center me-4 flex-shrink-0 shadow-glow-danger" style="width:48px; height:48px;">
-                                                <i class="fas fa-exclamation text-danger-candy fs-5 text-shadow-glow-danger"></i>
+                                                <i class="fas fa-exclamation text-danger-candy fs-5 animate__animated animate__headShake animate__infinite animate__slower text-shadow-glow-danger"></i>
                                             </div>
                                             <div class="flex-grow-1">
                                                 <h6 class="fw-black text-white mb-1 fs-6 tracking-widest font-monospace">{{ falla.materia.nombre }}</h6>
