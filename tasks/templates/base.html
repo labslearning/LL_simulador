@@ -1901,46 +1901,48 @@
 <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
 <style>
-    /* 1. FUERZA BRUTA CYBER-DARK (Sobrescribe Bootstrap sin tocar clases HTML) */
-    :root { color-scheme: dark; }
-    body, .bg-light, .bg-white, .main-content-wrapper { background-color: #020617 !important; color: #e2e8f0 !important; }
-    .navbar { background: rgba(15, 23, 42, 0.95) !important; border-bottom: 1px solid rgba(6, 182, 212, 0.3) !important; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2) !important; }
-    .navbar-brand, h1, h2, h3, h4, h5, h6 { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase; text-shadow: 0 0 10px rgba(6, 182, 212, 0.8) !important; color: #fff !important; }
-    .nav-link { color: rgba(255,255,255,0.8) !important; font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase; }
-    .nav-link:hover { color: #06b6d4 !important; text-shadow: 0 0 10px rgba(6, 182, 212, 0.8); background: rgba(6, 182, 212, 0.1) !important;}
-    .card, .dropdown-menu, .modal-content, .accordion-button, .accordion-item { background-color: #0f172a !important; border: 1px solid rgba(6, 182, 212, 0.3) !important; box-shadow: 0 0 40px rgba(6, 182, 212, 0.15) !important; color: #fff !important;}
-    .dropdown-item { color: #e2e8f0 !important; font-family: 'JetBrains Mono', monospace !important;}
-    .dropdown-item:hover { background-color: rgba(6, 182, 212, 0.1) !important; color: #06b6d4 !important; }
-    .text-muted, .text-secondary { color: #06b6d4 !important; opacity: 0.7; }
-    
-    /* 2. BARRA LÁSER CUÁNTICA */
-    .stratos-loader { position: fixed; top: 0; left: 0; width: 100%; height: 3px; background: linear-gradient(90deg, #06b6d4, #d946ef); z-index: 999999; transform: scaleX(0); transform-origin: left; transition: transform 0.2s ease; box-shadow: 0 0 15px #06b6d4; pointer-events: none;}
-    .htmx-request .stratos-loader { transform: scaleX(1); animation: stratosPulse 1s infinite alternate; }
+    /* 1. BARRA DE CARGA SPA (Indicador visual de red sin alterar tus colores) */
+    .stratos-loader { 
+        position: fixed; 
+        top: 0; left: 0; 
+        width: 100%; height: 3px; 
+        background: linear-gradient(90deg, #4361ee, #4cc9f0); 
+        z-index: 999999; 
+        transform: scaleX(0); 
+        transform-origin: left; 
+        transition: transform 0.2s ease; 
+        box-shadow: 0 0 10px rgba(67, 97, 238, 0.5); 
+        pointer-events: none;
+    }
+    .htmx-request .stratos-loader { 
+        transform: scaleX(1); 
+        animation: stratosPulse 1s infinite alternate; 
+    }
     @keyframes stratosPulse { 0% { opacity: 0.5; } 100% { opacity: 1; } }
     
-    /* 3. TRANSICIÓN SPA (Desvanecimiento) */
-    html.htmx-swapping body { opacity: 0.3; transition: opacity 0.2s ease-out; }
+    /* 2. TRANSICIÓN SPA (Desvanecimiento fluido al cambiar página) */
+    html.htmx-swapping body { opacity: 0.5; transition: opacity 0.2s ease-out; }
     html.is-loading { cursor: wait; }
 </style>
 
 <script>
-    // 4. MUTACIÓN GENÉTICA DEL DOM (Auto-Inyección en tiempo real)
+    // 3. MUTACIÓN GENÉTICA DEL DOM (Auto-Inyección SPA en tiempo real)
     document.addEventListener("DOMContentLoaded", () => {
-        // A. Inyectar el Loader Láser en el techo del body
+        // A. Inyectar el Loader de red en el techo del body
         document.body.insertAdjacentHTML('afterbegin', '<div id="global-loader" class="stratos-loader"></div>');
         
-        // B. Hackear el body para convertir toda la app en SPA (HTMX Boost)
+        // B. Hackear el body para convertir toda la app en SPA (HTMX Boost 100% Client-Side Routing)
         document.body.setAttribute('hx-boost', 'true');
         document.body.setAttribute('hx-indicator', '#global-loader');
-        htmx.process(document.body); // Forzar a HTMX a escanear el nuevo atributo
+        htmx.process(document.body); // Forzar a HTMX a tomar control del enrutamiento
 
-        // C. Auto-inyectar Token CSRF de Django en cada navegación fantasma
+        // C. Auto-inyectar Token CSRF de Django en cada navegación AJAX fantasma
         document.body.addEventListener('htmx:configRequest', (e) => {
             const csrf = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
             if (csrf) e.detail.headers['X-CSRFToken'] = csrf;
         });
 
-        // D. Efectos de Carga
+        // D. Efectos de Carga UI
         document.body.addEventListener('htmx:send', () => document.documentElement.classList.add('is-loading'));
         document.body.addEventListener('htmx:afterOnLoad', () => document.documentElement.classList.remove('is-loading'));
     });
