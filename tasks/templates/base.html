@@ -1291,15 +1291,120 @@
                 var href = target.getAttribute('href');
                 var currentDomain = window.location.hostname;
 
-                // --- 1. LÓGICA DE YOUTUBE (Prioridad Alta) ---
-                // Si es YouTube, NO abrimos el modal. Forzamos nueva pestaña automáticamente.
-                // Esto evita el Error 153 porque el video carga directamente en youtube.com
+                // --- 1. LÓGICA DE YOUTUBE (MODAL CYBER-DARK) ---
+                // Detectamos si es un enlace de YouTube que DEBE abrirse en el Modal
                 if (href.includes('youtube.com/watch') || href.includes('youtu.be')) {
+                    
+                    // Verificamos si el enlace tiene una clase especial que obligue a abrir nueva pestaña (por si acaso)
+                    if (target.classList.contains('force-blank')) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        window.open(href, '_blank', 'noopener,noreferrer');
+                        return;
+                    }
+
+                    // ¡Llamamos a la función openYtModal en lugar de abrir nueva pestaña!
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openYtModal(href);
+                    return; 
+                }
+
+                // --- 2. LÓGICA DE ENLACES EXTERNOS (Evitar Error 153 en otros sitios) ---
+                try {
+                    if (href.indexOf('http') === 0) {
+                        var targetUrl = new URL(href);
+                        
+                        if (targetUrl.hostname !== currentDomain) {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            window.open(href, '_blank', 'noopener,noreferrer');
+                            console.log("Enlace externo interceptado. Forzando nueva pestaña:", href);
+                        }
+                    }
+                } catch (err) {
+                    if (href.indexOf('http') === 0) {
+                         window.open(href, '_blank');
+                    }
+                }
+
+                // --- 3. LÓGICA PDF ---
+                if (href.toLowerCase().endsWith('.pdf')) {
                     e.preventDefault();
                     e.stopPropagation();
                     window.open(href, '_blank', 'noopener,noreferrer');
-                    return; 
                 }
+
+            }, true); // Use capture para interceptar antes que HTMX o Alpine
+        });
+
+        // ========================================================
+        // MODAL DE YOUTUBE: MOTOR DE REPRODUCCIÓN FENIX_CORE
+        // ========================================================
+        function openYtModal(url) {
+            console.log("FENIX_CORE: Ejecutando subrutina de video para URL ->", url);
+            var videoId = '';
+            var regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            var match = url.match(regExp);
+
+            if (match && match[2].length == 11) {
+                videoId = match[2];
+                // Parámetros clave: autoplay, sin info relacionada al final, controles básicos
+                var embedUrl = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0&modestbranding=1';
+                
+                var iframe = document.getElementById('ytPlayer');
+                if (iframe) {
+                    iframe.src = embedUrl;
+                } else {
+                    console.error("FENIX_CORE: No se encontró el iframe 'ytPlayer'.");
+                }
+                
+                var externalBtn = document.getElementById('ytExternalLink');
+                if(externalBtn) {
+                    externalBtn.href = url;
+                }
+
+                var modal = document.getElementById('youtubeModal');
+                if (modal) {
+                    modal.style.display = 'block';
+                    // Animación de entrada
+                    modal.classList.add('animate__animated', 'animate__fadeIn');
+                    document.body.style.overflow = 'hidden'; // Bloquear scroll del fondo
+                }
+            } else {
+                console.warn("FENIX_CORE: URL de YouTube no estándar. Ejecutando ByPass a nueva pestaña.");
+                window.open(url, '_blank', 'noopener,noreferrer');
+            }
+        }
+
+        function closeYtModal() {
+            console.log("FENIX_CORE: Terminando flujo de video.");
+            var modal = document.getElementById('youtubeModal');
+            var iframe = document.getElementById('ytPlayer');
+            
+            if (modal) {
+                modal.classList.remove('animate__fadeIn');
+                modal.classList.add('animate__fadeOut');
+                
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    modal.classList.remove('animate__animated', 'animate__fadeOut');
+                    document.body.style.overflow = ''; // Restaurar scroll
+                }, 300); // Tiempo de la animación de salida
+            }
+            if (iframe) {
+                iframe.src = ''; // Corta la reproducción y libera RAM
+            }
+        }
+
+        // Cerrar modal al hacer clic fuera del cuadro de video (en el fondo oscuro)
+        window.addEventListener('click', function(event) {
+            var modal = document.getElementById('youtubeModal');
+            if (event.target === modal) {
+                closeYtModal();
+            }
+        });
+    </script>
 
                 // --- 2. LÓGICA DE ENLACES EXTERNOS (Evitar Error 153 en otros sitios) ---
                 // Verifica rigurosamente si el dominio destino es diferente al actual
