@@ -3,73 +3,67 @@
 {% block content %}
 <style>
     /* =========================================================
-       1. VARIABLES DEL SISTEMA (PALETA ORIGINAL + MODOS)
+       1. VARIABLES DEL SISTEMA CYBER-DARK (GOD-TIER LEVEL)
        ========================================================= */
     :root {
-        /* Paleta de Colores Corporativa */
-        --ll-primary: #3A50A2;
-        --ll-primary-light: #5D77C4;
-        --ll-primary-dark: #2A3A7A;
-        --ll-secondary: #F0A04B;
-        --ll-secondary-light: #F7C781;
-        --ll-bg-main: #F8F9FC;
-        --ll-bg-card: #FFFFFF;
-        --ll-text-dark: #212529;
-        --ll-text-medium: #495057;
-        --ll-text-light: #6C757D;
-        --ll-border-color: #DEE2E6;
-        --ll-success: #198754;
-        --ll-warning: #FFC107;
-        --ll-danger: #DC3545;
-        --ll-info: #17A2B8;
-        --ll-light: #f8f9fa;
-        --ll-shadow-glow: 0 0 30px rgba(93, 119, 196, 0.2);
+        /* Paleta Cybernetics Dark de Alto Contraste */
+        --ll-primary: #06b6d4;        /* Terminal Cyan */
+        --ll-primary-light: #22d3ee;  /* Bright Cyan */
+        --ll-primary-dark: #0891b2;   /* Deep Cyan */
+        --ll-secondary: #d946ef;      /* Neon Fuchsia */
+        --ll-secondary-light: #e879f9;
+        
+        --ll-bg-main: #020617;        /* Void Black - Fondo Abismal */
+        --ll-bg-card: #0f172a;        /* Deep Slate Core - Tarjetas */
+        
+        /* Contraste Extremo para Textos */
+        --ll-text-dark: #ffffff;      /* Blanco Puro para Títulos */
+        --ll-text-medium: #f8fafc;    /* Gris Nieve para Párrafos (Alta Legibilidad) */
+        --ll-text-light: #cbd5e1;     /* Gris Claro para Detalles */
+        
+        --ll-border-color: rgba(6, 182, 212, 0.3); /* Bordes de Energía */
+        
+        --ll-success: #10b981;        /* Matrix Emerald */
+        --ll-warning: #f59e0b;        /* Warning Amber */
+        --ll-danger: #f43f5e;         /* Alert Rose */
+        --ll-info: #3b82f6;           /* Cyber Blue */
+
+        /* Sombras de Neón (Dopamina Visual) */
+        --ll-shadow-glow: 0 0 25px rgba(6, 182, 212, 0.4);
+        --ll-shadow-glow-purple: 0 0 25px rgba(217, 70, 239, 0.4);
+        --ll-shadow-sm: 0 4px 15px rgba(0, 0, 0, 0.5);
+        --ll-shadow-md: 0 10px 30px rgba(0, 0, 0, 0.6);
+        --ll-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 20px rgba(6, 182, 212, 0.1);
 
         /* Tipografía Avanzada */
-        --ll-font-sans: 'Inter', system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        --ll-font-sans: 'Nunito', 'Poppins', system-ui, sans-serif;
+        --ll-font-mono: 'JetBrains Mono', Consolas, monospace;
 
         /* Sistema de Espaciado y Estructura */
         --ll-spacing-unit: 1rem;
-        --ll-container-width: 1200px;
-
-        /* Sombras de Alta Definición */
-        --ll-shadow-sm: 0 2px 8px rgba(58, 80, 162, 0.05);
-        --ll-shadow-md: 0 8px 24px rgba(58, 80, 162, 0.08);
-        --ll-shadow-lg: 0 20px 50px rgba(58, 80, 162, 0.12);
+        --ll-container-width: 1300px;
 
         /* Radios y Transiciones */
         --ll-radius-sm: 0.5rem;
         --ll-radius-md: 0.75rem;
         --ll-radius-lg: 1.5rem;
         --ll-radius-xl: 2.5rem;
-        --ll-transition-fast: all 0.2s ease;
+        --ll-transition-fast: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
         --ll-transition-smooth: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
-    /* Modo oscuro */
-    [data-theme="dark"] {
-        --ll-bg-main: #121212;
-        --ll-bg-card: #1E1E1E;
-        --ll-text-dark: #E0E0E0;
-        --ll-text-medium: #B0B0B0;
-        --ll-text-light: #808080;
-        --ll-border-color: #444;
-        --ll-shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.3);
-    }
-
-    /* =========================================================
-       2. RESET Y ESTILOS GLOBALES
-       ========================================================= */
+    /* Forzamos el tema oscuro sin depender de un atributo data-theme */
     body {
-        background-color: var(--ll-bg-main);
-        font-family: var(--ll-font-sans);
-        color: var(--ll-text-dark);
-        line-height: 1.6;
+        background-color: var(--ll-bg-main) !important;
+        font-family: var(--ll-font-sans) !important;
+        color: var(--ll-text-medium) !important;
+        line-height: 1.7;
         overflow-x: hidden;
-        transition: background-color 0.5s ease, color 0.5s ease;
+        margin: 0;
+        padding: 0;
     }
 
-    /* Fondo tecnológico sutil */
+    /* Fondo tecnológico Cuántico */
     body::before {
         content: '';
         position: fixed;
@@ -78,18 +72,20 @@
         width: 100%;
         height: 100%;
         background-image:
-            radial-gradient(circle at 15% 50%, rgba(58, 80, 162, 0.03) 0%, transparent 25%),
-            radial-gradient(circle at 85% 30%, rgba(240, 160, 75, 0.03) 0%, transparent 25%);
+            radial-gradient(circle at 10% 20%, rgba(6, 182, 212, 0.05) 0%, transparent 40%),
+            radial-gradient(circle at 90% 80%, rgba(217, 70, 239, 0.05) 0%, transparent 40%);
         z-index: -1;
         pointer-events: none;
     }
 
-    h1, h2, h3, h4 {
-        letter-spacing: -0.02em;
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--ll-text-dark) !important;
+        letter-spacing: 0.5px;
+        font-weight: 800;
     }
 
     /* =========================================================
-       3. COMPONENTES DE UI AVANZADOS
+       3. COMPONENTES DE UI AVANZADOS (HERO SECTION)
        ========================================================= */
     .ll-main-wrapper {
         max-width: var(--ll-container-width);
@@ -97,431 +93,470 @@
         padding: 0 1.5rem;
     }
 
-    /* Tarjeta Hero Principal con efecto 3D */
+    /* Tarjeta Hero Principal con Glassmorphism y Neón */
     .ll-hero-card {
-        background-color: var(--ll-bg-card);
-        border-radius: var(--ll-radius-lg);
+        background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(2, 6, 23, 0.9));
+        border-radius: var(--ll-radius-xl);
         box-shadow: var(--ll-shadow-lg);
         position: relative;
         overflow: hidden;
-        padding: 5rem 2rem;
+        padding: 6rem 2rem;
         margin-top: 3rem;
-        margin-bottom: 4rem;
-        border: 1px solid rgba(255,255,255,0.1);
-        backdrop-filter: blur(10px);
+        margin-bottom: 5rem;
+        border: 1px solid rgba(6, 182, 212, 0.4);
+        backdrop-filter: blur(20px);
         transform-style: preserve-3d;
-        transition: transform 0.6s ease, box-shadow 0.6s ease;
+        transition: var(--ll-transition-smooth);
+    }
+
+    .ll-hero-card::after {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--ll-primary), var(--ll-secondary));
+        box-shadow: 0 0 20px var(--ll-primary);
     }
 
     .ll-hero-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 25px 60px rgba(58, 80, 162, 0.2);
+        transform: translateY(-5px);
+        box-shadow: 0 25px 60px rgba(6, 182, 212, 0.15);
+        border-color: var(--ll-primary);
     }
 
     .ll-hero-content {
         position: relative;
         z-index: 2;
-        max-width: 850px;
+        max-width: 900px;
         margin: 0 auto;
     }
 
-    /* Logotipo Central con efecto 3D */
+    /* Logotipo Central Flotante */
     .ll-logo {
-        width: 160px;
-        height: 160px;
+        width: 180px;
+        height: 180px;
         border-radius: 50%;
         margin-bottom: 2.5rem;
-        box-shadow: var(--ll-shadow-md);
-        border: 4px solid var(--ll-bg-card);
-        background: white;
+        box-shadow: var(--ll-shadow-glow);
+        border: 2px solid var(--ll-primary);
+        background: var(--ll-bg-main);
         object-fit: contain;
-        padding: 5px;
+        padding: 10px;
         transition: var(--ll-transition-smooth);
-        transform-style: preserve-3d;
     }
 
     .ll-logo:hover {
-        transform: scale(1.05) rotateY(180deg);
-        box-shadow: var(--ll-shadow-glow);
-        border-color: var(--ll-primary);
+        transform: scale(1.1) rotate(5deg);
+        box-shadow: 0 0 40px rgba(6, 182, 212, 0.8);
+        border-color: #fff;
     }
 
-    /* Títulos de Alto Impacto con efecto de texto 3D */
+    /* Títulos de Alto Impacto */
     .ll-hero-title {
-        font-size: 3.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, var(--ll-primary-dark) 0%, var(--ll-primary) 100%);
+        font-size: 4.5rem;
+        font-family: var(--ll-font-mono);
+        font-weight: 900;
+        background: linear-gradient(135deg, #fff 0%, var(--ll-primary) 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-        margin-bottom: 1.25rem;
+        margin-bottom: 1.5rem;
         line-height: 1.1;
-        text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        transition: text-shadow 0.3s ease;
+        text-shadow: 0 0 30px rgba(6, 182, 212, 0.3);
+        text-transform: uppercase;
+        letter-spacing: 2px;
     }
 
-    .ll-hero-title:hover {
-        text-shadow: 4px 4px 8px rgba(58, 80, 162, 0.3);
-    }
-
-    /* Subtítulo con efecto de revelado */
+    /* Subtítulo Claro y Legible */
     .ll-hero-subtitle {
-        font-size: 1.35rem;
+        font-size: 1.4rem;
         color: var(--ll-text-medium);
-        font-weight: 400;
-        margin-bottom: 2.5rem;
-        max-width: 750px;
+        font-weight: 500;
+        margin-bottom: 3rem;
+        max-width: 800px;
         margin-left: auto;
         margin-right: auto;
-        line-height: 1.6;
+        line-height: 1.8;
         opacity: 0;
         transform: translateY(20px);
-        animation: fadeUp 1s ease-out 0.3s forwards;
+        animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.3s forwards;
+    }
+    
+    .ll-hero-subtitle strong {
+        color: var(--ll-secondary);
+        text-shadow: 0 0 10px rgba(217, 70, 239, 0.5);
     }
 
-    /* Botón de Acción Principal (CTA) con efecto de partícula */
+    /* Botón CTA Dopamina Pura */
     .ll-btn-welcome {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-weight: 600;
-        font-size: 1.15rem;
-        padding: 1.2rem 3rem;
+        font-weight: 900;
+        font-family: var(--ll-font-mono);
+        font-size: 1.2rem;
+        padding: 1.2rem 3.5rem;
         border-radius: 50px;
-        background: linear-gradient(135deg, var(--ll-primary), var(--ll-primary-dark));
+        background: linear-gradient(135deg, var(--ll-secondary), #9333ea);
         color: white !important;
-        border: none;
-        box-shadow: 0 10px 25px rgba(58, 80, 162, 0.25);
-        transition: var(--ll-transition-smooth);
+        border: 2px solid transparent;
+        box-shadow: var(--ll-shadow-glow-purple);
+        transition: var(--ll-transition-fast);
         text-decoration: none;
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
-    .ll-btn-welcome::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to right, transparent, rgba(255,255,255,0.2), transparent);
-        transform: translateX(-100%);
-        transition: 0.5s;
-    }
+    .ll-btn-welcome i { margin-right: 10px; font-size: 1.4rem; }
 
     .ll-btn-welcome:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 15px 35px rgba(58, 80, 162, 0.35);
-    }
-
-    .ll-btn-welcome:hover::after {
-        transform: translateX(100%);
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 0 40px rgba(217, 70, 239, 0.8);
+        border-color: #fff;
+        color: #fff;
     }
 
     /* =========================================================
-       4. SECCIÓN DE BENEFICIOS CLAVE
+       4. SECCIÓN DE BENEFICIOS CLAVE (TARJETAS CYBER)
        ========================================================= */
     .ll-benefits-section {
-        padding: 4rem 0;
+        padding: 5rem 0;
         text-align: center;
     }
 
     .ll-benefits-title {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.8rem;
+        font-weight: 900;
+        font-family: var(--ll-font-mono);
+        text-transform: uppercase;
         margin-bottom: 1rem;
         color: var(--ll-text-dark);
+        text-shadow: 0 0 15px rgba(255,255,255,0.2);
     }
 
     .ll-benefits-subtitle {
-        font-size: 1.1rem;
-        color: var(--ll-text-medium);
-        margin-bottom: 3rem;
-        max-width: 700px;
+        font-size: 1.2rem;
+        color: var(--ll-text-light);
+        margin-bottom: 4rem;
+        max-width: 800px;
         margin-left: auto;
         margin-right: auto;
     }
 
     .ll-benefits-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
     }
 
     .ll-benefit-card {
         background: var(--ll-bg-card);
         border-radius: var(--ll-radius-lg);
-        padding: 2rem;
-        box-shadow: var(--ll-shadow-sm);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 2.5rem;
+        box-shadow: var(--ll-shadow-md);
+        transition: var(--ll-transition-fast);
         text-align: left;
-        border-left: 4px solid var(--ll-primary);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-top: 4px solid var(--ll-primary);
         height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .ll-benefit-card::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at top right, rgba(6, 182, 212, 0.1), transparent 70%);
+        pointer-events: none;
     }
 
     .ll-benefit-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--ll-shadow-lg);
+        transform: translateY(-10px);
+        box-shadow: var(--ll-shadow-glow);
+        border-color: var(--ll-primary);
+        background: rgba(15, 23, 42, 0.8);
     }
 
     .ll-benefit-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(58, 80, 162, 0.1);
-        border-radius: 50%;
+        width: 65px;
+        height: 65px;
+        background: rgba(6, 182, 212, 0.1);
+        border-radius: 16px;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-bottom: 1.5rem;
         color: var(--ll-primary);
-        font-size: 1.3rem;
+        font-size: 1.8rem;
+        border: 1px solid var(--ll-primary);
+        box-shadow: inset 0 0 15px rgba(6, 182, 212, 0.2);
     }
 
     .ll-benefit-title {
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1.3rem;
+        font-weight: 800;
         margin-bottom: 1rem;
-        color: var(--ll-text-dark);
+        color: #fff;
         display: flex;
         align-items: center;
     }
 
-    .ll-benefit-title::before {
-        margin-right: 0.5rem;
-        font-size: 1.2em;
-    }
-
     .ll-benefit-text {
         color: var(--ll-text-medium);
-        line-height: 1.6;
+        font-size: 1rem;
+        line-height: 1.7;
+        font-weight: 400;
     }
 
-    /* Iconos específicos para cada beneficio */
-    .ll-benefit-card[data-benefit="1"] .ll-benefit-title::before { content: "🧠"; }
-    .ll-benefit-card[data-benefit="2"] .ll-benefit-title::before { content: "🛡️"; }
-    .ll-benefit-card[data-benefit="3"] .ll-benefit-title::before { content: "🔮"; }
-    .ll-benefit-card[data-benefit="4"] .ll-benefit-title::before { content: "📱"; }
-    .ll-benefit-card[data-benefit="5"] .ll-benefit-title::before { content: "🤝"; }
-
-    /* Colores de borde según beneficio */
-    .ll-benefit-card[data-benefit="1"] { border-left-color: var(--ll-primary); }
-    .ll-benefit-card[data-benefit="2"] { border-left-color: var(--ll-success); }
-    .ll-benefit-card[data-benefit="3"] { border-left-color: var(--ll-info); }
-    .ll-benefit-card[data-benefit="4"] { border-left-color: var(--ll-secondary); }
-    .ll-benefit-card[data-benefit="5"] { border-left-color: var(--ll-warning); }
+    /* Colores de borde y resplandor según beneficio */
+    .ll-benefit-card[data-benefit="1"] { border-top-color: var(--ll-primary); }
+    .ll-benefit-card[data-benefit="1"]:hover { box-shadow: var(--ll-shadow-glow); border-color: var(--ll-primary); }
+    
+    .ll-benefit-card[data-benefit="2"] { border-top-color: var(--ll-success); }
+    .ll-benefit-card[data-benefit="2"] .ll-benefit-icon { color: var(--ll-success); border-color: var(--ll-success); background: rgba(16, 185, 129, 0.1); }
+    .ll-benefit-card[data-benefit="2"]:hover { box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); border-color: var(--ll-success); }
+    
+    .ll-benefit-card[data-benefit="3"] { border-top-color: var(--ll-secondary); }
+    .ll-benefit-card[data-benefit="3"] .ll-benefit-icon { color: var(--ll-secondary); border-color: var(--ll-secondary); background: rgba(217, 70, 239, 0.1); }
+    .ll-benefit-card[data-benefit="3"]:hover { box-shadow: var(--ll-shadow-glow-purple); border-color: var(--ll-secondary); }
+    
+    .ll-benefit-card[data-benefit="4"] { border-top-color: var(--ll-info); }
+    .ll-benefit-card[data-benefit="4"] .ll-benefit-icon { color: var(--ll-info); border-color: var(--ll-info); background: rgba(59, 130, 246, 0.1); }
+    .ll-benefit-card[data-benefit="4"]:hover { box-shadow: 0 0 25px rgba(59, 130, 246, 0.4); border-color: var(--ll-info); }
+    
+    .ll-benefit-card[data-benefit="5"] { border-top-color: var(--ll-warning); }
+    .ll-benefit-card[data-benefit="5"] .ll-benefit-icon { color: var(--ll-warning); border-color: var(--ll-warning); background: rgba(245, 158, 11, 0.1); }
+    .ll-benefit-card[data-benefit="5"]:hover { box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); border-color: var(--ll-warning); }
 
     /* =========================================================
-       5. SECCIÓN DE VIDEOS (ORGANIZADA Y PROFESIONAL)
+       5. SECCIÓN DE VIDEOS (NEÓN & GLASS)
        ========================================================= */
     .ll-video-section {
-        padding: 4rem 0;
+        padding: 5rem 0;
         text-align: center;
+        background: linear-gradient(180deg, var(--ll-bg-main) 0%, rgba(15,23,42,0.5) 100%);
+        border-radius: var(--ll-radius-xl);
+        border: 1px solid rgba(255,255,255,0.05);
     }
 
-    .ll-video-header {
-        margin-bottom: 2rem;
-    }
+    .ll-video-header { margin-bottom: 3rem; }
 
     .ll-video-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--ll-text-dark);
-    }
-
-    .ll-video-subtitle {
-        font-size: 1.1rem;
-        color: var(--ll-text-medium);
-        max-width: 700px;
-        margin: 0 auto 3rem;
+        font-size: 2.5rem;
+        font-family: var(--ll-font-mono);
+        text-transform: uppercase;
+        font-weight: 900;
+        color: #fff;
+        text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);
     }
 
     .ll-video-categories {
         display: flex;
         justify-content: center;
         gap: 1rem;
-        margin-bottom: 2rem;
+        margin-bottom: 3rem;
         flex-wrap: wrap;
     }
 
     .ll-video-category {
-        padding: 0.6rem 1.2rem;
-        border-radius: 25px;
-        background: var(--ll-bg-main);
+        padding: 0.8rem 1.8rem;
+        border-radius: 50px;
+        background: var(--ll-bg-card);
         color: var(--ll-text-medium);
-        border: 1px solid var(--ll-border-color);
+        border: 1px solid rgba(255,255,255,0.1);
+        font-family: var(--ll-font-mono);
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.3s ease;
+        transition: var(--ll-transition-fast);
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .ll-video-category.active {
         background: var(--ll-primary);
-        color: white;
-        border-color: var(--ll-primary);
+        color: #000;
+        border-color: #fff;
+        box-shadow: var(--ll-shadow-glow);
     }
 
-    .ll-video-category:hover {
-        background: var(--ll-primary-light);
-        color: white;
+    .ll-video-category:hover:not(.active) {
+        background: rgba(6, 182, 212, 0.2);
+        color: #fff;
+        border-color: var(--ll-primary);
     }
 
     .ll-video-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 2.5rem;
+        padding: 0 1rem;
     }
 
     .ll-video-card {
         background: var(--ll-bg-card);
         border-radius: var(--ll-radius-lg);
         overflow: hidden;
+        border: 1px solid rgba(6, 182, 212, 0.2);
         box-shadow: var(--ll-shadow-md);
-        transition: var(--ll-transition-smooth);
-        position: relative;
+        transition: var(--ll-transition-fast);
         height: 100%;
     }
 
     .ll-video-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--ll-shadow-lg);
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: var(--ll-shadow-glow);
+        border-color: var(--ll-primary);
     }
 
     .ll-video-thumbnail {
         width: 100%;
-        height: 180px;
-        object-fit: cover;
+        height: 220px;
         position: relative;
     }
 
     .ll-video-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to top, rgba(2, 6, 23, 0.95) 10%, rgba(2, 6, 23, 0.4) 60%, transparent);
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
         align-items: flex-start;
-        color: white;
         padding: 1.5rem;
+        transition: background 0.3s;
+    }
+    
+    .ll-video-card:hover .ll-video-overlay {
+        background: linear-gradient(to top, rgba(2, 6, 23, 0.95) 10%, rgba(6, 182, 212, 0.2) 60%, transparent);
     }
 
     .ll-video-card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #fff;
         margin-bottom: 0.5rem;
+        text-align: left;
     }
 
     .ll-video-card-desc {
-        font-size: 0.85rem;
-        margin-bottom: 1rem;
-        opacity: 0.9;
+        font-size: 0.9rem;
+        color: var(--ll-text-light);
+        margin-bottom: 1.2rem;
+        text-align: left;
+        line-height: 1.5;
     }
 
     .ll-video-btn {
         display: inline-flex;
         align-items: center;
-        justify-content: center;
-        background: var(--ll-primary);
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border-radius: 25px;
+        background: transparent;
+        color: var(--ll-primary);
+        padding: 0.6rem 1.5rem;
+        border-radius: 50px;
+        border: 1px solid var(--ll-primary);
         text-decoration: none;
-        font-weight: 600;
+        font-family: var(--ll-font-mono);
+        font-weight: 800;
+        text-transform: uppercase;
         transition: var(--ll-transition-fast);
-        border: none;
         cursor: pointer;
     }
 
-    .ll-video-btn:hover {
-        background: var(--ll-primary-dark);
-        transform: translateY(-2px);
-    }
+    .ll-video-btn i { margin-right: 8px; }
 
-    .ll-video-btn i {
-        margin-right: 8px;
+    .ll-video-card:hover .ll-video-btn {
+        background: var(--ll-primary);
+        color: #000;
+        box-shadow: 0 0 15px var(--ll-primary);
     }
 
     /* =========================================================
-       6. SECCIÓN DE ALERTAS PREDICTIVAS (DATOS REALES)
+       6. SECCIÓN DE ALERTAS PREDICTIVAS (HIGH CONTRAST)
        ========================================================= */
     .ll-alerts-section {
-        padding: 4rem 0;
+        padding: 5rem 0;
         text-align: center;
     }
 
     .ll-alerts-title {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.5rem;
+        font-family: var(--ll-font-mono);
+        font-weight: 900;
+        text-transform: uppercase;
         margin-bottom: 1rem;
-        color: var(--ll-text-dark);
-    }
-
-    .ll-alerts-subtitle {
-        font-size: 1.1rem;
-        color: var(--ll-text-medium);
-        margin-bottom: 3rem;
-        max-width: 700px;
-        margin-left: auto;
-        margin-right: auto;
+        color: #fff;
+        text-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
     }
 
     .ll-alerts-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 2.5rem;
+        margin-top: 3rem;
     }
 
     .ll-alert-card {
         background: var(--ll-bg-card);
         border-radius: var(--ll-radius-lg);
-        padding: 2rem;
-        box-shadow: var(--ll-shadow-sm);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        padding: 2.5rem;
+        box-shadow: var(--ll-shadow-md);
+        transition: var(--ll-transition-fast);
         text-align: left;
-        border-left: 4px solid var(--ll-warning);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-left: 5px solid var(--ll-warning);
+        position: relative;
     }
 
     .ll-alert-card:hover {
-        transform: translateY(-8px);
-        box-shadow: var(--ll-shadow-lg);
+        transform: translateX(10px);
+        background: rgba(15, 23, 42, 0.9);
     }
+    
+    /* Colores específicos de alerta en Hover */
+    .ll-alert-card:nth-child(1):hover { box-shadow: 0 0 25px rgba(244, 63, 94, 0.4); border-color: var(--ll-danger); border-left-color: var(--ll-danger); }
+    .ll-alert-card:nth-child(1) .ll-alert-icon { color: var(--ll-danger); background: rgba(244, 63, 94, 0.1); }
+    
+    .ll-alert-card:nth-child(2):hover { box-shadow: 0 0 25px rgba(16, 185, 129, 0.4); border-color: var(--ll-success); border-left-color: var(--ll-success); }
+    .ll-alert-card:nth-child(2) .ll-alert-icon { color: var(--ll-success); background: rgba(16, 185, 129, 0.1); }
+    
+    .ll-alert-card:nth-child(3):hover { box-shadow: 0 0 25px rgba(6, 182, 212, 0.4); border-color: var(--ll-primary); border-left-color: var(--ll-primary); }
+    .ll-alert-card:nth-child(3) .ll-alert-icon { color: var(--ll-primary); background: rgba(6, 182, 212, 0.1); }
 
     .ll-alert-icon {
-        width: 50px;
-        height: 50px;
-        background: rgba(255, 193, 7, 0.1);
+        width: 60px; height: 60px;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        display: flex; align-items: center; justify-content: center;
         margin-bottom: 1.5rem;
-        color: var(--ll-warning);
-        font-size: 1.3rem;
+        font-size: 1.5rem;
     }
 
     .ll-alert-title {
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: #fff;
         margin-bottom: 1rem;
-        color: var(--ll-text-dark);
     }
 
     .ll-alert-text {
         color: var(--ll-text-medium);
         line-height: 1.6;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .ll-alert-action {
-        color: var(--ll-primary);
+        color: #fff;
         text-decoration: none;
-        font-weight: 600;
-        font-size: 0.9rem;
+        font-family: var(--ll-font-mono);
+        font-weight: 800;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        border: 1px solid rgba(255,255,255,0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        transition: var(--ll-transition-fast);
     }
+    
+    .ll-alert-card:nth-child(1):hover .ll-alert-action { background: var(--ll-danger); border-color: var(--ll-danger); }
+    .ll-alert-card:nth-child(2):hover .ll-alert-action { background: var(--ll-success); border-color: var(--ll-success); }
+    .ll-alert-card:nth-child(3):hover .ll-alert-action { background: var(--ll-primary); border-color: var(--ll-primary); color: #000; }
 
     /* =========================================================
        7. ANIMACIONES Y EFECTOS AVANZADOS
@@ -531,19 +566,14 @@
         to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes pulseSlow {
-        0% { transform: scale(1); opacity: 0.5; }
-        100% { transform: scale(1.1); opacity: 0.8; }
-    }
-
     @keyframes floatElement {
         0% { transform: translateY(0px); }
-        50% { transform: translateY(-10px); }
+        50% { transform: translateY(-15px); }
         100% { transform: translateY(0px); }
     }
 
     .ll-animate-fade-up {
-        animation: fadeUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         opacity: 0;
     }
 
@@ -551,7 +581,6 @@
         animation: floatElement 6s ease-in-out infinite;
     }
 
-    /* Retrasos escalonados */
     .delay-1 { animation-delay: 0.1s; }
     .delay-2 { animation-delay: 0.3s; }
     .delay-3 { animation-delay: 0.5s; }
@@ -560,126 +589,69 @@
        8. MODAL VIDEO MEJORADO
        ========================================================= */
     .ll-video-modal {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(15, 23, 42, 0.95);
-        z-index: 10000;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
+        display: none; position: fixed; inset: 0;
+        background: rgba(2, 6, 23, 0.95); backdrop-filter: blur(10px);
+        z-index: 10000; align-items: center; justify-content: center;
+        opacity: 0; transition: opacity 0.3s ease;
     }
 
-    .ll-video-modal.active {
-        display: flex;
-        opacity: 1;
-    }
+    .ll-video-modal.active { display: flex; opacity: 1; }
 
     .ll-video-wrapper {
-        position: relative;
-        width: 90%;
-        max-width: 1000px;
-        aspect-ratio: 16/9;
-        box-shadow: 0 0 50px rgba(0,0,0,0.5);
-        border-radius: 16px;
-        overflow: hidden;
-        background: black;
+        position: relative; width: 90%; max-width: 1000px;
+        aspect-ratio: 16/9; box-shadow: var(--shadow-glow);
+        border-radius: 16px; overflow: hidden; background: #000;
+        border: 1px solid var(--ll-primary);
     }
 
-    .ll-video-modal iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-    }
+    .ll-video-modal iframe { width: 100%; height: 100%; border: none; }
 
     .ll-video-close {
-        position: absolute;
-        top: -50px;
-        right: 0;
-        font-size: 2rem;
-        color: white;
-        cursor: pointer;
-        opacity: 0.7;
-        transition: 0.2s;
-        background: none;
-        border: none;
+        position: absolute; top: -50px; right: 0;
+        font-size: 2.5rem; color: var(--ll-primary); cursor: pointer;
+        opacity: 0.8; transition: 0.2s; background: none; border: none; text-shadow: var(--text-shadow-glow-cyan);
     }
 
-    .ll-video-close:hover {
-        opacity: 1;
-        transform: rotate(90deg);
-    }
+    .ll-video-close:hover { opacity: 1; color: #fff; transform: rotate(90deg) scale(1.1); }
 
     /* =========================================================
        9. FOOTER CON EFECTOS
        ========================================================= */
     .ll-footer {
-        text-align: center;
-        padding: 3rem 0;
-        color: var(--ll-text-light);
-        font-size: 0.9rem;
-        border-top: 1px solid var(--ll-border-color);
-        margin-top: 4rem;
-        position: relative;
-        overflow: hidden;
+        text-align: center; padding: 4rem 0; color: var(--ll-text-light);
+        font-size: 0.95rem; border-top: 1px solid rgba(6, 182, 212, 0.2);
+        margin-top: 5rem; position: relative; overflow: hidden;
+        background: rgba(15, 23, 42, 0.5);
     }
 
     .ll-footer::before {
-        content: '';
-        position: absolute;
-        top: -50px;
-        left: 0;
-        width: 100%;
-        height: 100px;
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 2px;
         background: linear-gradient(to right, transparent, var(--ll-primary), transparent);
-        opacity: 0.1;
+        box-shadow: var(--shadow-glow);
     }
 
     .ll-footer-brand {
-        color: var(--ll-primary);
-        font-weight: 700;
+        color: var(--ll-text-dark);
+        font-family: var(--ll-font-mono);
+        font-weight: 900;
+        letter-spacing: 1px;
         transition: color 0.3s ease;
     }
 
-    .ll-footer:hover .ll-footer-brand {
-        color: var(--ll-secondary);
-    }
+    .ll-footer:hover .ll-footer-brand { color: var(--ll-primary); text-shadow: var(--text-shadow-glow-cyan);}
 
     /* =========================================================
        10. RESPONSIVE Y ACCESIBILIDAD
        ========================================================= */
     @media (max-width: 992px) {
-        .ll-benefits-grid, .ll-video-grid, .ll-alerts-grid {
-            grid-template-columns: 1fr;
-        }
-        .ll-video-categories {
-            justify-content: center;
-        }
-        .ll-hero-title {
-            font-size: 2.5rem;
-        }
-    }
-
-    /* Icono de nueva pestaña para accesibilidad */
-    .ll-new-tab-icon {
-        margin-left: 0.5rem;
-        font-size: 0.8em;
-        opacity: 0.7;
-    }
-
-    /* Efecto de hover para enlaces */
-    a {
-        transition: color 0.2s ease;
-    }
-
-    a:hover {
-        color: var(--ll-primary);
+        .ll-benefits-grid, .ll-video-grid, .ll-alerts-grid { grid-template-columns: 1fr; }
+        .ll-video-categories { justify-content: center; }
+        .ll-hero-title { font-size: 2.5rem; }
+        .ll-hero-card { padding: 3rem 1.5rem; }
     }
 </style>
 
 <main class="ll-main-wrapper">
-    <!-- Hero Section -->
     <section class="ll-hero-card ll-animate-fade-up">
         <div class="ll-hero-content text-center">
             <img src="https://res.cloudinary.com/diarfrbzp/image/upload/v1745919577/logo_lab_qserfl.png"
@@ -701,7 +673,6 @@
         </div>
     </section>
 
-    <!-- Sección de Beneficios Clave -->
     <section class="ll-benefits-section ll-animate-fade-up delay-1">
         <h3 class="ll-benefits-title">Beneficios que Transforman la Educación</h3>
         <p class="ll-benefits-subtitle">
@@ -756,7 +727,6 @@
         </div>
     </section>
 
-    <!-- Sección de Videos Organizada -->
     <section class="ll-video-section ll-animate-fade-up delay-2">
         <div class="ll-video-header">
             <h3 class="ll-video-title">Conoce Learning Labs en Acción</h3>
@@ -779,10 +749,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Bienvenidos a Learning Labs</h4>
                         <p class="ll-video-card-desc">Descubre la plataforma que está revolucionando la gestión académica.</p>
-                        <a href="https://www.youtube.com/watch?v=8b0oYQxkhPo"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=8b0oYQxkhPo')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -794,10 +762,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Perfil Docente para la Educación del Futuro</h4>
                         <p class="ll-video-card-desc">Herramientas de IA para docentes: rúbricas inteligentes, feedback automatizado y más.</p>
-                        <a href="https://youtu.be/uAv4N36bYLs"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=uAv4N36bYLs')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -809,10 +775,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Perfil Estudiante para la Educación del Futuro</h4>
                         <p class="ll-video-card-desc">Tutor socrático + IA + red social académica: aprendizaje personalizado y colaborativo.</p>
-                        <a href="https://youtu.be/gIGNwgN1urA"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=gIGNwgN1urA')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -824,10 +788,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Perfil Coordinadores para la Educación del Futuro</h4>
                         <p class="ll-video-card-desc">Predicción de deserción, alertas tempranas y gestión de grupos con IA.</p>
-                        <a href="https://youtu.be/S9K_9UDCETY"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=S9K_9UDCETY')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -839,10 +801,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Perfil Acudiente para la Educación del Futuro</h4>
                         <p class="ll-video-card-desc">Seguimiento del progreso académico, comunicación directa y alertas personalizadas.</p>
-                        <a href="https://youtu.be/6l5X3udzSEw"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=6l5X3udzSEw')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -854,10 +814,8 @@
                     <div class="ll-video-overlay">
                         <h4 class="ll-video-card-title">Perfil Administrador para la Educación del Futuro</h4>
                         <p class="ll-video-card-desc">Gestión del PEI, automatización de procesos y tutoría institucional con IA.</p>
-                        <a href="https://youtu.be/TZdh3BQiBvk"
-                           class="ll-video-btn"
-                           target="_blank"
-                           rel="noopener noreferrer">
+                        <a href="javascript:void(0)" onclick="openYtModal('https://www.youtube.com/watch?v=TZdh3BQiBvk')"
+                           class="ll-video-btn">
                             <i class="fas fa-play"></i> Ver video
                         </a>
                     </div>
@@ -866,7 +824,6 @@
         </div>
     </section>
 
-    <!-- Sección de Alertas Predictivas (Datos Reales) -->
     <section class="ll-alerts-section ll-animate-fade-up delay-3">
         <h3 class="ll-alerts-title">Alertas Predictivas en Acción</h3>
         <p class="ll-alerts-subtitle">
@@ -906,7 +863,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="ll-footer">
         <p>
             &copy; 2026 <span class="ll-footer-brand">Learning Labs</span>. Una solución de Analytics Hydra. <br>
@@ -915,7 +871,6 @@
     </footer>
 </main>
 
-<!-- Modal de Video -->
 <div id="ytModal" class="ll-video-modal">
     <div class="ll-video-wrapper">
         <button class="ll-video-close" onclick="closeYtModal()"><i class="fas fa-times"></i></button>
@@ -923,7 +878,6 @@
     </div>
 </div>
 
-<!-- Scripts -->
 <script>
     // =========================================================
     // FILTRO DE VIDEOS POR CATEGORÍA
