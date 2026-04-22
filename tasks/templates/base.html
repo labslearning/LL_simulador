@@ -8,7 +8,7 @@
     <title>Learning Labs - Plataforma Educativa</title>
     
     <link rel="manifest" href="{% static 'manifest.json' %}">
-    <meta name="theme-color" content="#4361ee">
+    <meta name="theme-color" content="#020617">
     
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Learning Labs">
@@ -20,7 +20,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Open+Sans:wght@400;600;700&family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
@@ -28,7 +28,7 @@
 
     <style>
         :root {
-            /* Sistema de diseño educativo */
+            /* Sistema de diseño educativo (Legacy/Fallback) */
             --edu-primary: #4361ee;
             --edu-secondary: #3f37c9;
             --edu-accent: #4cc9f0;
@@ -666,8 +666,73 @@
             }
         }
     </style>
+
+    <script src="https://unpkg.com/htmx.org@1.9.10" integrity="sha384-D1Kt99CQMDuVetoL1lrYwg5t+9QdHe7NLX/SoJYkXDFfX37iInKRy5xLSi8nO7UC" crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <style>
+        /* BARRA DE CARGA CUÁNTICA CYBERPUNK (NProgress style) */
+        .stratos-loader {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(90deg, #06b6d4, #d946ef, #3b82f6);
+            background-size: 200% 100%;
+            z-index: 999999;
+            transform-origin: left;
+            transform: scaleX(0);
+            transition: transform 0.2s ease;
+            box-shadow: 0 0 15px #06b6d4, 0 0 5px #d946ef;
+            pointer-events: none;
+        }
+        .htmx-request.stratos-loader {
+            animation: stratosLoad 1.5s infinite linear;
+            transform: scaleX(1);
+        }
+        @keyframes stratosLoad {
+            0% { background-position: 100% 0; }
+            100% { background-position: -100% 0; }
+        }
+        
+        /* Efecto de desvanecimiento SPA al cambiar de página */
+        #lmsMainContent {
+            transition: opacity 0.2s ease-out;
+        }
+        .htmx-swapping #lmsMainContent {
+            opacity: 0.3;
+        }
+        html.is-loading { cursor: wait; }
+
+        /* Overrides Globales Cyber-Dark para unificar el Base HTML */
+        body { background-color: #020617 !important; color: #e2e8f0 !important; }
+        .navbar { background: rgba(15, 23, 42, 0.95) !important; border-bottom: 1px solid rgba(6, 182, 212, 0.3) !important; box-shadow: 0 0 20px rgba(6, 182, 212, 0.2) !important; }
+        .navbar-brand { font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(6, 182, 212, 0.8) !important; }
+        .nav-link { color: rgba(255,255,255,0.8) !important; font-family: 'JetBrains Mono', monospace !important; text-transform: uppercase; }
+        .nav-link:hover { color: #fff !important; text-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        .dropdown-menu { background-color: #0f172a !important; border: 1px solid rgba(6, 182, 212, 0.3) !important; box-shadow: 0 0 40px rgba(6, 182, 212, 0.15) !important; }
+        .dropdown-item { color: #e2e8f0 !important; font-family: 'JetBrains Mono', monospace !important; }
+        .dropdown-item:hover { background-color: rgba(6, 182, 212, 0.1) !important; color: #06b6d4 !important; }
+        .dropdown-header { background-color: transparent !important; color: #06b6d4 !important; border-bottom: 1px solid rgba(6,182,212,0.3) !important;}
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // CSRF Token Auto-Inyector para HTMX
+            document.body.addEventListener('htmx:configRequest', (event) => {
+                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+                if (csrfToken) event.detail.headers['X-CSRFToken'] = csrfToken;
+            });
+            // Feedback visual de red
+            document.body.addEventListener('htmx:send', function(evt) {
+                document.documentElement.classList.add('is-loading');
+            });
+            document.body.addEventListener('htmx:afterOnLoad', function(evt) {
+                document.documentElement.classList.remove('is-loading');
+            });
+        });
+    </script>
 </head>
-<body>
+<body hx-boost="true" hx-indicator="#global-loader">
+    <div id="global-loader" class="stratos-loader"></div>
     <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">
@@ -875,7 +940,9 @@
             {% block back_button %}{% endblock %}
         </div>
 
-        {% block content %}{% endblock %}
+        <main id="lmsMainContent">
+            {% block content %}{% endblock %}
+        </main>
     </div>
     
     <div id="youtubeModal" class="yt-modal">
