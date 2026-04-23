@@ -1,0 +1,474 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FENIX CORE | Quantum Simulation Hub{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --fx-bg-base: #020204;
+        --fx-surface: rgba(13, 14, 24, 0.4);
+        --fx-surface-hover: rgba(20, 22, 35, 0.8);
+        --fx-border: rgba(255, 255, 255, 0.05);
+        --fx-border-glow: rgba(0, 243, 255, 0.3);
+        --fx-accent: #00f3ff;
+        --fx-accent-rgb: 0, 243, 255;
+        --fx-success: #00ff66;
+        --fx-text-main: #ffffff;
+        --fx-text-muted: #8892b0;
+        --fx-font-cyber: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    /* Core Optimization & Animated Mesh Background */
+    .fx-hub-wrapper {
+        background-color: var(--fx-bg-base);
+        min-height: 100vh;
+        color: var(--fx-text-main);
+        font-family: var(--fx-font-cyber);
+        padding-bottom: 8rem;
+        position: relative;
+        overflow-x: hidden;
+    }
+
+    /* Quantum Mesh Grid Background (GPU Accelerated) */
+    .fx-hub-wrapper::before {
+        content: '';
+        position: fixed;
+        top: 0; left: 0; width: 200vw; height: 200vh;
+        background-image: 
+            linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        background-size: 50px 50px;
+        transform: perspective(500px) rotateX(60deg) translateY(-100px) translateZ(-200px);
+        animation: fx-grid-move 20s linear infinite;
+        z-index: 0;
+        pointer-events: none;
+    }
+
+    @keyframes fx-grid-move {
+        0% { transform: perspective(500px) rotateX(60deg) translateY(0) translateZ(-200px); }
+        100% { transform: perspective(500px) rotateX(60deg) translateY(50px) translateZ(-200px); }
+    }
+
+    /* Hero Section: Cinematic Typography */
+    .fx-hero-engine {
+        position: relative;
+        padding: 9rem 2rem 6rem;
+        text-align: center;
+        z-index: 10;
+    }
+
+    .fx-hero-engine h1 {
+        font-size: clamp(3rem, 8vw, 5.5rem);
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        margin-bottom: 1.5rem;
+        background: linear-gradient(180deg, #ffffff 0%, rgba(255,255,255,0.4) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 10px 20px rgba(0, 243, 255, 0.2));
+    }
+
+    .fx-hero-engine p {
+        font-size: clamp(1rem, 2vw, 1.25rem);
+        color: var(--fx-text-muted);
+        max-width: 650px;
+        margin: 0 auto;
+        line-height: 1.7;
+        text-wrap: balance;
+    }
+
+    /* Ultra-Performance Grid */
+    .fx-grid-container {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2.5rem;
+        padding: 0 4rem;
+        max-width: 1600px;
+        margin: 0 auto;
+        z-index: 10;
+    }
+
+    /* Spatial Card: 3D Engineering */
+    .fx-card-wrapper {
+        perspective: 1500px; /* Habilita el espacio 3D para la tarjeta hija */
+        content-visibility: auto; /* DOM Offloading: Omite renderizado si está fuera de pantalla */
+        contain-intrinsic-size: 450px;
+    }
+
+    .fx-card {
+        background: var(--fx-surface);
+        border: 1px solid var(--fx-border);
+        border-radius: 20px;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        backdrop-filter: blur(24px) saturate(150%);
+        -webkit-backdrop-filter: blur(24px) saturate(150%);
+        transform-style: preserve-3d;
+        transition: border-color 0.3s ease, background 0.3s ease;
+        will-change: transform;
+        opacity: 0; /* Para el Intersection Observer */
+        transform: translateY(30px);
+    }
+
+    /* Clase inyectada por JS al aparecer en pantalla */
+    .fx-card.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+        transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fx-card::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        padding: 2px;
+        background: linear-gradient(to bottom right, rgba(255,255,255,0.2), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+
+    .fx-card:hover {
+        background: var(--fx-surface-hover);
+        border-color: var(--fx-border-glow);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), 0 0 40px rgba(var(--fx-accent-rgb), 0.15);
+    }
+
+    /* Visual Engine Header (Z-Axis Depth) */
+    .fx-card-visual {
+        height: 180px;
+        background: #030305;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        transform: translateZ(30px); /* Proyección 3D hacia el usuario */
+    }
+
+    .fx-card-visual i {
+        font-size: 4.5rem;
+        color: rgba(255,255,255,0.1);
+        transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s;
+    }
+
+    .fx-card:hover .fx-card-visual i {
+        transform: scale(1.1) rotate(-5deg);
+        color: var(--fx-accent);
+        filter: drop-shadow(0 0 20px var(--fx-accent));
+    }
+
+    .fx-version-tag {
+        position: absolute;
+        top: 15px; right: 15px;
+        background: rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(var(--fx-accent-rgb), 0.3);
+        color: var(--fx-accent);
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 5px 10px;
+        border-radius: 8px;
+        letter-spacing: 1px;
+        transform: translateZ(40px); /* Aún más profundo en el eje Z */
+    }
+
+    /* Cuerpo de la Tarjeta */
+    .fx-card-body {
+        padding: 2rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        transform: translateZ(20px);
+    }
+
+    .fx-card-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 0.75rem;
+        color: var(--fx-text-main);
+        letter-spacing: -0.02em;
+    }
+
+    .fx-card-desc {
+        font-size: 0.9rem;
+        color: var(--fx-text-muted);
+        line-height: 1.6;
+        margin-bottom: 2rem;
+        flex-grow: 1;
+    }
+
+    /* Botón de Ignición Cuántico */
+    .fx-btn-ignite {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        background: transparent;
+        border: 1px solid rgba(var(--fx-accent-rgb), 0.5);
+        color: var(--fx-accent);
+        padding: 0.8rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.85rem;
+        text-decoration: none;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        transform: translateZ(30px);
+    }
+
+    .fx-btn-ignite::after {
+        content: '';
+        position: absolute;
+        width: 100%; height: 100%;
+        background: var(--fx-accent);
+        left: -100%;
+        top: 0;
+        transition: left 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+        z-index: -1;
+    }
+
+    .fx-btn-ignite:hover {
+        color: #000;
+        border-color: var(--fx-accent);
+        box-shadow: 0 0 20px rgba(var(--fx-accent-rgb), 0.4);
+    }
+
+    .fx-btn-ignite:hover::after {
+        left: 0;
+    }
+
+    /* Footer Táctico */
+    .fx-card-footer {
+        padding: 1rem 2rem;
+        border-top: 1px solid var(--fx-border);
+        background: rgba(0, 0, 0, 0.3);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
+        color: var(--fx-text-muted);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        border-bottom-left-radius: 20px;
+        border-bottom-right-radius: 20px;
+    }
+
+    /* Accesibilidad: Foco visible para navegación por teclado */
+    .fx-btn-ignite:focus-visible, .fx-page-link:focus-visible {
+        outline: 3px solid var(--fx-accent);
+        outline-offset: 4px;
+    }
+
+    /* Paginación God Tier */
+    .fx-pagination {
+        margin-top: 5rem;
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        z-index: 10;
+    }
+
+    .fx-page-link {
+        width: 44px; height: 44px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: var(--fx-surface);
+        border: 1px solid var(--fx-border);
+        border-radius: 10px;
+        color: var(--fx-text-main);
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .fx-page-link:hover, .fx-page-link.active {
+        background: var(--fx-accent);
+        color: #000;
+        border-color: var(--fx-accent);
+        box-shadow: 0 0 20px rgba(var(--fx-accent-rgb), 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* A11y Screen Reader Only */
+    .sr-only {
+        position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip: rect(0, 0, 0, 0); border: 0;
+    }
+
+    @media (max-width: 768px) {
+        .fx-grid-container { padding: 0 1.5rem; }
+        .fx-hero-engine { padding: 7rem 1rem 4rem; }
+        .fx-card-wrapper { contain-intrinsic-size: 400px; }
+    }
+</style>
+
+<div class="fx-hub-wrapper">
+    <header class="fx-hero-engine">
+        <h1>Quantum Lab Hub</h1>
+        <p>
+            Acceso clasificado a la red neuronal de simulaciones. 
+            Maneja variables fundamentales del universo en entornos inmersivos aislados.
+        </p>
+    </header>
+
+    <main class="fx-grid-container" aria-label="Catálogo de simuladores interactivos">
+        {% for sim in simuladores %}
+        <article class="fx-card-wrapper">
+            <div class="fx-card" data-tilt>
+                <div class="fx-version-tag" aria-label="Versión {{ sim.version|default:'1.0' }}">V.{{ sim.version|default:"1.0" }}</div>
+                
+                <div class="fx-card-visual" aria-hidden="true">
+                    <i class="fas fa-cube"></i>
+                    <div style="position: absolute; width: 150px; height: 150px; background: var(--fx-accent); filter: blur(100px); opacity: 0.15; border-radius: 50%;"></div>
+                </div>
+
+                <div class="fx-card-body">
+                    <h2 class="fx-card-title">{{ sim.titulo }}</h2>
+                    <p class="fx-card-desc">
+                        {{ sim.descripcion|default:"Entorno de prueba de concepto autorizado. Variables ambientales listas para manipulación."|truncatewords:18 }}
+                    </p>
+                    
+                    <a href="{% url 'reproductor_god_tier' sim.slug %}" class="fx-btn-ignite">
+                        <i class="fas fa-play" aria-hidden="true"></i> Inicializar
+                        <span class="sr-only">simulador {{ sim.titulo }}</span>
+                    </a>
+                </div>
+
+                <footer class="fx-card-footer">
+                    <div class="d-flex align-items-center gap-2" title="Motor de Compilación">
+                        <i class="fas fa-network-wired" style="color: var(--fx-text-muted);"></i>
+                        <span>{{ sim.motor_ia_generador|default:"FENIX-CORE" }}</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2" title="Sesiones Activas">
+                        <i class="fas fa-satellite-dish" style="color: var(--fx-success);"></i>
+                        <span>{{ sim.vistas }}</span>
+                    </div>
+                </footer>
+            </div>
+        </article>
+        {% empty %}
+        <div class="col-12 text-center py-5" style="grid-column: 1 / -1;">
+            <i class="fas fa-server fa-4x mb-4 text-secondary" style="opacity: 0.3;"></i>
+            <h2 class="text-muted fw-bold">Clúster Desconectado</h2>
+            <p class="text-secondary">El compilador neuronal aún no ha depositado simuladores en este sector.</p>
+        </div>
+        {% endfor %}
+    </main>
+
+    {% if simuladores.has_other_pages %}
+    <nav class="fx-pagination" aria-label="Paginación de resultados">
+        {% if simuladores.has_previous %}
+        <a href="?page={{ simuladores.previous_page_number }}" class="fx-page-link" aria-label="Página anterior">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i>
+        </a>
+        {% endif %}
+
+        <span class="fx-page-link active" aria-current="page">
+            <span class="sr-only">Página actual </span>{{ simuladores.number }}
+        </span>
+
+        {% if simuladores.has_next %}
+        <a href="?page={{ simuladores.next_page_number }}" class="fx-page-link" aria-label="Página siguiente">
+            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+        </a>
+        {% endif %}
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+    const FenixHubController = (function() {
+        'use strict';
+
+        // 1. Intersection Observer API (Carga Diferida de Animaciones)
+        const initObserver = () => {
+            const observerOptions = {
+                root: null,
+                rootMargin: '0px 0px -50px 0px', // Activa justo antes de entrar por completo
+                threshold: 0.1
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const card = entry.target;
+                        card.classList.add('is-visible');
+                        observer.unobserve(card); // Dejamos de observar una vez visible para ahorrar CPU
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.fx-card').forEach(card => observer.observe(card));
+        };
+
+        // 2. Spatial 3D Tilt Engine (Matemática Cuántica para la UI)
+        const initSpatialTilt = () => {
+            const cards = document.querySelectorAll('.fx-card');
+            
+            // Desactivamos en móviles para ahorrar batería, solo en PC
+            if(window.matchMedia("(pointer: coarse)").matches) return;
+
+            cards.forEach(card => {
+                let rect = card.getBoundingClientRect();
+                let updateRectTimeout;
+
+                // Actualizamos las dimensiones solo si hay scroll o resize para evitar layout thrashing
+                const updateRect = () => { rect = card.getBoundingClientRect(); };
+                window.addEventListener('resize', () => {
+                    clearTimeout(updateRectTimeout);
+                    updateRectTimeout = setTimeout(updateRect, 200);
+                });
+                window.addEventListener('scroll', updateRect, { passive: true });
+
+                card.addEventListener('mousemove', (e) => {
+                    // Calculamos la posición del mouse relativa al centro de la tarjeta
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    const centerX = rect.width / 2;
+                    const centerY = rect.height / 2;
+                    
+                    // Cálculo de rotación (-10 a 10 grados máximo)
+                    const rotateX = ((y - centerY) / centerY) * -8;
+                    const rotateY = ((x - centerX) / centerX) * 8;
+
+                    // Aceleración GPU usando requestAnimationFrame implícito en la manipulación del style
+                    card.style.transform = `perspective(1500px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+                });
+
+                card.addEventListener('mouseleave', () => {
+                    // Reseteo suave utilizando CSS transitions
+                    card.style.transform = `perspective(1500px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                });
+                
+                card.addEventListener('mouseenter', updateRect);
+            });
+        };
+
+        return {
+            ignite: () => {
+                // Pequeño timeout para permitir que el DOM se asiente
+                requestAnimationFrame(() => {
+                    initObserver();
+                    initSpatialTilt();
+                });
+            }
+        };
+    })();
+
+    // Arranque del sistema
+    document.addEventListener('DOMContentLoaded', FenixHubController.ignite);
+</script>
+{% endblock %}

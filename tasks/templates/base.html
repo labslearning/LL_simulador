@@ -827,7 +827,7 @@
                                 <span>Documentos</span>
                             </a>
                         </li>
-
+                        
                         {% if user.perfil.rol == 'ADMINISTRADOR' or user.perfil.rol == 'PSICOLOGO' or user.perfil.rol == 'COORD_ACADEMICO' or user.perfil.rol == 'COORD_CONVIVENCIA' %}
                             <a href="{% url 'dashboard_bienestar' %}" class="nav-link">
                                 <i class="fas fa-chart-line"></i> <span>Bienestar</span>
