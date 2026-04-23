@@ -3,7 +3,7 @@ from . import views, views_pdf, views_shadow  # <--- AGREGA views_shadow AQUÍ
 from . import views_import  # <--- AGREGA ESTA LÍNEA
 from tasks import views_admin  # <--- Agrega esto
 
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -480,6 +480,7 @@ urlpatterns = [
     path('panel/boveda/verificar/<uuid:uuid_operacion>/', views_admin.verificar_integridad_respaldo, name='verificar_integridad'),
     path('api/toggle-acceso/', views.panel_api_toggle_acceso, name='panel_api_toggle_acceso'),
     path('api/ai-agent/', ai_views.api_ai_agent, name='api_ai_agent'),
+    path('laboratorios/', include('tasks.urls_simuladores')),
 
 
 ]
