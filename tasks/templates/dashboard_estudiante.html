@@ -52,6 +52,13 @@
                     </span>
                 </button>
 
+                <a href="{% url 'hub_simuladores' %}" hx-boost="false" class="btn btn-lg rounded-pill px-5 py-3 w-100 w-md-auto transition-transform d-flex align-items-center justify-content-center border border-accent shadow-glow-aurora position-relative overflow-hidden" style="background: var(--gradient-cyber); color: white; z-index: 1; text-decoration: none;" aria-label="Acceder a Labs Cuánticos" onmouseover="this.style.transform='translateY(-4px) scale(1.02)'; this.style.boxShadow='0 0 30px rgba(217, 70, 239, 0.8)';" onmouseout="this.style.transform='translateY(0) scale(1)'; this.style.boxShadow='var(--shadow-glow-aurora)';">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-aurora opacity-20 transition-all-300" style="z-index: -1;"></div>
+                    <i class="fas fa-vr-cardboard me-3 fs-4 text-accent-candy animate__animated animate__pulse animate__infinite"></i>
+                    <span class="text-uppercase tracking-widest fw-black font-monospace text-shadow-glow">Labs Cuánticos</span>
+                    <span class="position-absolute top-0 end-0 mt-2 me-3 badge bg-void text-accent-candy border border-accent rounded-pill fs-10 shadow-glow-aurora">3D ENGINE</span>
+                </a>
+
                 <button onclick="activarIA('est_mejoras')" class="btn btn-lg omni-btn-primary rounded-pill px-4 py-3 w-100 w-md-auto transition-transform text-uppercase tracking-widest" aria-label="Análisis de Mejora">
                     <i class="fas fa-network-wired me-2"></i>Análisis de Mejora
                 </button>
@@ -100,6 +107,17 @@
                 <small class="text-cyan font-monospace fw-bold fs-9 lh-1 d-block text-uppercase">Práctica Activa</small>
                 <div class="card-glow-effect"></div>
             </button>
+
+            <a href="{% url 'hub_simuladores' %}" hx-boost="false" class="app-action-card bg-gradient-cyber shadow-hover text-start border border-accent position-relative overflow-hidden group-hover-target text-decoration-none shadow-glow-aurora" aria-label="Abrir Labs Cuánticos">
+                <div class="position-absolute top-0 start-0 w-100 bg-gradient-aurora" style="height: 3px;"></div>
+                <div class="action-icon bg-accent-candy-light border border-accent mb-3"><i class="fas fa-vr-cardboard text-accent-candy group-hover-bounce fs-4 text-shadow-glow-aurora"></i></div>
+                <h6 class="fw-black text-white mb-1 mt-3 tracking-widest font-monospace">Labs 3D</h6>
+                <small class="text-accent-candy font-monospace fw-bold fs-9 lh-1 d-block text-uppercase opacity-75">Simuladores IA</small>
+                <span class="position-absolute top-0 end-0 mt-3 me-3 badge bg-void text-white border border-secondary rounded-pill fs-10 shadow-sm" style="padding: 3px 6px;">
+                    <i class="fas fa-circle text-success-candy pulse-fast me-1" style="font-size:0.4rem; animation: pulseDot 1.5s infinite;"></i>AI
+                </span>
+                <div class="card-glow-effect"></div>
+            </a>
 
             <button onclick="activarIA('est_mejoras')" class="app-action-card bg-gradient-primary-candy shadow-hover text-start border border-white-25 position-relative overflow-hidden group-hover-target" aria-label="Analizar Mejoras">
                 <div class="action-icon bg-white-25 border border-white mb-3"><i class="fas fa-rocket text-white group-hover-bounce fs-4"></i></div>
@@ -622,7 +640,7 @@
             
             {% else %}
             <div class="text-center py-5 bg-void rounded-4 border border-secondary shadow-inner-dark">
-                <div class="icon-circle-success mx-auto mb-4 shadow-glow-success d-flex align-items-center justify-content-center bg-gradient-success border border-2 border-white rounded-circle" style="width: 80px; height: 80px;">
+                <div class="icon-circle-success mx-auto mb-4 shadow-glow-success d-flex align-items-center justify-content-center bg-gradient-success border border-3 border-white rounded-circle" style="width: 80px; height: 80px;">
                     <i class="fas fa-shield-check fs-1 text-white animate__animated animate__pulse animate__infinite"></i>
                 </div>
                 <h5 class="fw-black text-white tracking-widest text-uppercase font-monospace text-shadow-glow">Estado Disciplinario Óptimo</h5>
