@@ -1,150 +1,131 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}FENIX CORE: {{ simulador.titulo }} | Learning Labs{% endblock %}
+{% block title %}FENIX CORE OMNI: {{ simulador.titulo }} | Learning Labs{% endblock %}
 
 {% block content %}
+<meta name="htmx-config" content='{"historyCacheSize": 0, "refreshOnHistoryMiss": true}'>
+
 <style>
+    /**
+     * FENIX OS - V15 (BARE METAL INJECTION)
+     * Inyección directa en RAM. Cero bloqueos de Origen Opaco.
+     */
     :root {
         --fenix-cyan: #00f3ff;
         --fenix-emerald: #00ff66;
         --fenix-alert: #ff003c;
         --fenix-void: #020203;
-        --fenix-glass: rgba(8, 8, 12, 0.75);
-        --fenix-ui-font: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        --fenix-glass: rgba(8, 8, 12, 0.85);
+        --fenix-ui-font: 'JetBrains Mono', 'Fira Code', system-ui, -apple-system, sans-serif;
     }
     
-    /* Strict Containment: Aísla los cálculos de CSS del resto del DOM */
     body, html {
         margin: 0; padding: 0; height: 100%; width: 100%;
         background-color: var(--fenix-void);
-        overflow: hidden; 
-        font-family: var(--fenix-ui-font);
-        color: white;
-        overscroll-behavior: none; /* Bloquea gestos de navegación en móviles */
+        overflow: hidden; font-family: var(--fenix-ui-font); color: white;
+        overscroll-behavior: none; user-select: none;
     }
 
     .fx-sandbox-container {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
-        width: 100vw;
-        background: radial-gradient(circle at 50% 0%, #111424 0%, var(--fenix-void) 100%);
-        contain: strict; 
+        display: flex; flex-direction: column; height: 100vh; width: 100vw;
+        background: radial-gradient(circle at 50% 0%, #0d1117 0%, var(--fenix-void) 100%);
     }
 
-    /* Cabecera Glassmorphism Nivel Apple Vision */
     .fx-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
-        background: var(--fenix-glass);
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0.8rem 2.5rem; background: var(--fenix-glass);
         border-bottom: 1px solid rgba(0, 243, 255, 0.15);
-        backdrop-filter: saturate(180%) blur(20px);
-        -webkit-backdrop-filter: saturate(180%) blur(20px);
-        z-index: 1000;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
-        transform: translateZ(0);
+        backdrop-filter: blur(25px); z-index: 1000;
     }
 
     .fx-title-matrix {
-        font-weight: 900;
-        letter-spacing: 2px;
-        text-transform: uppercase;
-        font-size: 1.1rem;
-        display: flex;
-        align-items: center;
-        gap: 15px;
+        font-weight: 900; letter-spacing: 3px; text-transform: uppercase;
+        font-size: 1.1rem; display: flex; align-items: center; gap: 15px;
         background: linear-gradient(90deg, #fff, var(--fenix-cyan));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        text-shadow: 0px 0px 20px rgba(0, 243, 255, 0.3);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
 
     .fx-status-beacon {
-        width: 10px; height: 10px;
+        width: 12px; height: 12px; background-color: #1a1a1a; 
+        border-radius: 50%; transition: all 0.4s ease;
+    }
+    .fx-status-beacon.pulse-alive {
         background-color: var(--fenix-emerald);
-        border-radius: 50%;
         box-shadow: 0 0 15px var(--fenix-emerald), 0 0 30px var(--fenix-emerald);
-        animation: fx-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        animation: fx-pulse 2s infinite;
     }
-
-    @keyframes fx-pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(0.8); }
+    .fx-status-beacon.pulse-error {
+        background-color: var(--fenix-alert);
+        box-shadow: 0 0 15px var(--fenix-alert), 0 0 30px var(--fenix-alert);
     }
+    @keyframes fx-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
 
-    /* Contenedor del Motor de Simulación */
     .fx-engine-wrapper {
-        flex-grow: 1;
-        position: relative;
-        width: 100%;
-        background: #000;
-        /* GPU Offloading for the iframe */
-        transform: translate3d(0, 0, 0); 
-        backface-visibility: hidden;
-        perspective: 1000px;
+        flex-grow: 1; position: relative; width: 100%; background: #000;
     }
 
     .fx-iframe {
-        width: 100%; height: 100%;
-        border: none;
-        display: block;
-        opacity: 0;
-        transition: opacity 0.8s ease-in-out;
+        width: 100%; height: 100%; border: none; display: block;
+        opacity: 0; transition: opacity 0.5s ease;
     }
 
-    /* Quantum Loader - Pantalla de carga matemática */
     .fx-quantum-loader {
         position: absolute; top: 0; left: 0; width: 100%; height: 100%;
         display: flex; flex-direction: column; justify-content: center; align-items: center;
-        background: var(--fenix-void); z-index: 500;
-        transition: opacity 0.5s, visibility 0.5s;
+        background: var(--fenix-void); z-index: 500; transition: opacity 0.5s;
     }
-    
     .fx-spinner {
-        width: 60px; height: 60px;
-        border: 3px solid rgba(0, 243, 255, 0.1);
-        border-top-color: var(--fenix-cyan);
-        border-radius: 50%;
-        animation: fx-spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        width: 80px; height: 80px; border: 4px solid rgba(0, 243, 255, 0.05);
+        border-top: 4px solid var(--fenix-cyan); border-radius: 50%;
+        animation: fx-spin 0.8s linear infinite;
     }
-
     @keyframes fx-spin { to { transform: rotate(360deg); } }
 
-    /* Defensa L7: Lockdown Screen Inescapable */
-    #fx-lockdown-shield {
-        display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-        background: rgba(2, 2, 3, 0.95); z-index: 2147483647; /* Máximo z-index posible */
-        backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-        color: var(--fenix-alert); justify-content: center; align-items: center; flex-direction: column;
-        text-align: center; padding: 2rem; border: 5px solid var(--fenix-alert);
-        box-sizing: border-box;
+    .fx-boot-log {
+        margin-top: 20px; width: 350px; height: 120px; background: rgba(0,0,0,0.5);
+        border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 5px; padding: 10px;
+        font-size: 0.7rem; color: var(--fenix-cyan); display: flex; flex-direction: column;
+        justify-content: flex-end; overflow: hidden;
     }
+    .fx-log-entry { margin: 2px 0; animation: fade-in 0.3s forwards; }
+    @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+    #hudVictoria {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.8);
+        z-index: 2000; text-align: center; opacity: 0; visibility: hidden; transition: all 0.7s ease;
+    }
+    #hudVictoria.active { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+    
+    .bg-glass-omni { 
+        background: rgba(2, 6, 23, 0.9); border: 2px solid var(--fenix-emerald);
+        padding: 4rem; border-radius: 30px; box-shadow: 0 0 80px rgba(0, 255, 102, 0.2);
+    }
+
+    .fx-toast-container { position: fixed; bottom: 2rem; right: 2rem; z-index: 3000; display: flex; flex-direction: column; gap: 1rem; pointer-events: none; }
+    .fx-toast {
+        background: rgba(10, 10, 15, 0.95); border-left: 5px solid var(--fenix-cyan);
+        padding: 1.2rem 2rem; border-radius: 4px; color: #fff;
+        animation: toast-in 0.5s ease-out;
+    }
+    @keyframes toast-in { from { transform: translateX(100%); } to { transform: translateX(0); } }
 </style>
 
-<div id="fx-lockdown-shield" role="alert" aria-live="assertive">
-    <i class="fas fa-radiation-alt fa-6x mb-4 text-danger" style="text-shadow: 0 0 30px red;"></i>
-    <h1 class="fw-black display-4">PROTOCOLO FENIX ACTIVADO</h1>
-    <h3 class="text-white mt-3 mb-4">Brecha de Seguridad en Nivel L7 (DOM/Memoria)</h3>
-    <p class="text-secondary lead max-w-75">Se ha detectado manipulación de variables de entorno, inyección de nodos o congelamiento del hilo principal. La telemetría ha registrado el incidente.</p>
-    <a href="{% url 'hub_simuladores' %}" class="btn btn-outline-danger btn-lg mt-4 px-5 rounded-pill border-2 fw-bold">PURGAR SESIÓN Y SALIR</a>
-</div>
+<div class="fx-toast-container" id="fx-toast-area"></div>
 
 <div class="fx-sandbox-container" id="fx-root">
     <header class="fx-header">
         <div class="fx-title-matrix">
-            <div class="fx-status-beacon" id="fx-network-status" aria-label="Estado de conexión: Operativo"></div>
+            <div class="fx-status-beacon" id="fx-status-beacon"></div>
             <span>{{ simulador.titulo }}</span>
-            <span class="badge bg-dark border border-info text-info rounded-pill ms-2" style="font-size: 0.6rem;">v{{ simulador.version|default:"1.0" }}</span>
+            <span class="badge bg-dark border border-info text-info rounded-pill ms-2">V15 BARE METAL</span>
         </div>
-        <div class="d-flex gap-3">
-            <button class="btn btn-dark border border-secondary rounded-pill px-4 hover-cyan text-white" id="fx-btn-fullscreen">
-                <i class="fas fa-expand me-2"></i> Inmersión Total
+        <div class="d-flex gap-4">
+            <button class="btn btn-dark border border-info px-4 fw-bold hover-cyan" id="fx-btn-fullscreen">
+                <i class="fas fa-expand-arrows-alt me-2"></i> INMERSIÓN
             </button>
-            <a href="{% url 'hub_simuladores' %}" class="btn btn-danger rounded-pill px-4 shadow-sm">
-                <i class="fas fa-sign-out-alt me-2"></i> Abortar
+            <a href="{% url 'hub_simuladores' %}" class="btn btn-danger px-4 fw-bold">
+                <i class="fas fa-power-off me-2"></i> ABORTAR
             </a>
         </div>
     </header>
@@ -152,276 +133,189 @@
     <main class="fx-engine-wrapper">
         <div class="fx-quantum-loader" id="fx-loader">
             <div class="fx-spinner mb-4"></div>
-            <h5 class="text-info" style="letter-spacing: 3px;">COMPILANDO NEURONAS MATEMÁTICAS...</h5>
-            <small class="text-secondary" id="fx-loader-status">Inicializando WebGL & Físicas</small>
+            <h5 class="text-info fw-black tracking-widest">COMPILANDO CÓDIGO IA...</h5>
+            <div class="progress bg-dark mt-3" style="width: 200px; height: 2px;">
+                <div id="fx-load-bar" class="progress-bar bg-info" style="width: 0%; transition: width 0.3s;"></div>
+            </div>
+            <div class="fx-boot-log" id="fx-boot-log"></div>
         </div>
         
+        {{ simulador.codigo_fuente|json_script:"fenix-raw-payload" }}
+
         <iframe 
             id="fenix-vault-iframe"
             class="fx-iframe"
-            srcdoc="{{ simulador.codigo_limpio|safe }}"
-            sandbox="{{ sandbox_permissions }}"
-            allow="fullscreen; accelerometer 'none'; camera 'none'; microphone 'none'; geolocation 'none'; display-capture 'none';"
-            title="Motor Fénix: {{ simulador.titulo }}">
+            sandbox="allow-scripts allow-same-origin allow-downloads allow-forms"
+            allow="fullscreen; accelerometer; gyroscope;"
+            title="Fenix Kernel">
         </iframe>
+
+        <div id="hudVictoria">
+            <div class="bg-glass-omni">
+                <div class="rounded-circle d-flex justify-content-center align-items-center mx-auto mb-4 shadow-glow" 
+                     style="width: 90px; height: 90px; background: var(--fenix-emerald);">
+                    <i class="fas fa-check-double fa-3x text-dark"></i>
+                </div>
+                <h1 class="fw-black text-white tracking-widest mb-0">SÍNTESIS COMPLETADA</h1>
+                <p class="fs-3 fw-bold mt-3" style="color: var(--fenix-emerald);">+<span id="scorePoints">0</span> XP UNLOCKED</p>
+            </div>
+        </div>
     </main>
 </div>
 
-<form id="csrf-form" aria-hidden="true">{% csrf_token %}</form>
+<form id="csrf-form" style="display:none;">{% csrf_token %}</form>
 
 <script>
-    /**
-     * ARQUITECTURA ZERO-TRUST:
-     * Utilizamos un Closure de alto nivel (IIFE) para ocultar las variables
-     * del alcance global (window). Hacemos 'freeze' de todos los objetos críticos.
-     */
-    const FenixCoreEngine = (function() {
-        'use strict';
+/**
+ * FENIX CORE OS - V15 (BARE METAL DOM INJECTION)
+ */
+(function() {
+    'use strict';
 
-        // 1. GESTIÓN DE ESTADO INMUTABLE (Memoria Privada)
-        const STATE = Object.freeze({
-            sessionId: crypto.randomUUID(),
-            startTime: performance.now(), // performance.now() es resistente a cambios del reloj del sistema
-            csrf: document.querySelector('[name=csrfmiddlewaretoken]').value,
-            slug: "{{ simulador.slug }}",
-            hashIntegridad: "{{ simulador.hash_integridad }}",
-            endpoint: "/api/simuladores/telemetry/"
-        });
+    const DOM = {
+        iframe: document.getElementById('fenix-vault-iframe'),
+        loader: document.getElementById('fx-loader'),
+        loadBar: document.getElementById('fx-load-bar'),
+        beacon: document.getElementById('fx-status-beacon'),
+        root: document.getElementById('fx-root'),
+        toast: document.getElementById('fx-toast-area'),
+        hud: document.getElementById('hudVictoria'),
+        score: document.getElementById('scorePoints'),
+        bootLog: document.getElementById('fx-boot-log')
+    };
 
-        // 2. REFERENCIAS DOM CACHEADAS (Mejora de rendimiento O(1))
-        const DOM = {
-            iframe: document.getElementById('fenix-vault-iframe'),
-            loader: document.getElementById('fx-loader'),
-            loaderStatus: document.getElementById('fx-loader-status'),
-            shield: document.getElementById('fx-lockdown-shield'),
-            root: document.getElementById('fx-root'),
-            statusBeacon: document.getElementById('fx-network-status'),
-            btnFullscreen: document.getElementById('fx-btn-fullscreen')
-        };
+    let isDone = false;
 
-        let engineLocked = false;
-        let missionAccomplished = false;
-        let watchdogTimer = null;
+    const UI = {
+        notify: (msg, type = 'info') => {
+            const colors = { success: '#00ff66', alert: '#ff003c', info: '#00f3ff', warning: '#f59e0b' };
+            const t = document.createElement('div');
+            t.className = 'fx-toast';
+            t.style.borderLeftColor = colors[type];
+            t.innerHTML = `<span style="color: ${colors[type]}; font-weight:bold;">[SYS]</span> ${msg}`;
+            DOM.toast.appendChild(t);
+            setTimeout(() => t.remove(), 6000);
+        },
+        logBoot: (msg) => {
+            const entry = document.createElement('div');
+            entry.className = 'fx-log-entry';
+            entry.innerText = `> ${msg}`;
+            DOM.bootLog.appendChild(entry);
+            DOM.bootLog.scrollTop = DOM.bootLog.scrollHeight;
+        }
+    };
 
-        // =========================================================
-        // MÓDULO A: CRIPTOGRAFÍA EN EL CLIENTE
-        // =========================================================
-        const WebCrypto = {
-            /** Genera una firma HMAC básica para validar que el payload no fue alterado */
-            generateSignature: async (payloadString) => {
-                const encoder = new TextEncoder();
-                const data = encoder.encode(payloadString + STATE.sessionId + STATE.hashIntegridad);
-                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-                const hashArray = Array.from(new Uint8Array(hashBuffer));
-                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    const Ignition = {
+        injectBareMetal: () => {
+            UI.logBoot("Fase 1: Extrayendo JSON...");
+            const rawPayloadEl = document.getElementById('fenix-raw-payload');
+            if (!rawPayloadEl) {
+                UI.logBoot("FATAL: Código de IA no encontrado.");
+                return;
             }
-        };
+            
+            const rawPayload = JSON.parse(rawPayloadEl.textContent);
+            UI.logBoot("Fase 2: Abriendo Contexto de Memoria...");
 
-        // =========================================================
-        // MÓDULO B: DEFENSA ACTIVA L7 (Anti-Tampering & Anti-Debug)
-        // =========================================================
-        const SecOps = {
-            init: () => {
-                SecOps.deployMutationObserver();
-                SecOps.deployTimingWatchdog();
-                SecOps.deployDevToolsDetector();
-            },
-
-            triggerLockdown: (reason) => {
-                if (engineLocked) return;
-                engineLocked = true;
-                console.error(`[FENIX SEC-OPS] BLOQUEO INICIADO: ${reason}`);
-                
-                // Destruimos el iframe de memoria para abortar la ejecución del simulador al instante
-                if(DOM.iframe && DOM.iframe.parentNode) {
-                    DOM.iframe.parentNode.removeChild(DOM.iframe);
-                }
-                
-                DOM.root.style.display = 'none';
-                DOM.shield.style.display = 'flex';
-                
-                // Telemetría Forense: Avisamos al servidor del intento de hackeo
-                Telemetry.transmit({ event: 'security_breach', reason: reason, score: 0 }, true);
-            },
-
-            deployMutationObserver: () => {
-                const observer = new MutationObserver((mutations) => {
-                    for (let m of mutations) {
-                        if (m.removedNodes.length > 0 || m.attributeName === 'srcdoc' || m.attributeName === 'sandbox') {
-                            SecOps.triggerLockdown("Inyección/Alteración Estructural del DOM detectada.");
-                        }
-                    }
-                });
-                observer.observe(document.querySelector('.fx-engine-wrapper'), { childList: true, attributes: true, subtree: true });
-            },
-
-            // Detecta si el usuario pone un "Breakpoint" en el navegador para alterar variables
-            deployTimingWatchdog: () => {
-                let lastTick = performance.now();
-                watchdogTimer = setInterval(() => {
-                    const currentTick = performance.now();
-                    // Si el hilo se congeló por más de 3 segundos (ej. debugger pausado)
-                    if (currentTick - lastTick > 3000) {
-                        clearInterval(watchdogTimer);
-                        SecOps.triggerLockdown("Congelamiento del Main Thread (Posible uso de Debugger).");
-                    }
-                    lastTick = currentTick;
-                }, 1000);
-            },
-
-            // Heurística de apertura de consolas analizando discrepancias de pantalla
-            deployDevToolsDetector: () => {
-                window.addEventListener('resize', () => {
-                    const threshold = 160;
-                    if ((window.outerWidth - window.innerWidth > threshold) || 
-                        (window.outerHeight - window.innerHeight > threshold)) {
-                        // Solo logeamos como advertencia, bloquear por resize puede afectar usuarios legítimos
-                        console.warn("[FENIX SEC-OPS] Alerta de Dimensiones: Posible inspección de red abierta.");
-                    }
-                });
-            }
-        };
-
-        // =========================================================
-        // MÓDULO C: TELEMETRÍA CUÁNTICA Y RESILIENCIA OFFLINE
-        // =========================================================
-        const Telemetry = {
-            initOfflineSync: () => {
-                // Recupera misiones guardadas sin internet y las envía silenciosamente
-                window.addEventListener('online', () => {
-                    DOM.statusBeacon.style.backgroundColor = 'var(--fenix-emerald)';
-                    DOM.statusBeacon.style.boxShadow = '0 0 15px var(--fenix-emerald)';
-                    const queue = JSON.parse(localStorage.getItem('fenix_offline_queue') || '[]');
-                    if (queue.length > 0) {
-                        console.log("[FENIX SYNC] Restaurando red. Sincronizando paquetes almacenados...");
-                        queue.forEach(p => Telemetry.transmit(p.data, p.isBreach, true));
-                        localStorage.removeItem('fenix_offline_queue');
-                    }
-                });
-                
-                window.addEventListener('offline', () => {
-                    DOM.statusBeacon.style.backgroundColor = 'var(--fenix-alert)';
-                    DOM.statusBeacon.style.boxShadow = '0 0 15px var(--fenix-alert)';
-                });
-            },
-
-            transmit: async (data, isBreach = false, isRetry = false) => {
-                if (!navigator.onLine && !isRetry) {
-                    // Si no hay red, encriptamos temporalmente en LocalStorage
-                    const queue = JSON.parse(localStorage.getItem('fenix_offline_queue') || '[]');
-                    queue.push({ data, isBreach });
-                    localStorage.setItem('fenix_offline_queue', JSON.stringify(queue));
-                    if(!isBreach) alert("Conexión inestable. El progreso se guardó localmente y se enviará cuando regrese la red.");
-                    return;
-                }
-
-                const timeSpent = Math.round((performance.now() - STATE.startTime) / 1000);
-                
-                const rawPayload = JSON.stringify({
-                    slug: STATE.slug,
-                    session_id: STATE.sessionId,
-                    score: data.score || 0,
-                    time_spent: timeSpent,
-                    metrics: data.metrics || {},
-                    flag_breach: isBreach
-                });
-
-                // Firma criptográfica del paquete
-                const signature = await WebCrypto.generateSignature(rawPayload);
-                const finalPayload = new Blob([rawPayload], { type: 'application/json' });
-
-                // Cabeceras avanzadas. sendBeacon no soporta custom headers fácil, usamos fetch con keepalive
-                try {
-                    await fetch(STATE.endpoint, {
-                        method: 'POST',
-                        body: rawPayload,
-                        keepalive: true, // Esto asegura que la petición sobreviva aunque la pestaña se cierre (Alternativa moderna a sendBeacon)
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': STATE.csrf,
-                            'X-Fenix-Signature': signature
-                        }
-                    });
-
-                    if(!isBreach && !isRetry) {
-                        DOM.statusBeacon.style.backgroundColor = '#ff00ff';
-                        DOM.statusBeacon.style.boxShadow = '0 0 20px #ff00ff';
-                        alert(`¡Misión Académica Completada!\nTiempo Invertido: ${timeSpent}s\nCalificación: ${data.score}\n\nLos datos han sido sellados en la bóveda de Learning Labs.`);
-                    }
-                } catch (err) {
-                    console.error("[FENIX SYNC ERROR] Guardando en cola de contingencia...");
-                    if (!isRetry) Telemetry.transmit(data, isBreach); // Fuerza el guardado local
-                }
-            },
-
-            listenToEngine: () => {
-                window.addEventListener('message', (event) => {
-                    if (engineLocked || event.source !== DOM.iframe.contentWindow) return;
-
-                    const msg = event.data;
-                    if (msg && msg.type === 'LL_SIMULATOR_TELEMETRY' && msg.status === 'success') {
-                        if (!missionAccomplished) {
-                            missionAccomplished = true;
-                            clearInterval(watchdogTimer); // Detenemos análisis de seguridad, ya ganó
-                            Telemetry.transmit(msg);
-                        }
-                    }
-                });
-            }
-        };
-
-        // =========================================================
-        // MÓDULO D: UI & ACELERACIÓN (UX)
-        // =========================================================
-        const UI = {
-            init: () => {
-                // Control del Quantum Loader
-                DOM.iframe.onload = () => {
-                    DOM.loaderStatus.innerText = "Inyectando Entorno...";
-                    setTimeout(() => {
-                        DOM.loader.style.opacity = '0';
-                        DOM.loader.style.visibility = 'hidden';
-                        DOM.iframe.style.opacity = '1';
-                    }, 500); // Pequeño delay arquitectónico para asegurar parseo de WebGL
+            const systemPatch = `
+            <script>
+                window.onerror = function(m, s, l) {
+                    window.parent.postMessage({type: 'FENIX_RUNTIME_ERROR', payload: m + ' (Línea '+l+')'}, '*');
+                    return true; 
                 };
+                setInterval(() => window.parent.postMessage({type: 'FENIX_PULSE_OK'}, '*'), 1000);
+            <\/script>`;
 
-                // API de Inmersión Total (Hardware Accel Fullscreen)
-                DOM.btnFullscreen.addEventListener('click', async () => {
-                    try {
-                        if (!document.fullscreenElement) {
-                            await DOM.root.requestFullscreen();
-                            DOM.btnFullscreen.innerHTML = '<i class="fas fa-compress me-2"></i> Salir Inmersión';
-                        } else {
-                            await document.exitFullscreen();
-                            DOM.btnFullscreen.innerHTML = '<i class="fas fa-expand me-2"></i> Inmersión Total';
+            try {
+                const doc = DOM.iframe.contentWindow.document;
+                doc.open();
+                doc.write(systemPatch + rawPayload);
+                doc.close(); 
+                
+                UI.logBoot("Fase 3: Inyección HTML Completada.");
+            } catch (e) {
+                UI.logBoot("ERROR DE INYECCIÓN: " + e.message);
+            }
+        },
+
+        start: () => {
+            DOM.loadBar.style.width = '50%';
+            
+            setTimeout(() => {
+                Ignition.injectBareMetal();
+                
+                setTimeout(() => { 
+                    DOM.loadBar.style.width = '100%';
+                    DOM.iframe.style.opacity = "1";
+                    DOM.loader.style.opacity = "0";
+                    setTimeout(() => DOM.loader.style.display = "none", 500);
+                    UI.logBoot("Ejecución Entregada a la IA.");
+                }, 800);
+            }, 100);
+        },
+
+        listen: () => {
+            window.addEventListener('message', (e) => {
+                if (!DOM.iframe || e.source !== DOM.iframe.contentWindow) return;
+
+                const msg = e.data;
+
+                if (msg.type === 'FENIX_RUNTIME_ERROR') {
+                    DOM.beacon.classList.add('pulse-error');
+                    DOM.beacon.classList.remove('pulse-alive');
+                    UI.logBoot("CÓDIGO IA CORRUPTO: " + msg.payload);
+                    UI.notify("Error en código: " + msg.payload, "alert");
+                }
+
+                if (msg.type === 'FENIX_PULSE_OK') {
+                    DOM.beacon.classList.remove('pulse-error');
+                    DOM.beacon.classList.add('pulse-alive');
+                }
+
+                if (msg.type === 'LL_SIMULATOR_TELEMETRY' && msg.status === 'success') {
+                    if (!isDone) {
+                        isDone = true;
+                        DOM.score.innerText = msg.score || 100;
+                        DOM.hud.classList.add('active');
+                        
+                        const csrfEl = document.querySelector('[name=csrfmiddlewaretoken]');
+                        if(csrfEl) {
+                            fetch("/api/simuladores/telemetry/", {
+                                method: 'POST',
+                                body: JSON.stringify({ slug: "{{ simulador.slug }}", score: msg.score || 100 }),
+                                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrfEl.value }
+                            }).then(res => {
+                                if(res.ok) UI.notify("XP GUARDADA", "success");
+                            }).catch(() => UI.notify("MODO OFFLINE: XP EN COLA", "warning"));
                         }
-                    } catch (err) {
-                        console.warn("[FENIX UX] API Fullscreen bloqueada por el navegador.");
                     }
-                });
+                }
+            });
+        }
+    };
+
+    const bootSystem = () => {
+        if (window.fxRunningV15) return;
+        window.fxRunningV15 = true;
+        Ignition.listen();
+        Ignition.start();
+        
+        document.getElementById('fx-btn-fullscreen').onclick = () => {
+            if (!document.fullscreenElement) {
+                DOM.root.requestFullscreen().catch(() => UI.notify("Bloqueado", "alert"));
+            } else {
+                document.exitFullscreen();
             }
         };
+    };
 
-        // =========================================================
-        // IGNICIÓN DEL NÚCLEO (Bootstrap)
-        // =========================================================
-        return {
-            boot: () => {
-                console.info("%c[FENIX CORE] Inicializando Subsistemas God Tier...", "color: #00f3ff; font-weight: bold; font-size: 14px;");
-                SecOps.init();
-                Telemetry.initOfflineSync();
-                Telemetry.listenToEngine();
-                UI.init();
-                console.info("%c[FENIX CORE] Sistemas en Línea y Asegurados.", "color: #00ff66; font-weight: bold;");
-            }
-        };
-    })();
-
-    // Encendido absoluto una vez el DOM está listo
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', FenixCoreEngine.boot);
+        document.addEventListener('DOMContentLoaded', bootSystem);
     } else {
-        FenixCoreEngine.boot();
+        bootSystem();
     }
+    document.body.addEventListener('htmx:afterSettle', () => { window.fxRunningV15 = false; bootSystem(); });
+
+})();
 </script>
 {% endblock %}
